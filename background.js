@@ -325,16 +325,10 @@ async function injectShareScript() {
 function getContentScripts(origin) {
     if (OPENVPB_REGEX.test(origin)) {
         originSpecificJs = { file: 'openvpb.js' }
-    } else if (BLUEVOTE_REGEX.test(origin)) {
-        originSpecificJs = { file: 'bluevote.js' }
-    } else {
-        // All other possibilities are instances of VAN
-        originSpecificJs = { file: 'everyaction.js' }
     }
     return [
         { file: 'dependencies/browser-polyfill.js' },
         { file: 'dependencies/tingle.js' },
-        { file: 'dependencies/kjua.js' },
         { file: 'vpb-common.js' },
         originSpecificJs
     ]

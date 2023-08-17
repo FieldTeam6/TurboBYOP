@@ -12,6 +12,7 @@ let modalOpenedTime
 let resultCodes = null
 
 // Initialize Stats
+// This can probably be deleted
 if (!window.sessionStorage.getItem('turboVpbCalls')) {
     window.sessionStorage.setItem('turboVpbCalls', '0')
 }
@@ -29,6 +30,7 @@ let url
 sendConnect()
     .then((newUrl) => url = newUrl)
 
+// Move to background.js, possibly delete?
 browser.runtime.onMessage.addListener((message) => {
     if (message.type === 'contactRequest') {
         console.log('got contact request from background')
@@ -65,98 +67,10 @@ browser.runtime.onMessage.addListener((message) => {
             connectionStatus.innerText = 'Error. Close Tab & Re-Open.'
             connectionStatus.style = `color: #000; background-color: ${ERROR_COLOR}`
         }
-    } else if (message.type === 'showQrCode') {
-        console.log('showing qr code')
-        showModal()
     } else {
         console.warn('got unexpected message from background:', message)
     }
 })
-
-window.addEventListener('focus', async() => {
-    console.log('sending connect message to background to ensure peer is still connected')
-    const newUrl = await sendConnect()
-    if (url !== newUrl) {
-        url = newUrl
-        console.log(`URL changed to ${url}, updating QR code(s)`)
-
-        const newQrCode = createQrCode()
-        for (let elem of document.getElementsByClassName('turboVpbQrCode')) {
-            elem.replaceWith(newQrCode.cloneNode(true))
-        }
-    }
-})
-
-if (!window.sessionStorage.getItem('turboVpbHideModal')) {
-    // Only create the modal after the page is fully loaded
-    const watchForReady = setInterval(() => {
-        if (document.getElementById('turbovpbcontainer')) {
-            clearInterval(watchForReady)
-            showModal()
-        }
-    }, 50)
-}
-
-function showModal() {
-    if (modal && modal.isOpen()) {
-        console.log('modal is already open')
-        return
-    }
-    console.log('creating modal')
-    modal = new tingle.modal({
-        closeMethods: ['overlay', 'escape', 'button']
-    })
-
-    const modalContent = document.createElement('div')
-
-    const modalTitle = createTitleElement()
-    modalContent.appendChild(modalTitle)
-
-    const modalBody = document.createElement('div')
-    modalBody.style = 'margin-top: 1rem;'
-        // modalTitle.className = 'modal-title'
-        // modalBody.className = 'modal-body text-center pb-0'
-    const label = document.createElement('p')
-    label.innerHTML = 'Scan the QR code with your phone\'s <br> default camera app to start TurboBYOP:'
-    label.style = 'text-align: center;'
-    modalBody.appendChild(label)
-
-    const qrCode = createQrCode({ height: '50vh', width: '50vh' })
-    qrCode.style = 'max-height: 500px; max-width: 500px'
-    modalBody.appendChild(qrCode)
-
-    modalContent.appendChild(modalBody)
-
-    modal.setContent(modalContent)
-    modal.open()
-
-    modalOpenedTime = Date.now()
-}
-
-function createQrCode({ backgroundColor = '#fff', height = '30vh', width = '30vh' } = {}) {
-    if (url) {
-        const container = document.createElement('div')
-        container.classList.add('turboVpbQrCode')
-        const qrLink = document.createElement('a')
-        qrLink.href = url
-        qrLink.target = '_blank'
-        const qrCode = kjua({
-            render: 'svg',
-            text: url,
-            crisp: true,
-            rounded: 80,
-            quiet: 0,
-            back: backgroundColor
-        })
-        qrCode.style = `width: 100%; height: 100%; max-width: ${width}; max-height: ${height}`
-        qrLink.appendChild(qrCode)
-        container.appendChild(qrLink)
-        return container
-
-    } else {
-        console.log('not creating TurboBYOP QR Code, no URL yet')
-    }
-}
 
 function createTitleElement(tag = 'div') {
     const title = document.createElement(tag)
@@ -192,6 +106,7 @@ function createTitleElementBYOP(tag = 'div') {
     return title
 }
 
+// delete?
 function createConnectionStatusBadge() {
     // const container = document.createElement('span')
     // container.className = 'align-middle mx-1'
@@ -215,6 +130,7 @@ function isNewContact(phone) {
     return !window.sessionStorage.getItem('turboVpbPhoneNumber') || window.sessionStorage.getItem('turboVpbPhoneNumber') !== phone
 }
 
+// this is being used
 async function handleContact(fullName, phone, additionalFields) {
     console.log('got new contact', fullName, phone, additionalFields)
 
@@ -240,6 +156,7 @@ async function sendConnect() {
     }
 }
 
+// this is being used
 async function sendDetails() {
     console.log('sending details')
     let { yourName, messageTemplates } = await browser.storage.local.get(['yourName', 'messageTemplates'])

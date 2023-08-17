@@ -141,78 +141,72 @@ async function getContactDetails() {
         if (!document.getElementById('turbovpbcontainer')) {
             const sidebarContainer = document.getElementById('openvpbsidebarcontainer') || document.getElementById('openVpbSideBarContainer')
             if (sidebarContainer) {
-                // const qrCode = createQrCode({ backgroundColor: '#f8f9fa' })
-                // if (qrCode) {
-                    const container = document.createElement('div')
-                    container.id = "turbovpbcontainer"
-                    container.style = "margin-top: 2rem"
-                    container.className = "openvpb-sidebar-content"
+                const container = document.createElement('div')
+                container.id = "turbovpbcontainer"
+                container.style = "margin-top: 2rem"
+                container.className = "openvpb-sidebar-content"
 
-                    const line = document.createElement('hr')
-                    line.style = 'margin-bottom: 2rem;'
-                    container.appendChild(line)
+                const line = document.createElement('hr')
+                line.style = 'margin-bottom: 2rem;'
+                container.appendChild(line)
 
-                    const title = createTitleElementBYOP()
-                    container.appendChild(title)
+                const title = createTitleElementBYOP()
+                container.appendChild(title)
+                sidebarContainer.appendChild(container)
 
-                    // container.appendChild(qrCode)
-                    sidebarContainer.appendChild(container)
+                let { yourName, messageTemplates } = await browser.storage.local.get(['yourName', 'messageTemplates'])
+                if (typeof messageTemplates === 'string') {
+                    messageTemplates = JSON.parse(messageTemplates)
+                }
+                console.log('messageTemplates', messageTemplates)
+                if (messageTemplates.length > 0) {
+                    console.log('Appending button...')
+                    let { label, message, result } = messageTemplates[0]
 
-                    let { yourName, messageTemplates } = await browser.storage.local.get(['yourName', 'messageTemplates'])
-                    if (typeof messageTemplates === 'string') {
-                        messageTemplates = JSON.parse(messageTemplates)
-                    }
-                    console.log('messageTemplates', messageTemplates)
-                    if (messageTemplates.length > 0) {
-                        console.log('Appending button...')
-                        let { label, message, result } = messageTemplates[0]
-
-                        let messageBody = message
-                            .replace(THEIR_NAME_REGEX, contactName)
-                            .replace(YOUR_NAME_REGEX, yourName)
+                    let messageBody = message
+                        .replace(THEIR_NAME_REGEX, contactName)
+                        .replace(YOUR_NAME_REGEX, yourName)
 
 
-                        const button = document.createElement('button')
-                        button.onclick = () => {
-                            checkMessageSwitch(currentPhoneNumber, messageBody);
-                            const surveySelect = document.getElementsByClassName('surveyquestion-element-select')[0];
+                    const button = document.createElement('button')
+                    button.onclick = () => {
+                        checkMessageSwitch(currentPhoneNumber, messageBody);
+                        const surveySelect = document.getElementsByClassName('surveyquestion-element-select')[0];
 
-                            function simulateClick(item) {
-                                item.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
-                                item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-                                item.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
-                                item.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
-                                item.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
-                                item.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-                                item.dispatchEvent(new Event('change', { bubbles: true }));
+                        function simulateClick(item) {
+                            item.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+                            item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+                            item.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+                            item.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+                            item.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
+                            item.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                            item.dispatchEvent(new Event('change', { bubbles: true }));
 
-                                return true;
-                            }
-                            for (let i = 0, sL = surveySelect.length; i < sL; i++) {
-                                if ((surveySelect.options[i].text).toString().toLowerCase() == 'yes') {
-                                    surveySelect.selectedIndex = i;
-                                    surveySelect.options[i].selected = true;
-                                    simulateClick(surveySelect);
-                                    break;
-                                }
-                            }
-                            if(configuration['testmode']==false){
-                                const saveNext = saveNextButton();
-                                setTimeout(() => {
-                                    console.log("saveNext", saveNext)
-                                    saveNext.click()
-                                }, 1000)
-                                console.log('fetching next...')
+                            return true;
+                        }
+                        for (let i = 0, sL = surveySelect.length; i < sL; i++) {
+                            if ((surveySelect.options[i].text).toString().toLowerCase() == 'yes') {
+                                surveySelect.selectedIndex = i;
+                                surveySelect.options[i].selected = true;
+                                simulateClick(surveySelect);
+                                break;
                             }
                         }
-                        button.style = 'width: 100%;max-width: 30vh;height: 38px;background-color: #98BF64;margin-top: 10px;border: none;border-radius: 4px;cursor: pointer;color: white;font-size: 14px;'
-                        button.textContent = "Setup Text Message"
-                        container.appendChild(button)
-                    } else {
-                        console.log('NO msg templates')
+                        if(configuration['testmode']==false){
+                            const saveNext = saveNextButton();
+                            setTimeout(() => {
+                                console.log("saveNext", saveNext)
+                                saveNext.click()
+                            }, 1000)
+                            console.log('fetching next...')
+                        }
                     }
-
-                // }
+                    button.style = 'width: 100%;max-width: 30vh;height: 38px;background-color: #98BF64;margin-top: 10px;border: none;border-radius: 4px;cursor: pointer;color: white;font-size: 14px;'
+                    button.textContent = "Setup Text Message"
+                    container.appendChild(button)
+                } else {
+                    console.log('NO msg templates')
+                }
             }
         }
         handleContact(

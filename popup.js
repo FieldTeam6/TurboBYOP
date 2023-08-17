@@ -12,7 +12,6 @@ const STARTTHEVAN_ORIGIN = 'https://www.startthevan.com/ContactDetailScript*'
 
 let canEnable = false
 let isEnabled = false
-let shouldShowQrCode = false
 let siteName
 let origin
 let activeTabId
@@ -26,7 +25,7 @@ document.getElementById('openOptions').addEventListener('click', async() => {
 })
 document.getElementById('toggleOnSite').addEventListener('mouseenter', hoverToggleSite)
 document.getElementById('toggleOnSite').addEventListener('mouseleave', resetStatusLook)
-document.getElementById('showQrCode').addEventListener('click', showQrCode)
+
 if (/firefox/i.test(navigator.userAgent)) {
     document.getElementById('webStoreLink').setAttribute('href', 'https://addons.mozilla.org/en-US/firefox/addon/turbovpb/')
 }
@@ -91,39 +90,6 @@ async function onOpen() {
                 siteName = 'OpenVPB'
                 origin = OPENVPB_ORIGIN
                 isEnabled = permissions.origins.some((o) => OPENVPB_REGEX.test(o))
-                shouldShowQrCode = /VirtualPhoneBank\/.+/i.test(activeTab.url)
-            } else if (VOTEBUILDER_REGEX.test(activeTab.url)) {
-                canEnable = true
-                siteName = 'VoteBuilder'
-                origin = VOTEBUILDER_ORIGIN
-                isEnabled = permissions.origins.some((o) => VOTEBUILDER_REGEX.test(o))
-                shouldShowQrCode = /ContactDetailScript/i.test(activeTab.url)
-            } else if (BLUEVOTE_REGEX.test(activeTab.url)) {
-                canEnable = true
-                siteName = 'BlueVote'
-                origin = BLUEVOTE_ORIGIN
-                isEnabled = permissions.origins.some((o) => BLUEVOTE_REGEX.test(o))
-                shouldShowQrCode = true
-            } else if (EVERYACTION_REGEX.test(activeTab.url)) {
-                // TODO request permission for specific subdomain
-                canEnable = true
-                siteName = 'VAN'
-                origin = EVERYACTION_ORIGIN
-                isEnabled = permissions.origins.some((o) => EVERYACTION_REGEX.test(o))
-                shouldShowQrCode = /ContactDetailScript/i.test(activeTab.url)
-            } else if (STARTTHEVAN_REGEX.test(activeTab.url)) {
-                canEnable = true
-                siteName = 'StartTheVAN'
-                origin = STARTTHEVAN_ORIGIN
-                isEnabled = permissions.origins.some((o) => STARTTHEVAN_REGEX.test(o))
-                shouldShowQrCode = /ContactDetailScript/i.test(activeTab.url)
-            } else if (await siteIsVanWithCustomDomain(activeTabId)) {
-                canEnable = true
-                siteName = 'This Site'
-                const url = new URL(activeTab.url)
-                origin = `${url.protocol}//${url.host}/ContactDetailScript*`
-                isEnabled = permissions.origins.includes(origin)
-                shouldShowQrCode = /ContactDetailScript/i.test(activeTab.url)
             }
         }
     }
@@ -172,7 +138,6 @@ function hoverToggleSite() {
 function resetStatusLook() {
     if (!canEnable) {
         document.getElementById('toggleOnSite').removeAttribute('href')
-        document.getElementById('showQrCode').removeAttribute('href')
         return
     }
     document.getElementById('iconUnavailable').setAttribute('hidden', true)
@@ -196,14 +161,6 @@ function resetStatusLook() {
                 document.getElementById('statusText').classList.remove('glow')
             }, 2500)
         }
-    }
-
-    if (isEnabled && shouldShowQrCode) {
-        document.getElementById('showQrCode').setAttribute('href', '#')
-        document.getElementById('showQrCode').classList.replace('text-muted', 'text-dark')
-    } else {
-        document.getElementById('showQrCode').removeAttribute('href')
-        document.getElementById('showQrCode').classList.replace('text-dark', 'text-muted')
     }
 
     document.getElementById('statusIcon').classList.remove('text-success', 'text-danger')
@@ -243,7 +200,6 @@ async function toggleOnSite() {
                 }
                 await browser.tabs.insertCSS({ file: 'dependencies/tingle.css' })
                 console.log('injected content scripts into current page')
-                await showQrCode()
             } else {
                 console.log('permission denied')
             }
@@ -264,17 +220,6 @@ async function toggleOnSite() {
     }
 
     resetStatusLook()
-}
-
-async function showQrCode() {
-    try {
-        await browser.tabs.sendMessage(activeTabId, {
-            type: 'showQrCode'
-        })
-        window.close()
-    } catch (err) {
-        console.error(err)
-    }
 }
 
 // Use the presence of specific HTML elements to determine if the site is a VAN instance
