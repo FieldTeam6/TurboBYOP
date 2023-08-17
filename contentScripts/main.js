@@ -17,14 +17,6 @@ const selectors = {
     gvMostRecentMessages: 'div[gv-id="content"] div[gv-test-id="bubble"] gv-annotation, gv-text-message-item gv-annotation',
     // the header switches to this after sending is complete
     gvChatLoadedHeader: 'gv-message-list-header p[gv-test-id="conversation-title"]',
-
-    // hangouts
-    hangoutsProfilePictureSelector: 'div[aria-label="Change profile picture"]',
-    hangoutsNumInputButton: 'div[googlevoice="nolinks"] button',
-    hangoutsNumInput: 'div[googlevoice="nolinks"] input[placeholder="Enter name, email, or phone"]',
-    hangoutsStartChat: 'div[googlevoice="nolinks"] a[title="Click to send SMS"]',
-    hangoutsCallButton: 'button[title^="Call "]',
-    hangoutsMessageEditor: 'div.editable[g_editable="true"][role="textbox"][contenteditable="true"]'
 };
 
 /*********************************************************************************************************************************************************
@@ -34,7 +26,7 @@ keepTryingAsPromised(findGoogleVoice, true);
 
 function findGoogleVoice() {
     // stop looking, wrong url
-    if (!window.location.href.includes('/webchat/') && !window.location.href.startsWith('https://voice.google.com')) {
+    if (!window.location.href.startsWith('https://voice.google.com')) {
         return false;
     }
 
@@ -47,23 +39,5 @@ function findGoogleVoice() {
         return true;
     }
 
-    // check if this is the hangouts conversation list
-    var button = document.querySelector(selectors.hangoutsNumInputButton);
-    // this only shows up in the hangouts iframe on gmail.com, which is not currently supported
-    var isOnGmail = document.querySelector(selectors.hangoutsProfilePictureSelector);
-    if (button && !isOnGmail) {
-        console.log('GV-BYOP SMS - configuring list view');
-        siteManager = new HangoutsListViewManager();
-        siteManager.initialize();
-        return true;
-    }
-
-    // check if this is the hangouts message editor
-    var messageEditor = document.querySelector(selectors.hangoutsMessageEditor);
-    if (messageEditor) {
-        console.log('GV-BYOP SMS - configuring thread');
-        siteManager = new HangoutsThreadViewManager();
-        siteManager.initialize();
-        return true;
-    }
+    return false;
 }
