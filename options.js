@@ -37,8 +37,6 @@ browser.storage.local.get(['yourName', 'messageTemplates'])
                 message: ''
             })
         }
-
-        setShareUrl(messageTemplates)
     })
 
 function addMessageTemplate(template) {
@@ -97,22 +95,8 @@ function saveSettings() {
         }
     }
 
-    setShareUrl(messageTemplates)
-
     return browser.storage.local.set({
         yourName: document.getElementById('yourName').value,
         messageTemplates
     })
-}
-
-function setShareUrl(messageTemplates) {
-    const shareButton = document.getElementById('share-settings')
-    if (shareButton) {
-        if (messageTemplates && messageTemplates.length > 0) {
-            shareButton.href = `https://turbovpb.com/share?messageTemplates=${encodeURIComponent(JSON.stringify(messageTemplates))}`
-            shareButton.classList.remove('disabled')
-        } else {
-            shareButton.classList.add('disabled')
-        }
-    }
 }
