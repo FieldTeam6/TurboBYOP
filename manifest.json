@@ -1,5 +1,5 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
     "name": "Turbo BYOP",
     "version": "0.4.0",
     "description": "Turbocharge Field Team 6's BYOP!",
@@ -7,10 +7,12 @@
     "homepage_url": "https://www.bei.re",
     "permissions": [
         "storage",
-        "activeTab",
+        "activeTab"
+    ],
+    "host_permissions": [
         "https://www.openvpb.com/VirtualPhoneBank*"
     ],
-    "optional_permissions": [
+    "optional_host_permissions": [
         "<all_urls>"
     ],
     "icons": {
@@ -21,7 +23,7 @@
     "background": {
         "service_worker": "service-worker.js"
     },
-    "browser_action": {
+    "action": {
         "default_icon": {
             "16": "icons/phone-outgoing-blue-16.png",
             "32": "icons/phone-outgoing-blue-32.png"

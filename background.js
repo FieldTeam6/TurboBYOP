@@ -24,9 +24,10 @@ browser.runtime.onInstalled.addListener(async ({ reason, previousVersion }) => {
         await browser.storage.local.set({ statsStartDate: (new Date()).toISOString() })
     }
 
-    if (typeof browser.browserAction.openPopup === 'function') {
-        browser.browserAction.openPopup()
-    }
+    // This is producing an error after upgrading to manifest 3
+    // if (typeof browser.browserAction.openPopup === 'function') {
+    //     browser.browserAction.openPopup()
+    // }
 })
 
 function getContentScripts(origin) {
