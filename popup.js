@@ -221,11 +221,3 @@ async function toggleOnSite() {
 
     resetStatusLook()
 }
-
-// Use the presence of specific HTML elements to determine if the site is a VAN instance
-async function siteIsVanWithCustomDomain(tabId) {
-    const result = await browser.tabs.executeScript(tabId, {
-        code: `(document.querySelector('.van-header') || document.querySelector('.van-inner')) !== null`
-    })
-    return Array.isArray(result) && result[0] === true
-}
