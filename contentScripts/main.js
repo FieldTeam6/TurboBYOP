@@ -19,9 +19,6 @@ const selectors = {
     gvChatLoadedHeader: 'gv-message-list-header p[gv-test-id="conversation-title"]',
 };
 
-/*********************************************************************************************************************************************************
- ********* Identifies whether we're in the hangouts listview or hangouts thread view or voice.google.com, configures appropriately ************************
- *********************************************************************************************************************************************************/
 keepTryingAsPromised(findGoogleVoice, true);
 
 function findGoogleVoice() {

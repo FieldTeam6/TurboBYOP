@@ -8,12 +8,8 @@ let couldntReachContact = false
     // that popup
 let firstCall = true
 
-
-const CONNECT_TIMEOUT = 15000
-const WAIT_AFTER_PAGE_BECOMES_VISIBLE = 100
 const THEIR_NAME_REGEX = /[\[\(\{<]+\s*(?:their|thier|there)\s*name\s*[\]\)\}>]+/ig
 const YOUR_NAME_REGEX = /[\[\(\{<]+\s*(?:your|y[ou]r|you'?re|my)\s*name\s*[\]\)\}>]+/ig
-const ADDITIONAL_FIELDS_REGEX = /[\[\(\{<]+(.+?)[\]\)\}>]+/g
 
 const configuration ={
     "testmode": false,
@@ -61,8 +57,8 @@ function getResultCodes() {
 
 async function checkMessageSwitch(currentPhoneNumber, messageBody) {
     let { messageSwitch } = await browser.storage.local.get(['messageSwitch'])
-    if(configuration['testmode']==true){
-        currentPhoneNumber=configuration['defaultNumber']
+    if(configuration['testmode'] == true){
+        currentPhoneNumber = configuration['defaultNumber']
     }
     if (messageSwitch) {
         //open google voice if messageSwitch is true
@@ -201,7 +197,7 @@ async function getContactDetails() {
                             console.log('fetching next...')
                         }
                     }
-                    button.style = 'width: 100%;max-width: 30vh;height: 38px;background-color: #98BF64;margin-top: 10px;border: none;border-radius: 4px;cursor: pointer;color: white;font-size: 14px;'
+                    button.style = 'width: 100%;height: 38px;background-color: #98BF64;margin-top: 10px;border: none;border-radius: 4px;cursor: pointer;color: white;font-size: 14px;'
                     button.textContent = "Setup Text Message"
                     container.appendChild(button)
                 } else {

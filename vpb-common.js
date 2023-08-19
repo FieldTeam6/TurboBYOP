@@ -1,16 +1,5 @@
 console.log("Content script loaded")
 
-// We set these colors manually instead of using the Bootstrap classes
-// because OpenVPB overrides the default Bootstrap colors
-const SUCCESS_COLOR = '#28a745'
-const WARNING_COLOR = '#ffc107'
-const ERROR_COLOR = '#dc3545'
-
-let modal
-let isConnected = false
-let modalOpenedTime
-let resultCodes = null
-
 // Initialize Stats
 // This can probably be deleted
 if (!window.sessionStorage.getItem('turboVpbCalls')) {
@@ -28,7 +17,7 @@ if (!window.sessionStorage.getItem('turboVpbLastContactLoadTime')) {
 
 function createTitleElementBYOP(tag = 'div') {
     const title = document.createElement(tag)
-    title.style = 'display: flex; align-items: center;'
+    title.style = 'text-align: center;'
     title.innerHTML = `<svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-telephone-outbound-fill"
                 fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd"
