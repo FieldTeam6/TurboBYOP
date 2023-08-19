@@ -30,7 +30,7 @@ function findGoogleVoice() {
     // check if this is the google voice site
     var button = document.querySelector(selectors.gvMessagesTab);
     if (button && siteIsGoogleVoice) {
-        console.log('GV-BYOP SMS - configuring google voice site');
+        console.log('configuring google voice site');
         siteManager = new GoogleVoiceSiteManager();
         siteManager.initialize();
         return true;

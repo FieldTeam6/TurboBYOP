@@ -93,7 +93,7 @@ async function onOpen() {
 function showTotalCalls(totalCalls) {
     document.getElementById('numCalls').innerText = `${totalCalls} Call${totalCalls !== '1' ? 's' : ''}`
     if (totalCalls === '0') {
-        document.getElementById('encouragement').innerText = 'Login to a phone bank to get started'
+        document.getElementById('encouragement').innerText = 'Login to a phone bank to get started!'
     } else {
         document.getElementById('encouragement').innerText = 'Keep up the great work!'
     }

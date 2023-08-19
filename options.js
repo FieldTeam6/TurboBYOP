@@ -24,7 +24,8 @@ browser.storage.local.get(['yourName', 'messageTemplates'])
         } else {
             addMessageTemplate({
                 label: '',
-                message: ''
+                message: '',
+                result: 'Texted'
             })
         }
     })
