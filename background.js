@@ -74,10 +74,7 @@ async function disableOrigin(origin) {
 chrome.runtime.onMessage.addListener(function (message, sender, response) {
     console.log('message', message);
 
-	if (message.gvbt_logger === true) {
-		console.log(message.payload);
-	}
-	if (message.eventType === 'MESSAGE_SENT') {
+	if (message.type === 'MESSAGE_SENT') {
 		recordMessageSent();
 	}
 

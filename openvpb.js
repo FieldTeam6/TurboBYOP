@@ -154,7 +154,7 @@ async function getContactDetails() {
                 if (typeof messageTemplates === 'string') {
                     messageTemplates = JSON.parse(messageTemplates)
                 }
-                console.log('messageTemplates', messageTemplates)
+
                 if (messageTemplates.length > 0) {
                     console.log('Appending button...')
                     let { label, message, result } = messageTemplates[0]
@@ -162,7 +162,6 @@ async function getContactDetails() {
                     let messageBody = message
                         .replace(THEIR_NAME_REGEX, contactName)
                         .replace(YOUR_NAME_REGEX, yourName)
-
 
                     const button = document.createElement('button')
                     button.onclick = () => {
@@ -180,6 +179,7 @@ async function getContactDetails() {
 
                             return true;
                         }
+
                         for (let i = 0, sL = surveySelect.length; i < sL; i++) {
                             if ((surveySelect.options[i].text).toString().toLowerCase() == 'yes') {
                                 surveySelect.selectedIndex = i;
@@ -188,7 +188,8 @@ async function getContactDetails() {
                                 break;
                             }
                         }
-                        if(configuration['testmode']==false){
+
+                        if(configuration['testmode'] == false){
                             const saveNext = saveNextButton();
                             setTimeout(() => {
                                 console.log("saveNext", saveNext)

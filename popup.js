@@ -63,7 +63,12 @@ async function onOpen() {
         document.getElementById('statsStartDate').innerText = `${date.getMonth() + 1}/${date.getDate()}`
     }
 
-    showTotalCalls(totalCalls)
+    var sendCounts = await chrome.storage.sync.get("sendCounts").then(function (value) {
+        return Object.values(value['sendCounts']).reduce((total, val) => {
+            return total + val;
+        }, 0);
+    });
+    showTotalCalls(sendCounts)
 
     if (activeTab) {
         activeTabId = activeTab.id
@@ -180,8 +185,8 @@ async function toggleOnSite() {
             } else {
                 console.log('permission denied')
             }
-
         } else {
+            // this doesn't actually work and can probably be deleted
             console.log('disabling origin:', origin)
             chrome.runtime.sendMessage({type: "DISABLE_ORIGIN", origin: origin});
 

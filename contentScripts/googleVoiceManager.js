@@ -233,10 +233,7 @@ class GoogleVoiceSiteManager {
             }
 
             if (sentMessageIsThreaded) {
-                logEvent({
-                    eventLabel: 'MESSAGE_SENT',
-                    eventValue: 1
-                });
+                chrome.runtime.sendMessage({type: "MESSAGE_SENT"});
                 // continue with queue
                 setTimeout(this.sendFromQueue.bind(this), this.sendInterval);
                 return true;
