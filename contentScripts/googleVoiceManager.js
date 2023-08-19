@@ -160,12 +160,8 @@ class GoogleVoiceSiteManager {
     }
 
     confirmChatSwitched() {
-        const numberToSend = this.currentNumberSending;
         const recipientButton = document.querySelector(selectors.gvRecipientButton);
-        if (recipientButton && recipientButton.offsetParent !== null) {
-            var number = formatNumber(recipientButton.innerText);
-            return numberToSend === number;
-        }
+        return recipientButton && recipientButton.offsetParent !== null;
     }
 
     writeMessage() {
