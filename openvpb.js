@@ -219,12 +219,7 @@ async function getContactDetails() {
 
 async function onSaveNextClick() {
     console.log('saving contact result')
-    if (couldntReachContact) {
-        // TODO save actual result
-        await saveCall('NotContacted')
-    } else {
-        await saveCall('Contacted')
-    }
+    // can we add some sort of check here so we don't advance to the next contact until confirmSent is successful?
 
     if (firstCall) {
         firstCall = false

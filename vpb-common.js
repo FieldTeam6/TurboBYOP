@@ -26,52 +26,6 @@ if (!window.sessionStorage.getItem('turboVpbLastContactLoadTime')) {
     window.sessionStorage.setItem('turboVpbLastContactLoadTime', Date.now())
 }
 
-let url
-sendConnect()
-    .then((newUrl) => url = newUrl)
-
-// Move to background.js, possibly delete?
-browser.runtime.onMessage.addListener((message) => {
-    if (message.type === 'contactRequest') {
-        console.log('got contact request from background')
-        sendDetails()
-    } else if (message.type === 'callResult') {
-        markResult(message.result)
-    } else if (message.type === 'peerConnected') {
-        console.log('peer connected')
-        window.sessionStorage.setItem('turboVpbHideModal', 'true')
-
-        // If the user manually opened the QR code, don't hide it right away
-        if (modal && modal.isOpen() && Date.now() - modalOpenedTime > 100) {
-            console.log('closing qr code modal')
-            modal.close()
-        }
-        isConnected = true
-        const badges = document.getElementsByClassName('turboVpbConnectionStatus')
-        for (let connectionStatus of badges) {
-            connectionStatus.innerText = 'Connected'
-            connectionStatus.style = `color: #fff; background-color: ${SUCCESS_COLOR}`
-        }
-    } else if (message.type === 'peerDisconnected') {
-        console.log('peer disconnected')
-        isConnected = false
-        const badges = document.getElementsByClassName('turboVpbConnectionStatus')
-        for (let connectionStatus of badges) {
-            connectionStatus.innerText = 'Not Connected'
-            connectionStatus.style = `color: #000; background-color: ${WARNING_COLOR}`
-        }
-    } else if (message.type === 'peerError') {
-        isConnected = false
-        const badges = document.getElementsByClassName('turboVpbConnectionStatus')
-        for (let connectionStatus of badges) {
-            connectionStatus.innerText = 'Error. Close Tab & Re-Open.'
-            connectionStatus.style = `color: #000; background-color: ${ERROR_COLOR}`
-        }
-    } else {
-        console.warn('got unexpected message from background:', message)
-    }
-})
-
 function createTitleElement(tag = 'div') {
     const title = document.createElement(tag)
     title.style = 'display: flex; align-items: center;'
@@ -146,16 +100,6 @@ async function handleContact(fullName, phone, additionalFields) {
     await sendDetails()
 }
 
-async function sendConnect() {
-    try {
-        return browser.runtime.sendMessage({
-            type: 'connect',
-        })
-    } catch (err) {
-        console.error(err)
-    }
-}
-
 // this is being used
 async function sendDetails() {
     console.log('sending details')
@@ -163,48 +107,4 @@ async function sendDetails() {
     if (typeof messageTemplates === 'string') {
         messageTemplates = JSON.parse(messageTemplates)
     }
-    try {
-        await browser.runtime.sendMessage({
-            type: 'contact',
-            data: {
-                messageTemplates,
-                yourName,
-                contact: {
-                    phoneNumber: window.sessionStorage.getItem('turboVpbPhoneNumber'),
-                    firstName: window.sessionStorage.getItem('turboVpbFirstName'),
-                    lastName: window.sessionStorage.getItem('turboVpbLastName'),
-                    additionalFields: window.sessionStorage.getItem('turboVpbAdditionalFields') ? JSON.parse(window.sessionStorage.getItem('turboVpbAdditionalFields')) : undefined
-                },
-                stats: {
-                    calls: parseInt(window.sessionStorage.getItem('turboVpbCalls')),
-                    successfulCalls: parseInt(window.sessionStorage.getItem('turboVpbSuccessfulCalls')),
-                    lastContactLoadTime: parseInt(window.sessionStorage.getItem('turboVpbLastContactLoadTime')),
-                    startTime: parseInt(window.sessionStorage.getItem('turboVpbStartTime'))
-                },
-                callNumber: parseInt(window.sessionStorage.getItem('turboVpbCalls')),
-                resultCodes: JSON.parse(window.sessionStorage.getItem('turboVpbResultCodes') || '[]'),
-                lastCallResult: window.sessionStorage.getItem('turboVpbLastCallResult')
-            }
-        })
-        console.log('sent contact')
-    } catch (err) {
-        console.error('error sending contact details', err)
-    }
-}
-
-async function saveCall(result) {
-    window.sessionStorage.setItem('turboVpbLastCallResult', result)
-    if (result === 'Contacted') {
-        console.log('logged successful call')
-        window.sessionStorage.setItem('turboVpbSuccessfulCalls', parseInt(window.sessionStorage.getItem('turboVpbSuccessfulCalls') || 0) + 1)
-    }
-    const callsThisSession = parseInt(window.sessionStorage.getItem('turboVpbCalls') || '0')
-    await browser.runtime.sendMessage({
-        type: 'callResult',
-        sessionId: window.sessionStorage.getItem('turboVpbSessionId'),
-        callNumber: callsThisSession,
-        result
-    })
-
-    window.sessionStorage.setItem('turboVpbCalls', callsThisSession + 1)
 }
