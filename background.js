@@ -7,15 +7,6 @@ const unregisterContentScripts = {}
 const sessionRecords = {}
 let totalCalls = 0
 let totalTexts = 0
-const TIMESTAMP_INDEX = 0
-const DURATION_INDEX = 1
-const RESULT_INDEX = 2
-const TEXTED_TIMESTAMP_INDEX = 3
-const RESULT_CODES = {
-    Contacted: 1,
-    NotContacted: 2,
-    Texted: 3
-}
 
 // Load previously stored statistics
 browser.storage.local.get(['sessionRecords', 'totalCalls', 'totalTexts'])
@@ -23,28 +14,6 @@ browser.storage.local.get(['sessionRecords', 'totalCalls', 'totalTexts'])
         Object.assign(sessionRecords, fromStorage.sessionRecords || {})
         totalCalls += (fromStorage.totalCalls || 0)
         totalTexts += (fromStorage.totalTexts || 0)
-    })
-
-// Load content scripts for enabled domains
-browser.permissions.getAll()
-    .then(async ({ origins = [] }) => {
-        for (let origin of origins) {
-            if (origin.includes('turbovpb')
-                || origin.includes('localhost')
-                || !origin.startsWith('http')) {
-                continue
-            }
-
-            if (OPENVPB_REGEX.test(origin)) {
-                await enableOrigin(OPENVPB_ORIGIN)
-            } else {
-                try {
-                    await enableOrigin(origin)
-                } catch (err) {
-                    console.error(`Error enabling origin: ${origin}`, err)
-                }
-            }
-        }
     })
 
 // Run when installed or updated
@@ -61,6 +30,8 @@ browser.runtime.onInstalled.addListener(async ({ reason, previousVersion }) => {
 })
 
 function getContentScripts(origin) {
+    console.log('getContactScripts');
+    let originSpecificJs
     if (OPENVPB_REGEX.test(origin)) {
         originSpecificJs = { file: 'openvpb.js' }
     }

@@ -1,14 +1,5 @@
-const OPENVPB_REGEX = /https\:\/\/(www\.)?openvpb\.com/i
-const EVERYACTION_REGEX = /https\:\/\/.*\.(everyaction|ngpvan)\.com/i
-const VOTEBUILDER_REGEX = /https\:\/\/(www\.)?votebuilder.com/i
-const BLUEVOTE_REGEX = /https\:\/\/.*\.bluevote.com/i
-const STARTTHEVAN_REGEX = /https\:\/\/(www\.)?startthevan.com/i
-
-const OPENVPB_ORIGIN = 'https://www.openvpb.com/VirtualPhoneBank*'
-const EVERYACTION_ORIGIN = 'https://*.everyaction.com/ContactDetailScript*'
-const VOTEBUILDER_ORIGIN = 'https://www.votebuilder.com/ContactDetailScript*'
-const BLUEVOTE_ORIGIN = 'https://phonebank.bluevote.com/*'
-const STARTTHEVAN_ORIGIN = 'https://www.startthevan.com/ContactDetailScript*'
+const OPENVPB_REGEX = /https\:\/\/(www\.)?openvpb\.com/i;
+const OPENVPB_ORIGIN = 'https://www.openvpb.com/VirtualPhoneBank*';
 
 let canEnable = false
 let isEnabled = false

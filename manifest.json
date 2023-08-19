@@ -8,8 +8,7 @@
     "permissions": [
         "storage",
         "activeTab",
-        "https://www.openvpb.com/VirtualPhoneBank*",
-        "https://*.everyaction.com/ContactDetailScript*"
+        "https://www.openvpb.com/VirtualPhoneBank*"
     ],
     "optional_permissions": [
         "<all_urls>"
@@ -20,11 +19,7 @@
         "128": "icons/phone-outgoing-blue-128.png"
     },
     "background": {
-        "scripts": [
-            "dependencies/browser-polyfill.js",
-            "dependencies/content-scripts-register-polyfill.js",
-            "background.js"
-        ]
+        "service_worker": "service-worker.js"
     },
     "browser_action": {
         "default_icon": {
@@ -45,6 +40,17 @@
                 "contentScripts/googleVoiceManager.js",
                 "contentScripts/tools.js",
                 "contentScripts/main.js"
+            ],
+            "all_frames": true
+        },
+        {
+            "matches": ["https://www.openvpb.com/*"],
+            "js": [
+                "dependencies/browser-polyfill.js",
+                "dependencies/tingle.js",
+                "vpb-common.js",
+                "openvpb.js",
+                "dependencies/tingle.css"
             ],
             "all_frames": true
         }
