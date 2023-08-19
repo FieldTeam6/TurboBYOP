@@ -198,7 +198,7 @@ async function toggleOnSite() {
                 for (let script of contentScripts) {
                     await browser.tabs.executeScript(script)
                 }
-                await browser.tabs.insertCSS({ file: 'dependencies/tingle.css' })
+                await chrome.scripting.insertCSS({ file: 'dependencies/tingle.css' })
                 console.log('injected content scripts into current page')
             } else {
                 console.log('permission denied')
