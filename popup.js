@@ -4,7 +4,6 @@ const OPENVPB_ORIGIN = 'https://www.openvpb.com/VirtualPhoneBank*';
 let canEnable = false
 let isEnabled = false
 let siteName
-let origin
 let activeTabId
 let firstRender = true
 
@@ -16,10 +15,6 @@ document.getElementById('openOptions').addEventListener('click', async() => {
 })
 document.getElementById('toggleOnSite').addEventListener('mouseenter', hoverToggleSite)
 document.getElementById('toggleOnSite').addEventListener('mouseleave', resetStatusLook)
-
-if (/firefox/i.test(navigator.userAgent)) {
-    document.getElementById('webStoreLink').setAttribute('href', 'https://addons.mozilla.org/en-US/firefox/addon/turbovpb/')
-}
 
 let Switch = document.querySelector('input[type="checkbox"]');
 
@@ -115,14 +110,14 @@ function hoverToggleSite() {
         document.getElementById('iconPause').removeAttribute('hidden')
         document.getElementById('statusIcon').classList.remove('text-dark', 'text-success')
         document.getElementById('statusIcon').classList.add('text-danger')
-        document.getElementById('toggleOnSite').title = `Click To Disable TurboBYOP on ${siteName}`
+        document.getElementById('toggleOnSite').title = `Click To Disable BYOP on ${siteName}`
     } else {
         document.getElementById('statusText').innerText = 'Click To Enable'
             // document.getElementById('iconDisabled').removeAttribute('hidden')
             // document.getElementById('iconDisabled').setAttribute('hidden', true)
         document.getElementById('statusIcon').classList.remove('text-dark', 'text-danger')
         document.getElementById('statusIcon').classList.add('text-success')
-        document.getElementById('toggleOnSite').title = `Click To Enable TurboBYOP on ${siteName}`
+        document.getElementById('toggleOnSite').title = `Click To Enable BYOP on ${siteName}`
     }
 }
 

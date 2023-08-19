@@ -25,7 +25,7 @@ function createTitleElementBYOP(tag = 'div') {
                 </svg>`
     const name = document.createElement('span')
     name.style = 'padding-left:.3rem; padding-right: .3rem; padding-top: .1rem; font-size: 1.17em; font-weight: bold; color: #000;'
-    name.innerText = 'TurboBYOP'
+    name.innerText = 'BYOP'
     title.appendChild(name)
     return title
 }

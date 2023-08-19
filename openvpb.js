@@ -3,7 +3,7 @@ const DESIGNATED_CONTACT_REGEX = /designated[ _-]?contact/i
 
 let couldntReachContact = false
     // OpenVPB displays a pop-up after you make your first call
-    // This is annoying for the TurboBYOP experience because it looks like
+    // This is annoying for the BYOP experience because it looks like
     // it's not loading the next contact right away. So, we just click through
     // that popup
 let firstCall = true
@@ -133,7 +133,7 @@ async function getContactDetails() {
             console.warn('could not find save next button')
         }
 
-        // Create TurboVPB Container
+        // Create BYOP Container
         if (!document.getElementById('turbovpbcontainer')) {
             const sidebarContainer = document.getElementById('openvpbsidebarcontainer') || document.getElementById('openVpbSideBarContainer')
             if (sidebarContainer) {
@@ -222,23 +222,6 @@ async function onSaveNextClick() {
         const nextCallButton = await waitForButton(['firstcallmodalnextcallbutton', 'firstCallModalNextCallButton'])
         nextCallButton.click()
         console.log('clicking through first call pop up')
-    }
-}
-
-function markResult(result) {
-    const resultCode = result.toLowerCase()
-    try {
-        couldntReachButton().click()
-        for (let radioUnit of document.querySelectorAll('li.radio-unit')) {
-            if (resultCode === radioUnit.querySelector('.radio-label').innerText.toLowerCase()) {
-                radioUnit.querySelector('input[type="radio"]').click()
-                setTimeout(() => saveNextButton().click(), 1)
-                return
-            }
-        }
-        console.warn('Result code not found:', result)
-    } catch (err) {
-        console.error(err)
     }
 }
 

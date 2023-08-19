@@ -54,11 +54,10 @@
                     <h4>Text Message Settings</h4>
                 </div>
             </div>
-            <p>Create one or more message templates below to enable 2-click texting.
-                <br> A button to send each message will appear on TurboBYOP on your phone.</p>
+            <p>Create a message template below to enable 2-click texting.</p>
 
             <h5 class="mt-4">Automatic Text Replacement</h5>
-            <p>TurboBYOP will automatically replace the following keywords (including the brackets) in the message templates with the value on the right:</p>
+            <p>BYOP will automatically replace the following keywords (including the brackets) in the message templates with the value on the right:</p>
             <table class="table">
                 <tbody>
                     <tr>
@@ -93,7 +92,7 @@
                 </tbody>
             </table>
             <p>
-                <span class="badge badge-secondary">New in v0.9.0</span> Fields from the <b>Additional Info</b> panel in VAN or the <b>About {{Name}}</b> sidebar in OpenVPB can also be automatically inserted. For example, <code>[County]</code> will be
+                Fields from the <b>About {{Name}}</b> sidebar in OpenVPB can also be automatically inserted. For example, <code>[County]</code> will be
                 replaced with the contact's county if that field is set to be displayed in the phone bank.
             </p>
             <br>
@@ -101,11 +100,9 @@
             <h5>Message Templates</h5>
 
             <div id="text-replacement-warning" class="alert alert-warning" hidden>
-                Note: To use TurboBYOP's Automatic Text Replacement, you need to include the field name and the brackets (for example, "Hi [Their Name]...") so that TurboBYOP knows where to insert the appropriate values.</div>
+                Note: To use BYOP's Automatic Text Replacement, you need to include the field name and the brackets (for example, "Hi [Their Name]...") so that BYOP knows where to insert the appropriate values.</div>
 
             <div id="messages"></div>
-
-            <button class="btn btn-primary" id="add-message-template">Add Another Message Template</button>
         </form>
         <p class="text-muted mt-5"><small>Settings are saved automatically.</small></p>
     </div>

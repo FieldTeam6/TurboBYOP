@@ -5,16 +5,6 @@ const messageContainer = document.getElementById('messages')
 const messageTemplateHtml = document.getElementById('message-template')
 let messageIndex = 0
 
-document.getElementById('add-message-template')
-    .addEventListener('click', (event) => {
-        event.preventDefault()
-        addMessageTemplate({
-            label: '',
-            message: '',
-            result: null
-        })
-    })
-
 document.getElementById('settings').addEventListener('change', saveSettings)
 
 browser.storage.local.get(['yourName', 'messageTemplates'])
