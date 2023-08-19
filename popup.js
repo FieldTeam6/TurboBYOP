@@ -175,8 +175,6 @@ async function toggleOnSite() {
     }
 
     try {
-        const backgroundPage = await browser.runtime.getBackgroundPage()
-
         if (!isEnabled) {
             console.log('requesting permission for:', origin)
             let permissionGranted
@@ -188,13 +186,15 @@ async function toggleOnSite() {
             // Save origin as enabled
             if (permissionGranted) {
                 console.log('permission granted')
-                const backgroundPage = await browser.runtime.getBackgroundPage()
-                await backgroundPage.enableOrigin(origin)
+                chrome.runtime.sendMessage({type: "ENABLE_ORIGIN", origin: origin});
 
                 isEnabled = true
 
+                // this might be unnecessary, as it looks like it's already being done by enableOrigin
                 console.log('injecting content scripts')
-                const contentScripts = backgroundPage.getContentScripts(origin)
+                const contentScripts = chrome.runtime.sendMessage({type: "GET_CONTENT_SCRIPTS", origin: origin})
+                console.log('contentScripts', contentScripts);
+
                 for (let script of contentScripts) {
                     await browser.tabs.executeScript(script)
                 }
@@ -206,7 +206,7 @@ async function toggleOnSite() {
 
         } else {
             console.log('disabling origin:', origin)
-            await backgroundPage.disableOrigin(origin)
+            chrome.runtime.sendMessage({type: "DISABLE_ORIGIN", origin: origin});
 
             const wasRemoved = await browser.permissions.remove({
                 origins: [origin]

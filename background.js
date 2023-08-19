@@ -100,12 +100,26 @@ async function disableOrigin(origin) {
 
 // For logging
 chrome.runtime.onMessage.addListener(function (message, sender, response) {
+    console.log('message', message);
+
 	if (message.gvbt_logger === true) {
 		console.log(message.payload);
 	}
 	if (message.eventType === 'MESSAGE_SENT') {
 		recordMessageSent();
 	}
+
+    if (message.type === "ENABLE_ORIGIN") {
+        return enableOrigin(message.origin);
+    }
+
+    if (message.type === "DISABLE_ORIGIN") {
+        return disableOrigin(message.origin);
+    }
+
+    if (message.type === "GET_CONTENT_SCRIPTS") {
+        return getContentScripts(origin);
+    }
 });
 
 /**
