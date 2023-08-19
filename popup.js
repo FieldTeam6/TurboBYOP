@@ -104,20 +104,11 @@ function hoverToggleSite() {
         return
     }
 
-    if (isEnabled) {
-        document.getElementById('statusText').innerText = 'Click To Disable'
-        document.getElementById('iconEnabled').setAttribute('hidden', true)
-        document.getElementById('iconPause').removeAttribute('hidden')
-        document.getElementById('statusIcon').classList.remove('text-dark', 'text-success')
-        document.getElementById('statusIcon').classList.add('text-danger')
-        document.getElementById('toggleOnSite').title = `Click To Disable BYOP on ${siteName}`
-    } else {
-        document.getElementById('statusText').innerText = 'Click To Enable'
-            // document.getElementById('iconDisabled').removeAttribute('hidden')
-            // document.getElementById('iconDisabled').setAttribute('hidden', true)
+    if (!isEnabled) {
+        document.getElementById('statusText').innerText = 'Click to Enable'
         document.getElementById('statusIcon').classList.remove('text-dark', 'text-danger')
         document.getElementById('statusIcon').classList.add('text-success')
-        document.getElementById('toggleOnSite').title = `Click To Enable BYOP on ${siteName}`
+        document.getElementById('toggleOnSite').title = `Click to Enable BYOP on ${siteName}`
     }
 }
 
@@ -130,12 +121,12 @@ function resetStatusLook() {
     document.getElementById('iconPause').setAttribute('hidden', true)
 
     if (isEnabled) {
-        document.getElementById('statusText').innerText = `Enabled On ${siteName}`
+        document.getElementById('statusText').innerText = `Enabled on ${siteName}`
         document.getElementById('iconEnabled').removeAttribute('hidden')
         document.getElementById('iconDisabled').setAttribute('hidden', true)
 
     } else {
-        document.getElementById('statusText').innerText = 'Click To Enable' // `Disabled on ${siteName}`
+        document.getElementById('statusText').innerText = 'Click to Enable' // `Disabled on ${siteName}`
         document.getElementById('iconEnabled').setAttribute('hidden', true)
         document.getElementById('iconDisabled').removeAttribute('hidden')
 

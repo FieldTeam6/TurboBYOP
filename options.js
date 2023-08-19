@@ -54,6 +54,7 @@ function addMessageTemplate(template) {
     })
     messageContainer.appendChild(messageTemplateNode)
 }
+
 function saveSettings() {
     console.log('saving settings')
     const messageTemplates = []

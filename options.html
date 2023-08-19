@@ -1,29 +1,24 @@
 <!DOCTYPE html>
-
 <html>
-
 <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="dependencies/bootstrap.min.css">
     </link>
 </head>
-
 <style>
-    /* Chrome opens the options page in a smaller window unless we specify the min-width */
-    
+    /* Chrome opens the options page in a smaller window unless we specify the min-width */    
     @supports not (-moz-appearance: none) {
         html {
             min-width: 768px;
         }
     }
 </style>
-
 <template id="message-template">
     <div class="message-template card pt-2 px-2 mb-3 bg-light">
         <div class="form-row">
             <div class="col">
                 <input type="text" class="form-control message-template-label"
-                    placeholder="Message Label (e.g. Didn't Get Through Message, More Info, etc.)" />
+                    placeholder="Message Label" />
             </div>
             <div class="col-auto">
                 <button type="button btn-sm align-middle" class="close" aria-label="Delete message template">
@@ -55,7 +50,6 @@
                 </div>
             </div>
             <p>Create a message template below to enable 2-click texting.</p>
-
             <h5 class="mt-4">Automatic Text Replacement</h5>
             <p>BYOP will automatically replace the following keywords (including the brackets) in the message templates with the value on the right:</p>
             <table class="table">
@@ -86,7 +80,7 @@
                             </svg>
                         </td>
                         <td class="align-middle text-center">
-                            <input type="text" class="form-control" placeholder="(Contact's first name)" disabled />
+                            <input type="text" class="form-control" placeholder="Contact's first name" disabled />
                         </td>
                     </tr>
                 </tbody>
@@ -95,12 +89,10 @@
                 Fields from the <b>About {{Name}}</b> sidebar in OpenVPB can also be automatically inserted. For example, <code>[County]</code> will be
                 replaced with the contact's county if that field is set to be displayed in the phone bank.
             </p>
-            <br>
-
             <h5>Message Templates</h5>
-
             <div id="text-replacement-warning" class="alert alert-warning" hidden>
-                Note: To use BYOP's Automatic Text Replacement, you need to include the field name and the brackets (for example, "Hi [Their Name]...") so that BYOP knows where to insert the appropriate values.</div>
+                Note: To use BYOP's Automatic Text Replacement, you need to include the field name and the brackets (for example, "Hi [Their Name]...") so that BYOP knows where to insert the appropriate values.
+            </div>
 
             <div id="messages"></div>
         </form>
