@@ -32,10 +32,9 @@ Switch.addEventListener('change', async function () {
 
 async function onOpen() {
     console.log('popup opened')
-    const [{ statsStartDate, totalCalls = '0', messageSwitch = false }, [activeTab], permissions] = await Promise.all([
+    const [{ statsStartDate, messageSwitch = false }, [activeTab], permissions] = await Promise.all([
         browser.storage.local.get([
             'statsStartDate',
-            'totalCalls',
             'messageSwitch'
         ]),
         browser.tabs.query({

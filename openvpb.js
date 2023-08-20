@@ -30,31 +30,6 @@ function saveNextButton() {
         document.getElementById('contactResultsSaveNextButton')
 }
 
-function getResultCodes() {
-    const button = couldntReachButton()
-    if (!button) {
-        console.error('Could not find Could Not Reach button')
-        return
-    }
-    button.click()
-
-    const resultCodes = []
-    const elements = document.getElementsByName('script-contact-result')
-    if (!elements) {
-        console.error('Could not find result codes')
-        return
-    }
-    for (let i = 0; i < elements.length; i++) {
-        if (elements[i].labels.length > 0) {
-            resultCodes.push(elements[i].labels[0].innerText)
-        }
-    }
-    console.log('determined result codes to be:', resultCodes)
-    document.getElementById('contactresultscancelbutton').click()
-
-    window.sessionStorage.setItem('turboVpbResultCodes', JSON.stringify(resultCodes))
-}
-
 async function checkMessageSwitch(currentPhoneNumber, messageBody) {
     let { messageSwitch } = await browser.storage.local.get(['messageSwitch'])
     if(configuration['testmode'] == true){
@@ -73,11 +48,6 @@ async function checkMessageSwitch(currentPhoneNumber, messageBody) {
 }
 
 async function getContactDetails() {
-
-    if (!window.sessionStorage.getItem('turboVpbResultCodes')) {
-        getResultCodes()
-    }
-
     // Find phone number
     const currentPhoneNumber = (document.getElementById('openVpbPhoneLink') ||
         document.getElementById('openvpbphonelink') ||
