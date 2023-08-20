@@ -11,44 +11,6 @@ browser.runtime.onInstalled.addListener(async ({ reason, previousVersion }) => {
     }
 })
 
-function getContentScripts(origin) {
-    console.log('getContactScripts');
-    let originSpecificJs
-    if (OPENVPB_REGEX.test(origin)) {
-        originSpecificJs = { file: 'openvpb.js' }
-    }
-    return [
-        { file: 'dependencies/browser-polyfill.js' },
-        { file: 'dependencies/tingle.js' },
-        { file: 'vpb-common.js' },
-        originSpecificJs
-    ]
-}
-
-async function enableOrigin(origin) {
-    console.log(`registering content scripts for ${origin}`)
-    try {
-        const { unregister } = await browser.contentScripts.register({
-            matches: [origin],
-            js: getContentScripts(origin),
-            css: [{ file: 'dependencies/tingle.css' }]
-        })
-        unregisterContentScripts[origin] = unregister
-    } catch (err) {
-        console.error(`error registering content script for ${origin}`, err)
-    }
-}
-
-async function disableOrigin(origin) {
-    if (typeof unregisterContentScripts[origin] === 'function') {
-        (unregisterContentScripts[origin])()
-        delete unregisterContentScripts[origin]
-        console.log(`disabled content scripts for ${origin}`)
-        return true
-    } else {
-        return false
-    }
-}
 // Google Voice stuff
 
 // For logging
@@ -58,18 +20,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
 	if (message.type === 'MESSAGE_SENT') {
 		recordMessageSent();
 	}
-
-    if (message.type === "ENABLE_ORIGIN") {
-        return enableOrigin(message.origin);
-    }
-
-    if (message.type === "DISABLE_ORIGIN") {
-        return disableOrigin(message.origin);
-    }
-
-    if (message.type === "GET_CONTENT_SCRIPTS") {
-        return getContentScripts(origin);
-    }
 });
 
 /**

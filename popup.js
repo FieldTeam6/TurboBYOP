@@ -8,7 +8,6 @@ let activeTabId
 let firstRender = true
 
 onOpen().catch(console.error)
-document.getElementById('toggleOnSite').addEventListener('click', toggleOnSite)
 document.getElementById('openOptions').addEventListener('click', async() => {
     await browser.runtime.openOptionsPage()
     window.close()
@@ -43,11 +42,6 @@ async function onOpen() {
         }),
         browser.permissions.getAll()
     ])
-    browser.storage.onChanged.addListener((changes) => {
-        if (changes.totalCalls) {
-            showTotalCalls(changes.totalCalls.newValue)
-        }
-    })
 
     // Display switch value based on browser last storage data.
     if (messageSwitch) {
@@ -62,7 +56,11 @@ async function onOpen() {
         document.getElementById('statsStartDate').innerText = `${date.getMonth() + 1}/${date.getDate()}`
     }
 
-    var sendCounts = await chrome.storage.sync.get("sendCounts").then(function (value) {
+    var sendCounts = await chrome.storage.sync.get('sendCounts').then(function (value) {
+        if (!value['sendCounts']) {
+            return 0;
+        }
+
         return Object.values(value['sendCounts']).reduce((total, val) => {
             return total + val;
         }, 0);
@@ -95,8 +93,8 @@ async function onOpen() {
 }
 
 function showTotalCalls(totalCalls) {
-    document.getElementById('numCalls').innerText = `${totalCalls} Call${totalCalls !== '1' ? 's' : ''}`
-    if (totalCalls === '0') {
+    document.getElementById('numCalls').innerText = `${totalCalls} Text${totalCalls !== 1 ? 's' : ''}`
+    if (totalCalls === 0) {
         document.getElementById('encouragement').innerText = 'Login to a phone bank to get started!'
     } else {
         document.getElementById('encouragement').innerText = 'Keep up the great work!'
@@ -148,57 +146,4 @@ function resetStatusLook() {
     document.getElementById('statusIcon').classList.add('text-dark')
 
     firstRender = false
-}
-
-async function toggleOnSite() {
-    if (!canEnable) {
-        return
-    }
-
-    try {
-        if (!isEnabled) {
-            console.log('requesting permission for:', origin)
-            let permissionGranted
-            permissionGranted = await browser.permissions.request({
-                origins: [origin],
-                permissions: []
-            })
-
-            // Save origin as enabled
-            if (permissionGranted) {
-                console.log('permission granted')
-                chrome.runtime.sendMessage({type: "ENABLE_ORIGIN", origin: origin});
-
-                isEnabled = true
-
-                // this might be unnecessary, as it looks like it's already being done by enableOrigin
-                console.log('injecting content scripts')
-                const contentScripts = chrome.runtime.sendMessage({type: "GET_CONTENT_SCRIPTS", origin: origin})
-                console.log('contentScripts', contentScripts);
-
-                for (let script of contentScripts) {
-                    await browser.tabs.executeScript(script)
-                }
-                await chrome.scripting.insertCSS({ file: 'dependencies/tingle.css' })
-                console.log('injected content scripts into current page')
-            } else {
-                console.log('permission denied')
-            }
-        } else {
-            // this doesn't actually work and can probably be deleted
-            console.log('disabling origin:', origin)
-            chrome.runtime.sendMessage({type: "DISABLE_ORIGIN", origin: origin});
-
-            const wasRemoved = await browser.permissions.remove({
-                origins: [origin]
-            })
-            console.log(`permission was ${wasRemoved ? '' : 'not '}removed`)
-
-            isEnabled = false
-        }
-    } catch (err) {
-        console.error(err)
-    }
-
-    resetStatusLook()
 }
