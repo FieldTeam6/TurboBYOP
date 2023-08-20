@@ -2,20 +2,6 @@ const OPENVPB_REGEX = /https\:\/\/(www\.)?openvpb\.com/i
 const OPENVPB_ORIGIN = 'https://www.openvpb.com/VirtualPhoneBank*'
 const unregisterContentScripts = {}
 
-// Stored as:
-//   sessionId -> [ timestamp, duration, result, textedTimestamp ]
-const sessionRecords = {}
-let totalCalls = 0
-let totalTexts = 0
-
-// Load previously stored statistics
-browser.storage.local.get(['sessionRecords', 'totalCalls', 'totalTexts'])
-    .then((fromStorage) => {
-        Object.assign(sessionRecords, fromStorage.sessionRecords || {})
-        totalCalls += (fromStorage.totalCalls || 0)
-        totalTexts += (fromStorage.totalTexts || 0)
-    })
-
 // Run when installed or updated
 browser.runtime.onInstalled.addListener(async ({ reason, previousVersion }) => {
     const { statsStartDate } = await browser.storage.local.get(['statsStartDate'])
@@ -23,11 +9,6 @@ browser.runtime.onInstalled.addListener(async ({ reason, previousVersion }) => {
         console.log('setting stats start date')
         await browser.storage.local.set({ statsStartDate: (new Date()).toISOString() })
     }
-
-    // This is producing an error after upgrading to manifest 3
-    // if (typeof browser.browserAction.openPopup === 'function') {
-    //     browser.browserAction.openPopup()
-    // }
 })
 
 function getContentScripts(origin) {
