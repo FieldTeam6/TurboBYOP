@@ -44,7 +44,6 @@
             "js": [
                 "dependencies/browser-polyfill.js",
                 "dependencies/tingle.js",
-                "dependencies/tingle.css",
                 "vpb-common.js",
                 "openvpb.js"
             ],
