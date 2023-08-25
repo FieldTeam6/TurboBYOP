@@ -12,22 +12,15 @@
     "host_permissions": [
         "https://www.openvpb.com/VirtualPhoneBank*"
     ],
-    "optional_host_permissions": [
-        "<all_urls>"
-    ],
     "icons": {
-        "48": "icons/phone-outgoing-blue-48.png",
-        "96": "icons/phone-outgoing-blue-96.png",
-        "128": "icons/phone-outgoing-blue-128.png"
+        "48": "icons/byop_icon_48.png",
+        "96": "icons/byop_icon_96.png",
+        "128": "icons/byop_icon_128.png"
     },
     "background": {
         "service_worker": "service-worker.js"
     },
     "action": {
-        "default_icon": {
-            "16": "icons/phone-outgoing-blue-16.png",
-            "32": "icons/phone-outgoing-blue-32.png"
-        },
         "default_title": "Field Team 6 BYOP",
         "default_popup": "popup.html"
     },
