@@ -13,6 +13,7 @@
         "https://www.openvpb.com/VirtualPhoneBank*"
     ],
     "icons": {
+        "32": "icons/byop_icon_32.png",
         "48": "icons/byop_icon_48.png",
         "96": "icons/byop_icon_96.png",
         "128": "icons/byop_icon_128.png"
