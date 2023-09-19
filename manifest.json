@@ -6,8 +6,7 @@
     "author": "Field Team 6",
     "homepage_url": "https://www.fieldteam6.org",
     "permissions": [
-        "storage",
-        "activeTab"
+        "storage"
     ],
     "host_permissions": [
         "https://www.openvpb.com/VirtualPhoneBank*"
