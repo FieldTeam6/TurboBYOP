@@ -4,7 +4,6 @@ const OPENVPB_ORIGIN = 'https://www.openvpb.com/VirtualPhoneBank*';
 let canEnable = false
 let isEnabled = false
 let siteName
-let activeTabId
 let firstRender = true
 
 onOpen().catch(console.error)
@@ -31,7 +30,7 @@ Switch.addEventListener('change', async function () {
 
 async function onOpen() {
     console.log('popup opened')
-    const [{ statsStartDate, messageSwitch = false }, [activeTab], permissions] = await Promise.all([
+    const [{ statsStartDate, messageSwitch = false }, [currentTab], permissions] = await Promise.all([
         browser.storage.local.get([
             'statsStartDate',
             'messageSwitch'
@@ -67,18 +66,14 @@ async function onOpen() {
     });
     showTotalCalls(sendCounts)
 
-    if (activeTab) {
-        activeTabId = activeTab.id
+    if (currentTab && currentTab.url) {
+        console.log('Current tab URL:', currentTab.url)
 
-        if (activeTab.url) {
-            console.log('Current tab URL:', activeTab.url)
-
-            if (OPENVPB_REGEX.test(activeTab.url)) {
-                canEnable = true
-                siteName = 'OpenVPB'
-                origin = OPENVPB_ORIGIN
-                isEnabled = permissions.origins.some((o) => OPENVPB_REGEX.test(o))
-            }
+        if (OPENVPB_REGEX.test(currentTab.url)) {
+            canEnable = true
+            siteName = 'OpenVPB'
+            origin = OPENVPB_ORIGIN
+            isEnabled = permissions.origins.some((o) => OPENVPB_REGEX.test(o))
         }
     }
 
