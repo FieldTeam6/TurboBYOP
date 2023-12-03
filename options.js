@@ -5,16 +5,6 @@ const messageContainer = document.getElementById('messages')
 const messageTemplateHtml = document.getElementById('message-template')
 let messageIndex = 0
 
-document.getElementById('add-message-template')
-    .addEventListener('click', (event) => {
-        event.preventDefault()
-        addMessageTemplate({
-            label: '',
-            message: '',
-            result: null
-        })
-    })
-
 document.getElementById('settings').addEventListener('change', saveSettings)
 
 browser.storage.local.get(['yourName', 'messageTemplates'])
@@ -34,11 +24,10 @@ browser.storage.local.get(['yourName', 'messageTemplates'])
         } else {
             addMessageTemplate({
                 label: '',
-                message: ''
+                message: '',
+                result: 'Texted'
             })
         }
-
-        setShareUrl(messageTemplates)
     })
 
 function addMessageTemplate(template) {
@@ -66,6 +55,7 @@ function addMessageTemplate(template) {
     })
     messageContainer.appendChild(messageTemplateNode)
 }
+
 function saveSettings() {
     console.log('saving settings')
     const messageTemplates = []
@@ -97,22 +87,8 @@ function saveSettings() {
         }
     }
 
-    setShareUrl(messageTemplates)
-
     return browser.storage.local.set({
         yourName: document.getElementById('yourName').value,
         messageTemplates
     })
-}
-
-function setShareUrl(messageTemplates) {
-    const shareButton = document.getElementById('share-settings')
-    if (shareButton) {
-        if (messageTemplates && messageTemplates.length > 0) {
-            shareButton.href = `https://turbovpb.com/share?messageTemplates=${encodeURIComponent(JSON.stringify(messageTemplates))}`
-            shareButton.classList.remove('disabled')
-        } else {
-            shareButton.classList.add('disabled')
-        }
-    }
 }

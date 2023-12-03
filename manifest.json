@@ -1,44 +1,51 @@
 {
-    "manifest_version": 2,
-    "name": "Turbo BYOP",
-    "version": "0.3.0",
+    "manifest_version": 3,
+    "name": "Field Team 6 BYOP",
+    "version": "0.4.0",
     "description": "Turbocharge Field Team 6's BYOP!",
-    "author": "BEI.RE Corp",
-    "homepage_url": "https://www.bei.re",
+    "author": "Field Team 6",
+    "homepage_url": "https://www.fieldteam6.org",
     "permissions": [
-        "storage",
-        "activeTab",
-        "https://www.openvpb.com/VirtualPhoneBank*",
-        "https://*.everyaction.com/ContactDetailScript*"
+        "storage"
     ],
-    "optional_permissions": [
-        "<all_urls>"
+    "host_permissions": [
+        "https://www.openvpb.com/VirtualPhoneBank*"
     ],
     "icons": {
-        "48": "icons/phone-outgoing-blue-48.png",
-        "96": "icons/phone-outgoing-blue-96.png",
-        "128": "icons/phone-outgoing-blue-128.png"
+        "32": "icons/byop_icon_32.png",
+        "48": "icons/byop_icon_48.png",
+        "96": "icons/byop_icon_96.png",
+        "128": "icons/byop_icon_128.png"
     },
     "background": {
-        "scripts": [
-            "dependencies/browser-polyfill.js",
-            "dependencies/content-scripts-register-polyfill.js",
-            "dependencies/peerjs.js",
-            "dependencies/reconnecting-websocket-iife.js",
-            "peer-connection.js",
-            "background.js"
-        ]
+        "service_worker": "service-worker.js"
     },
-    "browser_action": {
-        "default_icon": {
-            "16": "icons/phone-outgoing-blue-16.png",
-            "32": "icons/phone-outgoing-blue-32.png"
-        },
-        "default_title": "Turbo BYOP",
+    "action": {
+        "default_title": "Field Team 6 BYOP",
         "default_popup": "popup.html"
     },
     "options_ui": {
         "page": "options.html",
         "browser_style": true
-    }
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://voice.google.com/*"],
+            "js": [
+                "contentScripts/googleVoiceManager.js",
+                "contentScripts/tools.js",
+                "contentScripts/main.js"
+            ],
+            "all_frames": true
+        },
+        {
+            "matches": ["https://www.openvpb.com/*"],
+            "js": [
+                "dependencies/browser-polyfill.js",
+                "vpb-common.js",
+                "openvpb.js"
+            ],
+            "all_frames": true
+        }
+    ]
 }

@@ -3,17 +3,13 @@ const DESIGNATED_CONTACT_REGEX = /designated[ _-]?contact/i
 
 let couldntReachContact = false
     // OpenVPB displays a pop-up after you make your first call
-    // This is annoying for the TurboBYOP experience because it looks like
+    // This is annoying for the BYOP experience because it looks like
     // it's not loading the next contact right away. So, we just click through
     // that popup
 let firstCall = true
 
-
-const CONNECT_TIMEOUT = 15000
-const WAIT_AFTER_PAGE_BECOMES_VISIBLE = 100
 const THEIR_NAME_REGEX = /[\[\(\{<]+\s*(?:their|thier|there)\s*name\s*[\]\)\}>]+/ig
 const YOUR_NAME_REGEX = /[\[\(\{<]+\s*(?:your|y[ou]r|you'?re|my)\s*name\s*[\]\)\}>]+/ig
-const ADDITIONAL_FIELDS_REGEX = /[\[\(\{<]+(.+?)[\]\)\}>]+/g
 
 const configuration ={
     "testmode": false,
@@ -34,35 +30,10 @@ function saveNextButton() {
         document.getElementById('contactResultsSaveNextButton')
 }
 
-function getResultCodes() {
-    const button = couldntReachButton()
-    if (!button) {
-        console.error('Could not find Could Not Reach button')
-        return
-    }
-    button.click()
-
-    const resultCodes = []
-    const elements = document.getElementsByName('script-contact-result')
-    if (!elements) {
-        console.error('Could not find result codes')
-        return
-    }
-    for (let i = 0; i < elements.length; i++) {
-        if (elements[i].labels.length > 0) {
-            resultCodes.push(elements[i].labels[0].innerText)
-        }
-    }
-    console.log('determined result codes to be:', resultCodes)
-    document.getElementById('contactresultscancelbutton').click()
-
-    window.sessionStorage.setItem('turboVpbResultCodes', JSON.stringify(resultCodes))
-}
-
 async function checkMessageSwitch(currentPhoneNumber, messageBody) {
     let { messageSwitch } = await browser.storage.local.get(['messageSwitch'])
-    if(configuration['testmode']==true){
-        currentPhoneNumber=configuration['defaultNumber']
+    if(configuration['testmode'] == true){
+        currentPhoneNumber = configuration['defaultNumber']
     }
     if (messageSwitch) {
         //open google voice if messageSwitch is true
@@ -77,11 +48,6 @@ async function checkMessageSwitch(currentPhoneNumber, messageBody) {
 }
 
 async function getContactDetails() {
-
-    if (!window.sessionStorage.getItem('turboVpbResultCodes')) {
-        getResultCodes()
-    }
-
     // Find phone number
     const currentPhoneNumber = (document.getElementById('openVpbPhoneLink') ||
         document.getElementById('openvpbphonelink') ||
@@ -137,82 +103,77 @@ async function getContactDetails() {
             console.warn('could not find save next button')
         }
 
-        // Create TurboVPB Container
+        // Create BYOP Container
         if (!document.getElementById('turbovpbcontainer')) {
             const sidebarContainer = document.getElementById('openvpbsidebarcontainer') || document.getElementById('openVpbSideBarContainer')
             if (sidebarContainer) {
-                // const qrCode = createQrCode({ backgroundColor: '#f8f9fa' })
-                // if (qrCode) {
-                    const container = document.createElement('div')
-                    container.id = "turbovpbcontainer"
-                    container.style = "margin-top: 2rem"
-                    container.className = "openvpb-sidebar-content"
+                const container = document.createElement('div')
+                container.id = "turbovpbcontainer"
+                container.style = "margin-top: 2rem"
+                container.className = "openvpb-sidebar-content"
 
-                    const line = document.createElement('hr')
-                    line.style = 'margin-bottom: 2rem;'
-                    container.appendChild(line)
+                const line = document.createElement('hr')
+                line.style = 'margin-bottom: 2rem;'
+                container.appendChild(line)
 
-                    const title = createTitleElementBYOP()
-                    container.appendChild(title)
+                const title = createTitleElementBYOP()
+                container.appendChild(title)
+                sidebarContainer.appendChild(container)
 
-                    // container.appendChild(qrCode)
-                    sidebarContainer.appendChild(container)
+                let { yourName, messageTemplates } = await browser.storage.local.get(['yourName', 'messageTemplates'])
+                if (typeof messageTemplates === 'string') {
+                    messageTemplates = JSON.parse(messageTemplates)
+                }
 
-                    let { yourName, messageTemplates } = await browser.storage.local.get(['yourName', 'messageTemplates'])
-                    if (typeof messageTemplates === 'string') {
-                        messageTemplates = JSON.parse(messageTemplates)
-                    }
-                    console.log('messageTemplates', messageTemplates)
-                    if (messageTemplates.length > 0) {
-                        console.log('Appending button...')
-                        let { label, message, result } = messageTemplates[0]
+                if (messageTemplates.length > 0) {
+                    console.log('Appending button...')
+                    let { label, message, result } = messageTemplates[0]
 
-                        let messageBody = message
-                            .replace(THEIR_NAME_REGEX, contactName)
-                            .replace(YOUR_NAME_REGEX, yourName)
+                    let messageBody = message
+                        .replace(THEIR_NAME_REGEX, contactName)
+                        .replace(YOUR_NAME_REGEX, yourName)
 
+                    const button = document.createElement('button')
+                    button.onclick = () => {
+                        checkMessageSwitch(currentPhoneNumber, messageBody);
+                        const surveySelect = document.getElementsByClassName('surveyquestion-element-select')[0];
 
-                        const button = document.createElement('button')
-                        button.onclick = () => {
-                            checkMessageSwitch(currentPhoneNumber, messageBody);
-                            const surveySelect = document.getElementsByClassName('surveyquestion-element-select')[0];
+                        function simulateClick(item) {
+                            item.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+                            item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+                            item.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+                            item.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+                            item.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
+                            item.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                            item.dispatchEvent(new Event('change', { bubbles: true }));
 
-                            function simulateClick(item) {
-                                item.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
-                                item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-                                item.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
-                                item.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
-                                item.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
-                                item.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-                                item.dispatchEvent(new Event('change', { bubbles: true }));
+                            return true;
+                        }
 
-                                return true;
-                            }
-                            for (let i = 0, sL = surveySelect.length; i < sL; i++) {
-                                if ((surveySelect.options[i].text).toString().toLowerCase() == 'yes') {
-                                    surveySelect.selectedIndex = i;
-                                    surveySelect.options[i].selected = true;
-                                    simulateClick(surveySelect);
-                                    break;
-                                }
-                            }
-                            if(configuration['testmode']==false){
-                                const saveNext = saveNextButton();
-                                setTimeout(() => {
-                                    console.log("saveNext", saveNext)
-                                    saveNext.click()
-                                }, 1000)
-                                console.log('fetching next...')
+                        for (let i = 0, sL = surveySelect.length; i < sL; i++) {
+                            if ((surveySelect.options[i].text).toString().toLowerCase() == 'yes') {
+                                surveySelect.selectedIndex = i;
+                                surveySelect.options[i].selected = true;
+                                simulateClick(surveySelect);
+                                break;
                             }
                         }
-                        button.style = 'width: 100%;max-width: 30vh;height: 38px;background-color: #98BF64;margin-top: 10px;border: none;border-radius: 4px;cursor: pointer;color: white;font-size: 14px;'
-                        button.textContent = "Setup Text Message"
-                        container.appendChild(button)
-                    } else {
-                        console.log('NO msg templates')
-                    }
 
-                // }
+                        if(configuration['testmode'] == false){
+                            const saveNext = saveNextButton();
+                            setTimeout(() => {
+                                console.log("saveNext", saveNext)
+                                saveNext.click()
+                            }, 1000)
+                            console.log('fetching next...')
+                        }
+                    }
+                    button.style = 'width: 100%;height: 38px;background-color: #98BF64;margin-top: 10px;border: none;border-radius: 4px;cursor: pointer;color: white;font-size: 14px;'
+                    button.textContent = "Setup Text Message"
+                    container.appendChild(button)
+                } else {
+                    console.log('NO msg templates')
+                }
             }
         }
         handleContact(
@@ -225,35 +186,13 @@ async function getContactDetails() {
 
 async function onSaveNextClick() {
     console.log('saving contact result')
-    if (couldntReachContact) {
-        // TODO save actual result
-        await saveCall('NotContacted')
-    } else {
-        await saveCall('Contacted')
-    }
+    // can we add some sort of check here so we don't advance to the next contact until confirmSent is successful?
 
     if (firstCall) {
         firstCall = false
         const nextCallButton = await waitForButton(['firstcallmodalnextcallbutton', 'firstCallModalNextCallButton'])
         nextCallButton.click()
         console.log('clicking through first call pop up')
-    }
-}
-
-function markResult(result) {
-    const resultCode = result.toLowerCase()
-    try {
-        couldntReachButton().click()
-        for (let radioUnit of document.querySelectorAll('li.radio-unit')) {
-            if (resultCode === radioUnit.querySelector('.radio-label').innerText.toLowerCase()) {
-                radioUnit.querySelector('input[type="radio"]').click()
-                setTimeout(() => saveNextButton().click(), 1)
-                return
-            }
-        }
-        console.warn('Result code not found:', result)
-    } catch (err) {
-        console.error(err)
     }
 }
 
