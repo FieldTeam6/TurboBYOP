@@ -103,3 +103,27 @@ const simulateKeyPress = (element) => {
 	  cancelable: true
 	}));
   }
+
+  function simulateTextEntry(inputField, textToEnter) {
+	console.log('calling simulateTextEntry');
+    inputField.focus();
+    inputField.value = ""; 
+
+    for (let i = 0; i < textToEnter.length; i++) {
+        var charCode = textToEnter.charCodeAt(i);
+
+        let keydownEvent = new Event('keydown', { keyCode: charCode });
+        inputField.dispatchEvent(keydownEvent);
+
+        let keypressEvent = new Event('keypress', { keyCode: charCode });
+        inputField.dispatchEvent(keypressEvent);
+
+        inputField.value = inputField.value + textToEnter[i];
+
+        let inputEvent = new Event('input', { bubbles: true });
+        inputField.dispatchEvent(inputEvent);
+
+        let keyupEvent = new Event('keyup', { keyCode: charCode });
+        inputField.dispatchEvent(keyupEvent);
+    }
+}

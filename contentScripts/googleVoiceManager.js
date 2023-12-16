@@ -139,10 +139,13 @@ class GoogleVoiceSiteManager {
     }
 
     fillNumberInput() {
+        
 		let numInput = document.querySelector(selectors.gvNumInput);
 		if (numInput && numInput.offsetParent !== null) {
-			numInput.value = this.currentNumberSending;
-			simulateKeyPress(numInput);
+			//numInput.value = this.currentNumberSending;
+			//simulateKeyPress(numInput);
+
+            simulateTextEntry(numInput, this.currentNumberSending);
 
 			// confirm that the number was added as expected
 			let numInputConfirm = document.querySelector(selectors.gvNumInput);
