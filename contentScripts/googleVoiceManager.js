@@ -139,19 +139,16 @@ class GoogleVoiceSiteManager {
     }
 
     fillNumberInput() {
-        
-		let numInput = document.querySelector(selectors.gvNumInput);
-		if (numInput && numInput.offsetParent !== null) {
-			//numInput.value = this.currentNumberSending;
-			//simulateKeyPress(numInput);
 
+        let numInput = document.querySelector(selectors.gvNumInput);
+        if (numInput && numInput.offsetParent !== null) {
             simulateTextEntry(numInput, this.currentNumberSending);
 
-			// confirm that the number was added as expected
-			let numInputConfirm = document.querySelector(selectors.gvNumInput);
-			return numInputConfirm && numInputConfirm.value === this.currentNumberSending;
-		}
-	}
+            // confirm that the number was added as expected
+            let numInputConfirm = document.querySelector(selectors.gvNumInput);
+            return numInputConfirm && numInputConfirm.value === this.currentNumberSending;
+        }
+    }
 
     // clicks the "start SMS" button on the number dropdown
     startChat() {
