@@ -64,7 +64,7 @@ class GoogleVoiceSiteManager {
                 let currentStep = sendExecutionQueue.shift().bind(this);
                 const result = await keepTryingAsPromised(currentStep, retryCount > 0);
                 if (!result) {
-                    console.log(`GV-BYOP SMS - Step failed (${getFunctionName(currentStep)}), retrying message.`);
+                    console.log(`BYOP SMS - Step failed (${getFunctionName(currentStep)}), retrying message.`);
                     retryCount--; // if this keeps happening, alert on it
 
                     if (verifyOnly) {
