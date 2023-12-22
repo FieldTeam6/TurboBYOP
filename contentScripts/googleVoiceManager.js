@@ -141,7 +141,6 @@ class GoogleVoiceSiteManager {
     fillNumberInput() {
         // Confirm that phone number is not already populated in case this is a retry attempt
         if (this.confirmChatSwitched()) {
-            console.log('fillNumberInput confirmChatSwitched');
             return true;
         }
 
@@ -155,11 +154,10 @@ class GoogleVoiceSiteManager {
         }
     }
 
-    // clicks the "start SMS" button on the number dropdown
+    // clicks the "Send to" button on the number dropdown
     startChat() {
         // Confirm that phone number is not already populated in case this is a retry attempt
         if (this.confirmChatSwitched()) {
-            console.log('startChat confirmChatSwitched');
             return true;
         }
 
@@ -170,6 +168,7 @@ class GoogleVoiceSiteManager {
         }
     }
 
+    // Confirms contact chip is present in the To field
     confirmChatSwitched() {
         const recipientButton = document.querySelector(selectors.gvRecipientButton);
         return recipientButton && recipientButton.offsetParent !== null;
