@@ -90,7 +90,7 @@ class GoogleVoiceSiteManager {
             let currentStep = sendExecutionQueue.shift().bind(this);
             const result = await keepTryingAsPromised(currentStep, retryCount > 0);
             if (!result) {
-                console.log(`GV-BYOP SMS - Step failed (${getFunctionName(currentStep)}), retrying message.`);
+                console.log(`BYOP SMS - Step failed (${getFunctionName(currentStep)}), retrying message.`);
                 retryCount--; // if this keeps happening, alert on it
 
                 if (verifyOnly) {
@@ -139,6 +139,11 @@ class GoogleVoiceSiteManager {
     }
 
     fillNumberInput() {
+        // Confirm that phone number is not already populated in case this is a retry attempt
+        if (this.confirmChatSwitched()) {
+            console.log('fillNumberInput confirmChatSwitched');
+            return true;
+        }
 
         let numInput = document.querySelector(selectors.gvNumInput);
         if (numInput && numInput.offsetParent !== null) {
@@ -152,6 +157,12 @@ class GoogleVoiceSiteManager {
 
     // clicks the "start SMS" button on the number dropdown
     startChat() {
+        // Confirm that phone number is not already populated in case this is a retry attempt
+        if (this.confirmChatSwitched()) {
+            console.log('startChat confirmChatSwitched');
+            return true;
+        }
+
         var startChatButton = document.querySelector(selectors.gvStartChatButton);
         if (startChatButton && startChatButton.offsetParent !== null) {
             startChatButton.click();
@@ -180,28 +191,28 @@ class GoogleVoiceSiteManager {
         }
     }
 
-	sendMessage() {
-		var messageEditor = document.querySelector(selectors.gvMessageEditor);
-		if (!messageEditor) {
-			return;
-		}
+    sendMessage() {
+        var messageEditor = document.querySelector(selectors.gvMessageEditor);
+        if (!messageEditor) {
+            return;
+        }
 
-		simulateKeyPress(messageEditor);
+        simulateKeyPress(messageEditor);
 
-		// click send button
-		let sendButtonOld = document.querySelector(selectors.gvSendButtonOld);
-		let sendButtonNew = document.querySelector(selectors.gvSendButtonNew);
-		if (sendButtonOld && sendButtonOld.offsetParent !== null && sendButtonOld.getAttribute('aria-disabled') === 'false') {
-			sendButtonOld.click();
-			return true;
-		}
-		if (sendButtonNew && sendButtonNew.offsetParent !== null && sendButtonNew.disabled === false) {
-			sendButtonNew.dispatchEvent(new Event('mousedown'));
-			sendButtonNew.dispatchEvent(new Event('mouseup'));
-			sendButtonNew.click();
-			return true;
-		}
-	}
+        // click send button
+        let sendButtonOld = document.querySelector(selectors.gvSendButtonOld);
+        let sendButtonNew = document.querySelector(selectors.gvSendButtonNew);
+        if (sendButtonOld && sendButtonOld.offsetParent !== null && sendButtonOld.getAttribute('aria-disabled') === 'false') {
+            sendButtonOld.click();
+            return true;
+        }
+        if (sendButtonNew && sendButtonNew.offsetParent !== null && sendButtonNew.disabled === false) {
+            sendButtonNew.dispatchEvent(new Event('mousedown'));
+            sendButtonNew.dispatchEvent(new Event('mouseup'));
+            sendButtonNew.click();
+            return true;
+        }
+    }
 
     confirmThreadHeaderUpdated() {
         let chatLoadedHeader = document.querySelector(selectors.gvChatLoadedHeader);
@@ -229,7 +240,7 @@ class GoogleVoiceSiteManager {
             }
 
             if (sentMessageIsThreaded) {
-                chrome.runtime.sendMessage({type: "MESSAGE_SENT"});
+                chrome.runtime.sendMessage({ type: "MESSAGE_SENT" });
                 // continue with queue
                 setTimeout(this.sendFromQueue.bind(this), this.sendInterval);
                 return true;
