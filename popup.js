@@ -1,5 +1,7 @@
 const OPENVPB_REGEX = /https\:\/\/(www\.)?openvpb\.com/i;
 const OPENVPB_ORIGIN = 'https://www.openvpb.com/VirtualPhoneBank*';
+const manifest = chrome.runtime.getManifest();
+const currentVersion = document.getElementById('current-version');
 
 let canEnable = false
 let isEnabled = false
@@ -7,6 +9,7 @@ let siteName
 let firstRender = true
 
 onOpen().catch(console.error)
+currentVersion.innerText = "v" + manifest.version;
 document.getElementById('openOptions').addEventListener('click', async() => {
     await browser.runtime.openOptionsPage()
     window.close()
