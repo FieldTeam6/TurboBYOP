@@ -23,11 +23,11 @@ let Switch = document.querySelector('input[type="checkbox"]');
 
 Switch.addEventListener('change', async function () {
     if (Switch.checked) {
-        // do this
         console.log('Checked');
+        // use Google Voice
         await browser.storage.local.set({ messageSwitch: true })
     } else {
-        // do that
+        // use default messaging app
         console.log('Not checked');
         await browser.storage.local.set({ messageSwitch: false })
     }
@@ -57,19 +57,26 @@ async function onOpen() {
     // Display stats
     if (statsStartDate) {
         const date = new Date(statsStartDate)
-        document.getElementById('statsStartDate').innerText = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
+        document.getElementById('statsStartDate').innerText = getYearMonthAndDay(date);
     }
 
-    var sendCounts = await chrome.storage.sync.get('sendCounts').then(function (value) {
-        if (!value['sendCounts']) {
-            return 0;
-        }
-
-        return Object.values(value['sendCounts']).reduce((total, val) => {
+    var {sendCountAllTime, dateLastSent, sendCountToday} = await chrome.storage.sync.get(['sendCounts', 'dateLastSent', 'sendCountToday']).then(function (items) {
+        const todaysDate = getYearMonthAndDay(new Date());
+        console.log('todaysDate', todaysDate);
+        console.log('items', items);
+        const sendCountAllTime = Object.values(items['sendCounts']).reduce((total, val) => {
             return total + val;
         }, 0);
+        console.log('sendCountAllTime', sendCountAllTime);
+        const dateLastSent = items['dateLastSent'];
+        const sendCountToday = dateLastSent === todaysDate ? (items['sendCountToday'] || 0) : 0;
+
+        return { sendCountAllTime, dateLastSent, sendCountToday };
     });
-    showTotalCalls(sendCounts)
+
+    console.log('sendCountAllTime', sendCountAllTime);
+
+    setTotalCalls(sendCountAllTime, sendCountToday)
 
     if (currentTab && currentTab.url) {
         console.log('Current tab URL:', currentTab.url)
@@ -92,10 +99,12 @@ async function onOpen() {
     resetStatusLook()
 }
 
-function showTotalCalls(totalCalls) {
-    document.getElementById('numCalls').innerText = `${totalCalls} Text${totalCalls !== 1 ? 's' : ''}`
-    if (totalCalls === 0) {
-        document.getElementById('encouragement').innerText = 'Login to a phone bank to get started!'
+function setTotalCalls(totalCallsAllTime, totalCallsToday) {
+    document.getElementById('numCallsToday').innerText = `${totalCallsToday} Text${totalCallsToday !== 1 ? 's' : ''}`
+    document.getElementById('numCallsAllTime').innerText = `${totalCallsAllTime} text${totalCallsAllTime !== 1 ? 's' : ''}`
+
+    if (totalCallsToday === 0) {
+        document.getElementById('encouragement').innerText = 'Log in to a phone bank to get started!'
     } else {
         document.getElementById('encouragement').innerText = 'Keep up the great work!'
     }

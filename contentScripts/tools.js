@@ -36,7 +36,7 @@ function keepTrying(method, silenceErrors, cb) {
                     if (getFunctionName(method) == 'confirmSent') {
                         showFatalError(`If the problem persists, please wait 24 hours and try again.\n\nError: "${getFunctionName(method)}" failed.`, true)
                     } else {
-                        showFatalError(`Please report the error via the help link in the extension popup.\n\nError: "${getFunctionName(method)}" failed.`, true);
+                        showFatalError(`If the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${getFunctionName(method)}" failed.`, true);
                     }
                 } else {
                     showFatalError('Are you sure Google Voice texting via Hangouts is enabled?\nAlso, be aware that this extension is not compatible with the Google Hangouts Chrome extension. If you have the Hangouts extension installed you\'ll need to temporarily disable it.', false);

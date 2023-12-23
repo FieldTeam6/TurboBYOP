@@ -140,8 +140,9 @@ input:checked + .slider:before {
         <div class="row">
             <div class="col">
                 <small class="text-muted">You have sent</small>
-                <h4 class="pb-0 display-4" id="numCalls">0 Texts</h4>
-                <small class="text-muted">with BYOP since <span id="statsStartDate">12/23/2023</span></small>
+                <h4 class="pb-0 display-4" id="numCallsToday">0 Texts</h4>
+                <small class="text-muted">today<br>
+                and <span id="numCallsAllTime">0 texts</span> total with BYOP since <span id="statsStartDate">12/23/2023</span>.</small>
                 <p>
                     <small id="encouragement" class="text-muted">Keep up the great work!</small>
                 </p>
@@ -213,6 +214,7 @@ input:checked + .slider:before {
         </div>
     </div>
     <script src="dependencies/browser-polyfill.js"></script>
+    <script src="dependencies/utilities.js"></script>
     <script src="popup.js"></script>
 </body>
 
