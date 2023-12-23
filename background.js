@@ -27,8 +27,13 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
  * @return {[type]} [description]
  */
 recordMessageSent = () => {
-	chrome.storage.sync.get('sendCounts', function(items) {
+	chrome.storage.sync.get(['sendCounts', 'dateLastSent', 'sendCountToday'], function(items) {
+		const todaysDate = getYearMonthAndDay(new Date());
+		console.log('items', items);
 		items.sendCounts = items.sendCounts || {};
+		items.dateLastSent = items.dateLastSent || todaysDate;
+		items.sendCountToday = items.sendCountToday || 0;
+
 		const thisMonth = getYearAndMonth(new Date());
 		const thisMonthCount = (items.sendCounts[thisMonth] || 0) + 1;
 
@@ -36,7 +41,9 @@ recordMessageSent = () => {
 			sendCounts: {
 				...items.sendCounts,
 				[thisMonth]: thisMonthCount
-			}
+			},
+			dateLastSent: todaysDate,
+			sendCountToday: items.dateLastSent == todaysDate ? items.sendCountToday + 1 : 1
 		});
 	});
 }
@@ -48,4 +55,16 @@ recordMessageSent = () => {
  */
 function getYearAndMonth(date) {
 	return date.getFullYear() + '-' + ("0" + (date.getMonth() + 1)).slice(-2)
+}
+
+
+/**
+ * Takes a date and returns the Year and month, like 2019-03
+ * @param  {Date} date
+ * @return {string}      year and month
+ */
+ function getYearMonthAndDay(date) {
+	var fullDate = date.getFullYear() + '-' + ("0" + (date.getMonth() + 1)).slice(-2) + '-' + date.getDate();
+	console.log('fullDate', fullDate);
+	return fullDate;
 }
