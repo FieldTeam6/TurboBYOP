@@ -55,7 +55,7 @@ async function onOpen() {
     // Display stats
     if (statsStartDate) {
         const date = new Date(statsStartDate)
-        document.getElementById('statsStartDate').innerText = `${date.getMonth() + 1}/${date.getDate()}`
+        document.getElementById('statsStartDate').innerText = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
     }
 
     var sendCounts = await chrome.storage.sync.get('sendCounts').then(function (value) {
