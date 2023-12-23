@@ -11,7 +11,7 @@ let firstCall = true
 const THEIR_NAME_REGEX = /[\[\(\{<]+\s*(?:their|thier|there)\s*name\s*[\]\)\}>]+/ig
 const YOUR_NAME_REGEX = /[\[\(\{<]+\s*(?:your|y[ou]r|you'?re|my)\s*name\s*[\]\)\}>]+/ig
 
-const configuration ={
+const configuration = {
     "testmode": false,
     "defaultNumber": '1234567890'
 }
@@ -30,18 +30,23 @@ function saveNextButton() {
         document.getElementById('contactResultsSaveNextButton')
 }
 
-async function checkMessageSwitch(currentPhoneNumber, messageBody) {
-    let { messageSwitch } = await browser.storage.local.get(['messageSwitch'])
-    if(configuration['testmode'] == true){
+async function launchMessagingApp(currentPhoneNumber, contactName) {
+    let { messageSwitch, yourName, messageTemplates } = await browser.storage.local.get(['messageSwitch', 'yourName', 'messageTemplates']);
+    let { label, message, result } = messageTemplates[0];
+    let messageBody = message.replace(THEIR_NAME_REGEX, contactName).replace(YOUR_NAME_REGEX, yourName);
++   console.log('messageBody', messageBody);
+
+    if (configuration['testmode'] == true){
         currentPhoneNumber = configuration['defaultNumber']
     }
+
     if (messageSwitch) {
         //open google voice if messageSwitch is true
         let digitsOnlyPhoneNumber = currentPhoneNumber.replace(/\D+/g, "")
         console.log(`https://voice.google.com/u/0/messages/?phoneNo=${digitsOnlyPhoneNumber}&sms=${encodeURIComponent(messageBody)}`)
         window.open(`https://voice.google.com/u/0/messages/?phoneNo=${digitsOnlyPhoneNumber}&sms=${encodeURIComponent(messageBody)}`, '_blank');
     } else {
-        //open default messaging app if messageSwitch is true
+        //open default messaging app if messageSwitch is false
         console.log(`sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`)
         window.open(`sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`, '_blank');
     }
@@ -93,7 +98,7 @@ async function getContactDetails() {
                 saveNextButton.addEventListener('click', onSaveNextClick)
             })
         } else {
-            console.warn('could not find couldnt reach button')
+            console.warn('could not find couldn\'t reach button')
         }
 
         // Log successful calls
@@ -121,21 +126,13 @@ async function getContactDetails() {
                 sidebarContainer.appendChild(container)
 
                 let { yourName, messageTemplates } = await browser.storage.local.get(['yourName', 'messageTemplates'])
-                if (typeof messageTemplates === 'string') {
-                    messageTemplates = JSON.parse(messageTemplates)
-                }
 
                 if (messageTemplates.length > 0) {
                     console.log('Appending button...')
-                    let { label, message, result } = messageTemplates[0]
-
-                    let messageBody = message
-                        .replace(THEIR_NAME_REGEX, contactName)
-                        .replace(YOUR_NAME_REGEX, yourName)
 
                     const button = document.createElement('button')
                     button.onclick = () => {
-                        checkMessageSwitch(currentPhoneNumber, messageBody);
+                        launchMessagingApp(currentPhoneNumber, contactName);
                         const surveySelect = document.getElementsByClassName('surveyquestion-element-select')[0];
 
                         function simulateClick(item) {
@@ -176,7 +173,7 @@ async function getContactDetails() {
                 }
             }
         }
-        handleContact(
+        storeContactDataInSessionStorage(
             contactName,
             currentPhoneNumber,
             additionalFields

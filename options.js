@@ -12,13 +12,7 @@ browser.storage.local.get(['yourName', 'messageTemplates'])
         if (yourName) {
             document.getElementById('yourName').value = yourName
         }
-        if (typeof messageTemplates === 'string') {
-            // For backwards compatibility
-            messageTemplates = JSON.parse(messageTemplates)
-            browser.storage.local.set({
-                messageTemplates
-            })
-        }
+
         if (messageTemplates && messageTemplates.length > 0) {
             messageTemplates.forEach(addMessageTemplate)
         } else {

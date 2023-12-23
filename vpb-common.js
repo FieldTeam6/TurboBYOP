@@ -25,7 +25,7 @@ function isNewContact(phone) {
 }
 
 // this is being used
-async function handleContact(fullName, phone, additionalFields) {
+async function storeContactDataInSessionStorage(fullName, phone, additionalFields) {
     console.log('got new contact', fullName, phone, additionalFields)
 
     window.sessionStorage.setItem('turboVpbPhoneNumber', phone)
@@ -33,16 +33,5 @@ async function handleContact(fullName, phone, additionalFields) {
 
     if (additionalFields) {
         window.sessionStorage.setItem('turboVpbAdditionalFields', JSON.stringify(additionalFields))
-    }
-
-    await sendDetails()
-}
-
-// this is being used
-async function sendDetails() {
-    console.log('sending details')
-    let { yourName, messageTemplates } = await browser.storage.local.get(['yourName', 'messageTemplates'])
-    if (typeof messageTemplates === 'string') {
-        messageTemplates = JSON.parse(messageTemplates)
     }
 }
