@@ -69,8 +69,6 @@ async function onOpen() {
         return { sendCountAllTime, dateLastSent, sendCountToday };
     });
 
-
-
     setTotalCalls(sendCountAllTime, sendCountToday)
 
     if (currentTab && currentTab.url) {
