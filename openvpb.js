@@ -159,7 +159,6 @@ async function getContactDetails() {
                         if(configuration['testmode'] == false){
                             const saveNext = saveNextButton();
                             setTimeout(() => {
-                                console.log("saveNext", saveNext)
                                 saveNext.click()
                             }, 1000)
                             console.log('fetching next...')

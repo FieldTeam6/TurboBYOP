@@ -15,8 +15,6 @@ browser.runtime.onInstalled.addListener(async ({ reason, previousVersion }) => {
 
 // For logging
 chrome.runtime.onMessage.addListener(function (message, sender, response) {
-    console.log('message', message);
-
     if (message.type === 'MESSAGE_SENT') {
         recordMessageSent();
     }
@@ -28,10 +26,9 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
  */
 recordMessageSent = () => {
     chrome.storage.sync.get(['sendCounts', 'dateLastSent', 'sendCountToday'], function (items) {
-        const todaysDate = getYearMonthAndDay(new Date());
-        console.log('items', items);
+        const now = new Date();
         items.sendCounts = items.sendCounts || {};
-        items.dateLastSent = items.dateLastSent || todaysDate;
+        items.dateLastSent = items.dateLastSent || now.toISOString();
         items.sendCountToday = items.sendCountToday || 0;
 
         const thisMonth = getYearAndMonth(new Date());
@@ -42,8 +39,17 @@ recordMessageSent = () => {
                 ...items.sendCounts,
                 [thisMonth]: thisMonthCount
             },
-            dateLastSent: todaysDate,
-            sendCountToday: items.dateLastSent == todaysDate ? items.sendCountToday + 1 : 1
+            dateLastSent: now.toISOString(),
+            sendCountToday: new Date(items.dateLastSent).toLocaleDateString() == now.toLocaleDateString() ? items.sendCountToday + 1 : 1
         });
     });
+}
+
+/**
+ * Takes a date and returns the Year and month, like 2019-03
+ * @param  {Date} date
+ * @return {string}      year and month
+ */
+ function getYearAndMonth(date) {
+    return date.getFullYear() + '-' + ("0" + (date.getMonth() + 1)).slice(-2)
 }

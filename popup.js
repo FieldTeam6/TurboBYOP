@@ -23,12 +23,10 @@ let Switch = document.querySelector('input[type="checkbox"]');
 
 Switch.addEventListener('change', async function () {
     if (Switch.checked) {
-        console.log('Checked');
         // use Google Voice
         await browser.storage.local.set({ messageSwitch: true })
     } else {
         // use default messaging app
-        console.log('Not checked');
         await browser.storage.local.set({ messageSwitch: false })
     }
 });
@@ -56,25 +54,22 @@ async function onOpen() {
 
     // Display stats
     if (statsStartDate) {
-        const date = new Date(statsStartDate)
-        document.getElementById('statsStartDate').innerText = getYearMonthAndDay(date);
+        const date = new Date(statsStartDate).toLocaleDateString();
+        document.getElementById('statsStartDate').innerText = date;
     }
 
     var {sendCountAllTime, dateLastSent, sendCountToday} = await chrome.storage.sync.get(['sendCounts', 'dateLastSent', 'sendCountToday']).then(function (items) {
-        const todaysDate = getYearMonthAndDay(new Date());
-        console.log('todaysDate', todaysDate);
-        console.log('items', items);
+        const now = new Date();
         const sendCountAllTime = Object.values(items['sendCounts']).reduce((total, val) => {
             return total + val;
         }, 0);
-        console.log('sendCountAllTime', sendCountAllTime);
-        const dateLastSent = items['dateLastSent'];
-        const sendCountToday = dateLastSent === todaysDate ? (items['sendCountToday'] || 0) : 0;
+        const dateLastSent = items['dateLastSent'] || now.toISOString();
+        const sendCountToday = new Date(dateLastSent).toLocaleDateString() === now.toLocaleDateString() ? (items['sendCountToday'] || 0) : 0;
 
         return { sendCountAllTime, dateLastSent, sendCountToday };
     });
 
-    console.log('sendCountAllTime', sendCountAllTime);
+
 
     setTotalCalls(sendCountAllTime, sendCountToday)
 
