@@ -24,7 +24,7 @@ function getFunctionName(func) {
  */
 function keepTrying(method, silenceErrors, cb) {
     const frequency = 100; // try every 100ms
-    let tryCount = 5 * 1000 / frequency; // keep trying for 5 seconds
+    let tryCount = 2 * 1000 / frequency; // keep trying for 2 seconds
     var keepTryingInterval = setInterval(function () {
         var successful = method();
         var giveUp = successful === false || tryCount-- < 0;
@@ -34,7 +34,7 @@ function keepTrying(method, silenceErrors, cb) {
             if (!silenceErrors && giveUp) {
                 if (siteIsGoogleVoice) {
                     if (getFunctionName(method) == 'confirmSent') {
-                        showFatalError(`If the problem persists, please wait 24 hours and try again.\n\nError: "${getFunctionName(method)}" failed.`, true)
+                        showFatalError(`If the problem persists, please wait 24 hours and then try again.\n\nError: "${getFunctionName(method)}" failed.`, true)
                     } else {
                         showFatalError(`If the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${getFunctionName(method)}" failed.`, true);
                     }

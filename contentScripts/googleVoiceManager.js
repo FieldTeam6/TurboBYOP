@@ -53,7 +53,7 @@ class GoogleVoiceSiteManager {
     }
 
     async sendFromQueue() {
-        let retryCount = 5;
+        let retryCount = 2;
         let verifyOnly = false;
 
         if (this.numberQueue.length > 0) {
@@ -82,7 +82,7 @@ class GoogleVoiceSiteManager {
     }
 
     async sendFromQueueBYOP() {
-        let retryCount = 5;
+        let retryCount = 2;
         let verifyOnly = false;
 
         let sendExecutionQueue = this.getSendExecutionQueue();

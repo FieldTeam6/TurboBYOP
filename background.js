@@ -50,6 +50,6 @@ recordMessageSent = () => {
  * @param  {Date} date
  * @return {string}      year and month
  */
- function getYearAndMonth(date) {
+function getYearAndMonth(date) {
     return date.getFullYear() + '-' + ("0" + (date.getMonth() + 1)).slice(-2)
 }
