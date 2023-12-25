@@ -25,41 +25,25 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
  * @return {[type]} [description]
  */
 recordMessageSent = () => {
-    chrome.storage.sync.get(['sendCounts', 'dateLastSent', 'sendCountToday', 'sendHistory'], function (items) {
+    chrome.storage.sync.get(['sendCounts', 'sendHistory'], function (items) {
         console.log('items', items);
         const now = new Date();
         items.sendCounts = items.sendCounts || {};
-        items.dateLastSent = items.dateLastSent || now.toISOString();
-        items.sendCountToday = items.sendCountToday || 0;
-        items.sendHistory = items.sendHistory || [];
+
+        // We maintain a history of texts send over a rolling 24-hour
+        // period so user's can more easily track how many messages they
+        // are able to send before getting throttled by Google Voice
+        items.sendHistory = updateSendHistory(items.sendHistory)
         items.sendHistory.push(now.toISOString())
-
-
-        for (var i = 0; i < items.sendHistory.length; i++) {
-            const dateSent = new Date(items.sendHistory[i]);
-            dateSent.setHours(dateSent.getHours() + 24);
-            
-            if (dateSent < now) {
-                items.sendHistory.splice(i, 1);
-            } else {
-                // Items will always be added to the end of the array,so break 
-                // out of the loop when we encounter the first element within 
-                // the 24-hour window; everything else after that will be too
-                break;
-            }
-        }
 
         const thisMonth = getYearAndMonth(now);
         const thisMonthCount = (items.sendCounts[thisMonth] || 0) + 1;
-
 
         chrome.storage.sync.set({
             sendCounts: {
                 ...items.sendCounts,
                 [thisMonth]: thisMonthCount
             },
-            dateLastSent: now.toISOString(),
-            sendCountToday: new Date(items.dateLastSent).toLocaleDateString() == now.toLocaleDateString() ? items.sendCountToday + 1 : 1,
             sendHistory: items.sendHistory
         });
     });

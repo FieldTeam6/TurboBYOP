@@ -58,19 +58,18 @@ async function onOpen() {
         document.getElementById('statsStartDate').innerText = date;
     }
 
-    var {sendCountAllTime, dateLastSent, sendCountToday, sendCount24Hours} = await chrome.storage.sync.get(['sendCounts', 'dateLastSent', 'sendCountToday', 'sendHistory'])
-    .then(function (items) {
-        const now = new Date();
+    var {sendCountAllTime, sendCount24Hours} = await chrome.storage.sync.get(['sendCounts', 'sendHistory'])
+        .then(function (items) {
         const sendCountAllTime = Object.values(items['sendCounts']).reduce((total, val) => {
             return total + val;
         }, 0);
-        const dateLastSent = items['dateLastSent'] || now.toISOString();
-        const sendCountToday = new Date(dateLastSent).toLocaleDateString() === now.toLocaleDateString() ? (items['sendCountToday'] || 0) : 0;
-        const sendHistory = items['sendHistory'] || [];
+        const sendHistory = updateSendHistory(items.sendHistory);
         const sendCount24Hours = sendHistory.length;
+        chrome.storage.sync.set({ sendHistory: sendHistory });
+
         console.log('sendHistory', sendHistory);
 
-        return { sendCountAllTime, dateLastSent, sendCountToday, sendCount24Hours };
+        return { sendCountAllTime, sendCount24Hours };
     });
 
     setTotalCalls(sendCountAllTime, sendCount24Hours)
