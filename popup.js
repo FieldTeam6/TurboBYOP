@@ -58,18 +58,22 @@ async function onOpen() {
         document.getElementById('statsStartDate').innerText = date;
     }
 
-    var {sendCountAllTime, dateLastSent, sendCountToday} = await chrome.storage.sync.get(['sendCounts', 'dateLastSent', 'sendCountToday']).then(function (items) {
+    var {sendCountAllTime, dateLastSent, sendCountToday, sendCount24Hours} = await chrome.storage.sync.get(['sendCounts', 'dateLastSent', 'sendCountToday', 'sendHistory'])
+    .then(function (items) {
         const now = new Date();
         const sendCountAllTime = Object.values(items['sendCounts']).reduce((total, val) => {
             return total + val;
         }, 0);
         const dateLastSent = items['dateLastSent'] || now.toISOString();
         const sendCountToday = new Date(dateLastSent).toLocaleDateString() === now.toLocaleDateString() ? (items['sendCountToday'] || 0) : 0;
+        const sendHistory = items['sendHistory'] || [];
+        const sendCount24Hours = sendHistory.length;
+        console.log('sendHistory', sendHistory);
 
-        return { sendCountAllTime, dateLastSent, sendCountToday };
+        return { sendCountAllTime, dateLastSent, sendCountToday, sendCount24Hours };
     });
 
-    setTotalCalls(sendCountAllTime, sendCountToday)
+    setTotalCalls(sendCountAllTime, sendCount24Hours)
 
     if (currentTab && currentTab.url) {
         console.log('Current tab URL:', currentTab.url)
