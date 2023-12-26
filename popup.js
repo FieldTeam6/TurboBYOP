@@ -60,9 +60,9 @@ async function onOpen() {
 
     var {sendCountAllTime, sendCount24Hours} = await chrome.storage.sync.get(['sendCounts', 'sendHistory'])
         .then(function (items) {
-        const sendCountAllTime = Object.values(items['sendCounts']).reduce((total, val) => {
+        const sendCountAllTime = items.sendCounts ? Object.values(items.sendCounts).reduce((total, val) => {
             return total + val;
-        }, 0);
+        }, 0) : 0;
         const sendHistory = updateSendHistory(items.sendHistory);
         const sendCount24Hours = sendHistory.length;
         chrome.storage.sync.set({ sendHistory: sendHistory });
