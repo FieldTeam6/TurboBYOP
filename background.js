@@ -26,14 +26,12 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
  */
 recordMessageSent = () => {
     chrome.storage.sync.get(['sendCounts', 'sendHistory'], function (items) {
-        console.log('items', items);
         const now = new Date();
         items.sendCounts = items.sendCounts || {};
 
         // We maintain a history of texts send over a rolling 24-hour
         // period so user's can more easily track how many messages they
         // are able to send before getting throttled by Google Voice
-        items.sendHistory = updateSendHistory(items.sendHistory)
         items.sendHistory.push(now.toISOString())
 
         const thisMonth = getYearAndMonth(now);

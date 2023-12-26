@@ -67,8 +67,6 @@ async function onOpen() {
         const sendCount24Hours = sendHistory.length;
         chrome.storage.sync.set({ sendHistory: sendHistory });
 
-        console.log('sendHistory', sendHistory);
-
         return { sendCountAllTime, sendCount24Hours };
     });
 
@@ -151,4 +149,30 @@ function resetStatusLook() {
     document.getElementById('statusIcon').classList.add('text-dark')
 
     firstRender = false
+}
+
+function updateSendHistory(sendHistory) {
+
+    if (!sendHistory) {
+        return [];
+    }
+
+    const now = new Date();
+
+    for (var i = 0; i < sendHistory.length; i++) {
+        const dateSent = new Date(sendHistory[i]);
+        dateSent.setHours(dateSent.getHours() + 24);
+        
+        console.log(`${dateSent} < ${now}`, dateSent < now);
+        if (dateSent < now) {
+            sendHistory.splice(i, 1);
+        } else {
+            // Items will always be added to the end of the array,so break 
+            // out of the loop when we encounter the first element within 
+            // the 24-hour window; everything else after that will be too
+            break;
+        }
+    }
+
+    return sendHistory
 }
