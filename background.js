@@ -30,7 +30,7 @@ recordMessageSent = () => {
         items.sendCounts = items.sendCounts || {};
 
         // We maintain a history of texts send over a rolling 24-hour
-        // period so user's can more easily track how many messages they
+        // period so users can more easily track how many messages they
         // are able to send before getting throttled by Google Voice
         items.sendHistory.push(now.toISOString())
 

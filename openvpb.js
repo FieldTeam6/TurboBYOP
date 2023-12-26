@@ -49,6 +49,7 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
         //open default messaging app if messageSwitch is false
         console.log(`sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`)
         window.open(`sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`, '_blank');
+        chrome.runtime.sendMessage({ type: "MESSAGE_SENT" });
     }
 }
 
