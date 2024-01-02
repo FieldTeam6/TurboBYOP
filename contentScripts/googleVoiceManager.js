@@ -64,7 +64,7 @@ class GoogleVoiceSiteManager {
                 let currentStep = sendExecutionQueue.shift().bind(this);
                 const result = await keepTryingAsPromised(currentStep, retryCount > 0);
                 if (!result) {
-                    console.log(`GV-BYOP SMS - Step failed (${getFunctionName(currentStep)}), retrying message.`);
+                    console.log(`BYOP SMS - Step failed (${getFunctionName(currentStep)}), retrying message.`);
                     retryCount--; // if this keeps happening, alert on it
 
                     if (verifyOnly) {
@@ -139,16 +139,16 @@ class GoogleVoiceSiteManager {
     }
 
     fillNumberInput() {
-		let numInput = document.querySelector(selectors.gvNumInput);
-		if (numInput && numInput.offsetParent !== null) {
-			numInput.value = this.currentNumberSending;
-			simulateKeyPress(numInput);
 
-			// confirm that the number was added as expected
-			let numInputConfirm = document.querySelector(selectors.gvNumInput);
-			return numInputConfirm && numInputConfirm.value === this.currentNumberSending;
-		}
-	}
+        let numInput = document.querySelector(selectors.gvNumInput);
+        if (numInput && numInput.offsetParent !== null) {
+            simulateTextEntry(numInput, this.currentNumberSending);
+
+            // confirm that the number was added as expected
+            let numInputConfirm = document.querySelector(selectors.gvNumInput);
+            return numInputConfirm && numInputConfirm.value === this.currentNumberSending;
+        }
+    }
 
     // clicks the "start SMS" button on the number dropdown
     startChat() {

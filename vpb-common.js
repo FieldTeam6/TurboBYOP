@@ -1,16 +1,6 @@
 console.log("Content script loaded")
 
 // Initialize Stats
-// This can probably be deleted
-if (!window.sessionStorage.getItem('turboVpbCalls')) {
-    window.sessionStorage.setItem('turboVpbCalls', '0')
-}
-if (!window.sessionStorage.getItem('turboVpbSuccessfulCalls')) {
-    window.sessionStorage.setItem('turboVpbSuccessfulCalls', '0')
-}
-if (!window.sessionStorage.getItem('turboVpbStartTime')) {
-    window.sessionStorage.setItem('turboVpbStartTime', Date.now())
-}
 if (!window.sessionStorage.getItem('turboVpbLastContactLoadTime')) {
     window.sessionStorage.setItem('turboVpbLastContactLoadTime', Date.now())
 }
@@ -39,8 +29,6 @@ async function handleContact(fullName, phone, additionalFields) {
     console.log('got new contact', fullName, phone, additionalFields)
 
     window.sessionStorage.setItem('turboVpbPhoneNumber', phone)
-    window.sessionStorage.setItem('turboVpbFirstName', fullName.split(' ')[0])
-    window.sessionStorage.setItem('turboVpbLastName', fullName.split(' ').slice(1).join(' '))
     window.sessionStorage.setItem('turboVpbLastContactLoadTime', Date.now())
 
     if (additionalFields) {
