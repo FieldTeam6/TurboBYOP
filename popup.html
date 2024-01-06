@@ -9,49 +9,54 @@
 </head>
 
 <style>
-    body {
-        width: 330px;
+body {
+    width: 330px;
+}
+
+.buttonIcon {
+    margin-left: auto;
+    margin-right: auto;
+    width: 60px;
+    height: 60px;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+.miniIcon {
+    width: 1.2em;
+    height: 1.2em;
+}
+
+.miniIcon > svg {
+    display: block;
+}
+
+.glow {
+    animation: pulse 1s 2;
+    animation-delay: 600ms;
+    transition: all .2s ease-in-out;
+}
+
+@keyframes pulse {
+    0% {
+        color: #343a40;
     }
-    
-    .buttonIcon {
-        margin-left: auto;
-        margin-right: auto;
-        width: 60px;
-        height: 60px;
+    45% {
+        color: #2db94d;
+        transform: scale(1.1);
     }
-    
-    a:hover {
-        text-decoration: none;
+    55% {
+        color: #2db94d;
+        transform: scale(1.1);
     }
-    
-    .miniIcon {
-        width: 1.2em;
-        height: 1.2em;
+    100% {
+        color: #343a40;
     }
-    
-    .glow {
-        animation: pulse 1s 2;
-        animation-delay: 600ms;
-        transition: all .2s ease-in-out;
-    }
-    
-    @keyframes pulse {
-        0% {
-            color: #343a40;
-        }
-        45% {
-            color: #2db94d;
-            transform: scale(1.1);
-        }
-        55% {
-            color: #2db94d;
-            transform: scale(1.1);
-        }
-        100% {
-            color: #343a40;
-        }
-    }
-    .switch {
+}
+
+.switch {
   position: relative;
   display: inline-block;
   width: 48px;
@@ -115,21 +120,11 @@ input:checked + .slider:before {
 <body>
     <nav class="navbar navbar-light bg-light">
         <div class="navbar-brand">
-            <img src="icons/byop_icon_32.png"> Field Team 6 BYOP
+            <img src="icons/byop_icon_32.png">
+            <span id="app-name">Field Team 6 BYOP</span>
         </div>
         <div class="ml-auto">
             <div class="row">
-                <div class="col px-1">
-                    <a href="mailto:info@fieldteam6.org?subject=Feedback%20on%20BYOP" class="text-secondary text-center" target="_blank" title="Have feedback?">
-                        <div class="miniIcon">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
-                                </path>
-                            </svg>
-                        </div>
-                    </a>
-                </div>
                 <div class="col pl-1">
                     <a href="mailto:info@fieldteam6.org?subject=BYOP%20Help&body=Please%20describe%20in%20as%20much%20detail%20as%20you%20can%20what%20you%20were%20doing%20and%20what%20didn't%20work%20or%20didn't%20make%20sense." target="_blank" class="text-secondary text-center"
                         title="Need help?">
@@ -149,8 +144,9 @@ input:checked + .slider:before {
         <div class="row">
             <div class="col">
                 <small class="text-muted">You have sent</small>
-                <h4 class="pb-0 display-4" id="numCalls">0 Texts</h4>
-                <small class="text-muted">with BYOP since <span id="statsStartDate">September 20</span></small>
+                <h4 class="pb-0 display-4" id="numCallsToday">0 Texts</h4>
+                <small class="text-muted">in the past 24 hours<br>
+                and <span id="numCallsAllTime">0 texts</span> total since <span id="statsStartDate">12/23/2023</span>.</small>
                 <p>
                     <small id="encouragement" class="text-muted">Keep up the great work!</small>
                 </p>
@@ -213,6 +209,11 @@ input:checked + .slider:before {
                         Configure 2-Click Texting
                     </small>
                 </a>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col">
+                <small id="current-version">v0.0.0</small>
             </div>
         </div>
     </div>

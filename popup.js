@@ -1,5 +1,8 @@
 const OPENVPB_REGEX = /https\:\/\/(www\.)?openvpb\.com/i;
 const OPENVPB_ORIGIN = 'https://www.openvpb.com/VirtualPhoneBank*';
+const manifest = chrome.runtime.getManifest();
+const currentVersion = document.getElementById('current-version');
+const appName = document.getElementById('app-name');
 
 let canEnable = false
 let isEnabled = false
@@ -7,6 +10,8 @@ let siteName
 let firstRender = true
 
 onOpen().catch(console.error)
+currentVersion.innerText = "v" + manifest.version;
+appName.innerText = manifest.name;
 document.getElementById('openOptions').addEventListener('click', async() => {
     await browser.runtime.openOptionsPage()
     window.close()
@@ -18,12 +23,10 @@ let Switch = document.querySelector('input[type="checkbox"]');
 
 Switch.addEventListener('change', async function () {
     if (Switch.checked) {
-        // do this
-        console.log('Checked');
+        // use Google Voice
         await browser.storage.local.set({ messageSwitch: true })
     } else {
-        // do that
-        console.log('Not checked');
+        // use default messaging app
         await browser.storage.local.set({ messageSwitch: false })
     }
 });
@@ -51,20 +54,23 @@ async function onOpen() {
 
     // Display stats
     if (statsStartDate) {
-        const date = new Date(statsStartDate)
-        document.getElementById('statsStartDate').innerText = `${date.getMonth() + 1}/${date.getDate()}`
+        const date = new Date(statsStartDate).toLocaleDateString();
+        document.getElementById('statsStartDate').innerText = date;
     }
 
-    var sendCounts = await chrome.storage.sync.get('sendCounts').then(function (value) {
-        if (!value['sendCounts']) {
-            return 0;
-        }
-
-        return Object.values(value['sendCounts']).reduce((total, val) => {
+    var {sendCountAllTime, sendCount24Hours} = await chrome.storage.sync.get(['sendCounts', 'sendHistory'])
+        .then(function (items) {
+        const sendCountAllTime = items.sendCounts ? Object.values(items.sendCounts).reduce((total, val) => {
             return total + val;
-        }, 0);
+        }, 0) : 0;
+        const sendHistory = updateSendHistory(items.sendHistory);
+        const sendCount24Hours = sendHistory.length;
+        chrome.storage.sync.set({ sendHistory: sendHistory });
+
+        return { sendCountAllTime, sendCount24Hours };
     });
-    showTotalCalls(sendCounts)
+
+    setTotalCalls(sendCountAllTime, sendCount24Hours)
 
     if (currentTab && currentTab.url) {
         console.log('Current tab URL:', currentTab.url)
@@ -87,10 +93,12 @@ async function onOpen() {
     resetStatusLook()
 }
 
-function showTotalCalls(totalCalls) {
-    document.getElementById('numCalls').innerText = `${totalCalls} Text${totalCalls !== 1 ? 's' : ''}`
-    if (totalCalls === 0) {
-        document.getElementById('encouragement').innerText = 'Login to a phone bank to get started!'
+function setTotalCalls(totalCallsAllTime, totalCallsToday) {
+    document.getElementById('numCallsToday').innerText = `${totalCallsToday} Text${totalCallsToday !== 1 ? 's' : ''}`
+    document.getElementById('numCallsAllTime').innerText = `${totalCallsAllTime} text${totalCallsAllTime !== 1 ? 's' : ''}`
+
+    if (totalCallsToday === 0) {
+        document.getElementById('encouragement').innerText = 'Log in to a phone bank to get started!'
     } else {
         document.getElementById('encouragement').innerText = 'Keep up the great work!'
     }
@@ -141,4 +149,30 @@ function resetStatusLook() {
     document.getElementById('statusIcon').classList.add('text-dark')
 
     firstRender = false
+}
+
+function updateSendHistory(sendHistory) {
+
+    if (!sendHistory) {
+        return [];
+    }
+
+    const now = new Date();
+
+    for (var i = 0; i < sendHistory.length; i++) {
+        const dateSent = new Date(sendHistory[i]);
+        dateSent.setHours(dateSent.getHours() + 24);
+        
+        console.log(`${dateSent} < ${now}`, dateSent < now);
+        if (dateSent < now) {
+            sendHistory.splice(i, 1);
+        } else {
+            // Items will always be added to the end of the array,so break 
+            // out of the loop when we encounter the first element within 
+            // the 24-hour window; everything else after that will be too
+            break;
+        }
+    }
+
+    return sendHistory
 }
