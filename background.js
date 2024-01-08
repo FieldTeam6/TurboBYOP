@@ -17,6 +17,8 @@ browser.runtime.onInstalled.addListener(async ({ reason, previousVersion }) => {
 chrome.runtime.onMessage.addListener(function (message, sender, response) {
     if (message.type === 'MESSAGE_SENT') {
         recordMessageSent();
+    } else if (message.type === 'USER_THROTTLED') {
+        recordUserThrottled();
     }
 });
 
@@ -44,7 +46,23 @@ recordMessageSent = () => {
             },
             sendHistory: items.sendHistory
         });
+
+        browser.storage.local.set({
+            sendCounts: {
+                ...items.sendCounts,
+                [thisMonth]: thisMonthCount
+            },
+            sendHistory: items.sendHistory
+        });
     });
+}
+
+async function recordUserThrottled() {
+    console.log('recordUserThrottled');
+    //const { sendHistory = [] } = await browser.storage.local.get(['sendHistory'])
+    let sendHistory = await getSendHistory();
+    console.log('sendHistory', sendHistory);
+    await browser.storage.local.set({ throttledSendCount: sendHistory.length });
 }
 
 /**

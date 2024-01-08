@@ -42,6 +42,7 @@
             "matches": ["https://www.openvpb.com/*"],
             "js": [
                 "dependencies/browser-polyfill.js",
+                "dependencies/utilities.js",
                 "vpb-common.js",
                 "openvpb.js"
             ],

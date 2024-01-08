@@ -31,7 +31,17 @@ function saveNextButton() {
 }
 
 async function launchMessagingApp(currentPhoneNumber, contactName) {
-    let { messageSwitch, yourName, messageTemplates } = await browser.storage.local.get(['messageSwitch', 'yourName', 'messageTemplates']);
+    let { messageSwitch, yourName, messageTemplates, throttledSendCount } = await browser.storage.local.get(['messageSwitch', 'yourName', 'messageTemplates', 'throttledSendCount']);
+    let sendCount = getSendHistory().length;
+
+    console.log('throttledSendCount', throttledSendCount);
+    console.log('sendCount', sendCount);
+
+    if (!(sendCount < throttledSendCount)) {
+        alert("NO!");
+        return false;
+    }
+
     let { label, message, result } = messageTemplates[0];
     let messageBody = message.replace(THEIR_NAME_REGEX, contactName).replace(YOUR_NAME_REGEX, yourName);
 +   console.log('messageBody', messageBody);
@@ -51,6 +61,8 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
         window.open(`sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`, '_blank');
         chrome.runtime.sendMessage({ type: "MESSAGE_SENT" });
     }
+
+    return true;
 }
 
 async function getContactDetails() {
@@ -126,48 +138,52 @@ async function getContactDetails() {
                 container.appendChild(title)
                 sidebarContainer.appendChild(container)
 
-                let { yourName, messageTemplates } = await browser.storage.local.get(['yourName', 'messageTemplates'])
+                let { yourName, messageTemplates, throttledSendCount = 0 } = await browser.storage.local.get(['yourName', 'messageTemplates', 'throttledSendCount']);
+                console.log('throttledSendCount', throttledSendCount);
 
                 if (messageTemplates.length > 0) {
                     console.log('Appending button...')
 
                     const button = document.createElement('button')
                     button.onclick = () => {
-                        launchMessagingApp(currentPhoneNumber, contactName);
-                        const surveySelect = document.getElementsByClassName('surveyquestion-element-select')[0];
+                        var isThrottled = launchMessagingApp(currentPhoneNumber, contactName);
 
-                        function simulateClick(item) {
-                            item.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
-                            item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-                            item.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
-                            item.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
-                            item.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
-                            item.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-                            item.dispatchEvent(new Event('change', { bubbles: true }));
+                        if (!isThrottled) {
+                            const surveySelect = document.getElementsByClassName('surveyquestion-element-select')[0];
 
-                            return true;
-                        }
+                            function simulateClick(item) {
+                                item.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+                                item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+                                item.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+                                item.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+                                item.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
+                                item.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                                item.dispatchEvent(new Event('change', { bubbles: true }));
 
-                        for (let i = 0, sL = surveySelect.length; i < sL; i++) {
-                            if ((surveySelect.options[i].text).toString().toLowerCase() == 'yes') {
-                                surveySelect.selectedIndex = i;
-                                surveySelect.options[i].selected = true;
-                                simulateClick(surveySelect);
-                                break;
+                                return true;
+                            }
+
+                            for (let i = 0, sL = surveySelect.length; i < sL; i++) {
+                                if ((surveySelect.options[i].text).toString().toLowerCase() == 'yes') {
+                                    surveySelect.selectedIndex = i;
+                                    surveySelect.options[i].selected = true;
+                                    simulateClick(surveySelect);
+                                    break;
+                                }
+                            }
+
+                            if(configuration['testmode'] == false){
+                                const saveNext = saveNextButton();
+                                setTimeout(() => {
+                                    saveNext.click()
+                                }, 1000)
+                                console.log('fetching next...')
                             }
                         }
-
-                        if(configuration['testmode'] == false){
-                            const saveNext = saveNextButton();
-                            setTimeout(() => {
-                                saveNext.click()
-                            }, 1000)
-                            console.log('fetching next...')
-                        }
+                        button.style = 'width: 100%;height: 38px;background-color: #98BF64;margin-top: 10px;border: none;border-radius: 4px;cursor: pointer;color: white;font-size: 14px;'
+                        button.textContent = "Set Up Text Message"
+                        container.appendChild(button)
                     }
-                    button.style = 'width: 100%;height: 38px;background-color: #98BF64;margin-top: 10px;border: none;border-radius: 4px;cursor: pointer;color: white;font-size: 14px;'
-                    button.textContent = "Set Up Text Message"
-                    container.appendChild(button)
                 } else {
                     console.log('NO msg templates')
                 }

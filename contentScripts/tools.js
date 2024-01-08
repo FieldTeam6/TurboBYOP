@@ -34,6 +34,7 @@ function keepTrying(method, silenceErrors, cb) {
             if (!silenceErrors && giveUp) {
                 if (siteIsGoogleVoice) {
                     if (getFunctionName(method) == 'confirmSent') {
+                        chrome.runtime.sendMessage({ type: "USER_THROTTLED" });
                         showFatalError(`If the problem persists, please wait 24 hours and try again.\n\nError: "${getFunctionName(method)}" failed.`, true)
                     } else {
                         showFatalError(`If the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${getFunctionName(method)}" failed.`, true);
