@@ -3,7 +3,7 @@ const OPENVPB_ORIGIN = 'https://www.openvpb.com/VirtualPhoneBank*'
 const unregisterContentScripts = {}
 
 // Run when installed or updated
-browser.runtime.onInstalled.addListener(async ({ reason, previousVersion }) => {
+browser.runtime.onInstalled.addListener(async () => {
     const { statsStartDate } = await browser.storage.local.get(['statsStartDate'])
     if (!statsStartDate) {
         console.log('setting stats start date')
@@ -14,7 +14,7 @@ browser.runtime.onInstalled.addListener(async ({ reason, previousVersion }) => {
 // Google Voice stuff
 
 // For logging
-chrome.runtime.onMessage.addListener(function (message, sender, response) {
+browser.runtime.onMessage.addListener(async (message, sender, response) => {
     if (message.type === 'MESSAGE_SENT') {
         recordMessageSent();
     } else if (message.type === 'USER_THROTTLED') {
@@ -26,34 +26,36 @@ chrome.runtime.onMessage.addListener(function (message, sender, response) {
  * Records the message count sent by month
  * @return {[type]} [description]
  */
-recordMessageSent = () => {
-    chrome.storage.sync.get(['sendCounts', 'sendHistory'], function (items) {
-        const now = new Date();
-        items.sendCounts = items.sendCounts || {};
+async function recordMessageSent() {
+    var items = await chrome.storage.sync.get(['sendCounts', 'sendHistory']);
+    const now = new Date();
+    items.sendCounts = items.sendCounts || {};
+    console.log('sendHistory', items.sendHistory);
+    items.sendHistory = cullSendHistory(items.sendHistory);
 
-        // We maintain a history of texts send over a rolling 24-hour
-        // period so users can more easily track how many messages they
-        // are able to send before getting throttled by Google Voice
-        items.sendHistory.push(now.toISOString())
+    // We maintain a history of texts send over a rolling 24-hour
+    // period so users can more easily track how many messages they
+    // are able to send before getting throttled by Google Voice
+    items.sendHistory.push(now.toISOString())
+    console.log('sendHistory', items.sendHistory);
 
-        const thisMonth = getYearAndMonth(now);
-        const thisMonthCount = (items.sendCounts[thisMonth] || 0) + 1;
+    const thisMonth = getYearAndMonth(now);
+    const thisMonthCount = (items.sendCounts[thisMonth] || 0) + 1;
 
-        chrome.storage.sync.set({
-            sendCounts: {
-                ...items.sendCounts,
-                [thisMonth]: thisMonthCount
-            },
-            sendHistory: items.sendHistory
-        });
+    chrome.storage.sync.set({
+        sendCounts: {
+            ...items.sendCounts,
+            [thisMonth]: thisMonthCount
+        },
+        sendHistory: items.sendHistory
+    });
 
-        browser.storage.local.set({
-            sendCounts: {
-                ...items.sendCounts,
-                [thisMonth]: thisMonthCount
-            },
-            sendHistory: items.sendHistory
-        });
+    browser.storage.local.set({
+        sendCounts: {
+            ...items.sendCounts,
+            [thisMonth]: thisMonthCount
+        },
+        sendHistory: items.sendHistory
     });
 }
 
