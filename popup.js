@@ -1,6 +1,6 @@
 const OPENVPB_REGEX = /https\:\/\/(www\.)?openvpb\.com/i;
 const OPENVPB_ORIGIN = 'https://www.openvpb.com/VirtualPhoneBank*';
-const manifest = chrome.runtime.getManifest();
+const manifest = browser.runtime.getManifest();
 const currentVersion = document.getElementById('current-version');
 const appName = document.getElementById('app-name');
 
@@ -24,10 +24,10 @@ let Switch = document.querySelector('input[type="checkbox"]');
 Switch.addEventListener('change', async function () {
     if (Switch.checked) {
         // use Google Voice
-        await browser.storage.local.set({ messageSwitch: true })
+        browser.storage.local.set({ messageSwitch: true })
     } else {
         // use default messaging app
-        await browser.storage.local.set({ messageSwitch: false })
+        browser.storage.local.set({ messageSwitch: false })
     }
 });
 
@@ -68,6 +68,7 @@ async function onOpen() {
     });
 
     let sendHistory = await getSendHistory();
+    console.log('sendHistory', sendHistory);
 
     setTotalCalls(sendCountAllTime, sendHistory.length)
 

@@ -139,7 +139,6 @@ async function getContactDetails() {
                 console.log('throttledSendCount', throttledSendCount);
                 var sendHistory = await getSendHistory();
                 var currentSendCount = sendHistory.length;
-                console.log('sendHistory', sendHistory)
                 console.log('currentSendCount', currentSendCount);
 
                 if (messageTemplates && messageTemplates.length > 0) {
@@ -188,7 +187,7 @@ async function getContactDetails() {
                         container.appendChild(button)
                     } else if (currentSendCount < throttledSendCount) {
                         container.appendChild(button)
-                        browser.storage.local.set({ throttledSendCount: sendHistory.length });
+                        browser.storage.local.set({ throttledSendCount: 0 });
                     }
                 } else {
                     console.log('NO msg templates')

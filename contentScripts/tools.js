@@ -24,7 +24,7 @@ function getFunctionName(func) {
  */
 function keepTrying(method, silenceErrors, cb) {
     const frequency = 100; // try every 100ms
-    let tryCount = 2 * 1000 / frequency; // keep trying for 2 seconds
+    let tryCount = 4 * 1000 / frequency; // keep trying for 4 seconds
     var keepTryingInterval = setInterval(function () {
         var successful = method();
         var giveUp = successful === false || tryCount-- < 0;
@@ -78,7 +78,7 @@ function showFatalError(message, reload) {
     if (siteManager) {
         siteManager.messagesToSend.length = 0;
     }
-    const manifest = chrome.runtime.getManifest();
+    const manifest = browser.runtime.getManifest();
     const reloadMessage = '\n\nWhen you click "OK" the page will refresh.';
     const fullMessage = `BYOP v${manifest.version}:\nText failed. ${message} ${reload ? reloadMessage : ''}`;
     console.error('BYOP SMS - ' + fullMessage);

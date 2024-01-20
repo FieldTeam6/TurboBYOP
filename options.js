@@ -81,7 +81,7 @@ function saveSettings() {
         }
     }
 
-    return browser.storage.local.set({
+    browser.storage.local.set({
         yourName: document.getElementById('yourName').value,
         messageTemplates
     })

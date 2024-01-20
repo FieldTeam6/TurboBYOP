@@ -82,7 +82,7 @@ class GoogleVoiceSiteManager {
     }
 
     async sendFromQueueBYOP() {
-        let retryCount = 2;
+        let retryCount = 1;
         let verifyOnly = false;
 
         let sendExecutionQueue = this.getSendExecutionQueue();
@@ -90,7 +90,12 @@ class GoogleVoiceSiteManager {
             let currentStep = sendExecutionQueue.shift().bind(this);
             const result = await keepTryingAsPromised(currentStep, retryCount > 0);
             if (!result) {
-                console.log(`BYOP SMS - Step failed (${getFunctionName(currentStep)}), retrying message.`);
+                console.log('result', result);
+                console.log(`${retryCount}: BYOP SMS - Step failed (${getFunctionName(currentStep)}), retrying message.`);
+
+                if (getFunctionName(currentStep) === 'confirmSent') {
+                    // should we bail the first time we receive this?
+                }
                 retryCount--; // if this keeps happening, alert on it
 
                 if (verifyOnly) {

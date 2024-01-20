@@ -2,14 +2,11 @@ async function getSendHistory() {
 
     let { sendHistory = [] } = await browser.storage.local.get(['sendHistory']);
 
-    console.log('getSendHistory', sendHistory);
     if (!sendHistory) {
         return [];
     }
 
     cullSendHistory(sendHistory);
-
-    console.log('sendHistory count', sendHistory.length);
 
     browser.storage.local.set({ sendHistory: sendHistory });
 
@@ -28,7 +25,7 @@ function cullSendHistory(sendHistory) {
         const dateSent = new Date(sendHistory[i]);
         dateSent.setHours(dateSent.getHours() + 24);
 
-        console.log(`${dateSent} < ${now}`, dateSent < now);
+        console.log(`${dateSent.toISOString()} < ${now.toISOString()}`, dateSent < now);
         if (dateSent < now) {
             sendHistory.splice(i, 1);
         } else {

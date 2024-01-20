@@ -7,7 +7,7 @@ browser.runtime.onInstalled.addListener(async () => {
     const { statsStartDate } = await browser.storage.local.get(['statsStartDate'])
     if (!statsStartDate) {
         console.log('setting stats start date')
-        await browser.storage.local.set({ statsStartDate: (new Date()).toISOString() })
+        browser.storage.local.set({ statsStartDate: (new Date()).toISOString() })
     }
 })
 
@@ -27,17 +27,22 @@ browser.runtime.onMessage.addListener(async (message, sender, response) => {
  * @return {[type]} [description]
  */
 async function recordMessageSent() {
+    // The browser and chrome APIs don't write data to the same place!
+    // We'll want to release v0.4.4 that replaces these remaining references
+    // to the chrome API once we're certain most everyone has upgraded and 
+    // used the new version so their counts are preserved
     var items = await chrome.storage.sync.get(['sendCounts', 'sendHistory']);
     const now = new Date();
     items.sendCounts = items.sendCounts || {};
     console.log('sendHistory', items.sendHistory);
     items.sendHistory = cullSendHistory(items.sendHistory);
-
+    console.log('sendHistory', items.sendHistory);
+    
     // We maintain a history of texts send over a rolling 24-hour
     // period so users can more easily track how many messages they
     // are able to send before getting throttled by Google Voice
     items.sendHistory.push(now.toISOString())
-    console.log('sendHistory', items.sendHistory);
+
 
     const thisMonth = getYearAndMonth(now);
     const thisMonthCount = (items.sendCounts[thisMonth] || 0) + 1;
@@ -61,10 +66,9 @@ async function recordMessageSent() {
 
 async function recordUserThrottled() {
     console.log('recordUserThrottled');
-    //const { sendHistory = [] } = await browser.storage.local.get(['sendHistory'])
     let sendHistory = await getSendHistory();
     console.log('sendHistory', sendHistory);
-    await browser.storage.local.set({ throttledSendCount: sendHistory.length });
+    browser.storage.local.set({ throttledSendCount: sendHistory.length });
 }
 
 /**
