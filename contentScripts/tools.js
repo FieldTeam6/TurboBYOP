@@ -28,13 +28,20 @@ function keepTrying(method, silenceErrors, cb) {
     var keepTryingInterval = setInterval(function () {
         var successful = method();
         var giveUp = successful === false || tryCount-- < 0;
+
         if (successful === true || giveUp) {
+            if (getFunctionName(method) === 'confirmSent') {
+                // If error occurs on confirmSent, it is almost always 
+                // indicative to throttling and we want to abort
+                silenceErrors = false;
+            }
+            console.log('silenceErrors', silenceErrors);
             clearInterval(keepTryingInterval);
             // the app failed
             if (!silenceErrors && giveUp) {
                 if (siteIsGoogleVoice) {
-                    if (getFunctionName(method) == 'confirmSent') {
-                        chrome.runtime.sendMessage({ type: "USER_THROTTLED" });
+                    if (getFunctionName(method) === 'confirmSent') {
+                        browser.runtime.sendMessage({ type: "USER_THROTTLED" });
                         showFatalError(`If the problem persists, please wait 24 hours and try again.\n\nError: "${getFunctionName(method)}" failed.`, true)
                     } else {
                         showFatalError(`If the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${getFunctionName(method)}" failed.`, true);

@@ -32,6 +32,7 @@
         {
             "matches": ["https://voice.google.com/*"],
             "js": [
+                "dependencies/browser-polyfill.js",
                 "contentScripts/googleVoiceManager.js",
                 "contentScripts/tools.js",
                 "contentScripts/main.js"

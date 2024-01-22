@@ -29,22 +29,6 @@ class GoogleVoiceSiteManager {
                 this.sendFromQueueBYOP()
             }
         }
-        chrome.runtime.onMessage.addListener((message, sender, response) => {
-            if (message.from === 'popup' && message.type === 'SEND_MESSAGES') {
-                this.addMessagesToQueue(message.messages);
-                this.sendInterval = message.sendInterval;
-
-                // switch To Text View
-                document.querySelector(selectors.gvMessagesTab).click();
-
-                this.sendFromQueue();
-            }
-
-            if (message.from === 'popup' && message.type === 'CHECK_GOOGLE_VOICE_SUPPORT') {
-                var url = window.location.href;
-                response(url.startsWith('https://voice.google.com/') ? 'GV' : false);
-            }
-        });
     }
 
     addMessagesToQueue(messages) {
@@ -90,12 +74,13 @@ class GoogleVoiceSiteManager {
             let currentStep = sendExecutionQueue.shift().bind(this);
             const result = await keepTryingAsPromised(currentStep, retryCount > 0);
             if (!result) {
-                console.log('result', result);
-                console.log(`${retryCount}: BYOP SMS - Step failed (${getFunctionName(currentStep)}), retrying message.`);
-
                 if (getFunctionName(currentStep) === 'confirmSent') {
-                    // should we bail the first time we receive this?
+                    // We don't retry confirmSent failures as they almost always indicate throttling
+                    console.log(`${retryCount}: BYOP SMS - Step failed (${getFunctionName(currentStep)}).`);
+                } else {
+                    console.log(`${retryCount}: BYOP SMS - Step failed (${getFunctionName(currentStep)}), retrying message.`);
                 }
+
                 retryCount--; // if this keeps happening, alert on it
 
                 if (verifyOnly) {
@@ -244,7 +229,7 @@ class GoogleVoiceSiteManager {
             }
 
             if (sentMessageIsThreaded) {
-                chrome.runtime.sendMessage({ type: "MESSAGE_SENT" });
+                browser.runtime.sendMessage({ type: "MESSAGE_SENT" });
                 // continue with queue
                 setTimeout(this.sendFromQueue.bind(this), this.sendInterval);
                 return true;

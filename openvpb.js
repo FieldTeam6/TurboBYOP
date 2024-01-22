@@ -30,13 +30,16 @@ function saveNextButton() {
         document.getElementById('contactResultsSaveNextButton')
 }
 
-async function launchMessagingApp(currentPhoneNumber, contactName, currentSendCount, throttledSendCount) {
-    let { messageSwitch, yourName, messageTemplates } = await browser.storage.local.get(['messageSwitch', 'yourName', 'messageTemplates']);
+async function launchMessagingApp(currentPhoneNumber, contactName) {
+    let { messageSwitch, yourName, messageTemplates, sendHistory, throttledSendCount } = await browser.storage.local.get(['messageSwitch', 'yourName', 'messageTemplates', 'sendHistory', 'throttledSendCount']);
+    currentSendCount = sendHistory.length;
 
     console.log('throttledSendCount', throttledSendCount);
     console.log('currentSendCount', currentSendCount);
+    let showAlert = throttledSendCount && currentSendCount >= throttledSendCount;
+    console.log('showAlert', showAlert);
 
-    if (throttledSendCount && currentSendCount >= throttledSendCount) {
+    if (showAlert) {
         alert("NO!");
         return false;
     }
@@ -58,7 +61,7 @@ async function launchMessagingApp(currentPhoneNumber, contactName, currentSendCo
         //open default messaging app if messageSwitch is false
         console.log(`sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`)
         window.open(`sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`, '_blank');
-        chrome.runtime.sendMessage({ type: "MESSAGE_SENT" });
+        browser.runtime.sendMessage({ type: "MESSAGE_SENT" });
     }
 }
 
@@ -145,7 +148,7 @@ async function getContactDetails() {
                     console.log('Appending button...')
                     const button = document.createElement('button')
                     button.onclick = () => {
-                        launchMessagingApp(currentPhoneNumber, contactName, currentSendCount, throttledSendCount);
+                        launchMessagingApp(currentPhoneNumber, contactName);
 
 
                         const surveySelect = document.getElementsByClassName('surveyquestion-element-select')[0];
