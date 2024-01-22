@@ -32,7 +32,7 @@ function saveNextButton() {
 
 async function launchMessagingApp(currentPhoneNumber, contactName) {
     let { messageSwitch, yourName, messageTemplates, sendHistory, throttledSendCount } = await browser.storage.local.get(['messageSwitch', 'yourName', 'messageTemplates', 'sendHistory', 'throttledSendCount']);
-    currentSendCount = sendHistory.length;
+    currentSendCount = sendHistory ? sendHistory.length : 0;
 
     console.log('throttledSendCount', throttledSendCount);
     console.log('currentSendCount', currentSendCount);
@@ -63,6 +63,8 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
         window.open(`sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`, '_blank');
         browser.runtime.sendMessage({ type: "MESSAGE_SENT" });
     }
+
+    return true;
 }
 
 async function getContactDetails() {
@@ -138,7 +140,7 @@ async function getContactDetails() {
                 container.appendChild(title)
                 sidebarContainer.appendChild(container)
 
-                let { yourName, messageTemplates, throttledSendCount = 0 } = await browser.storage.local.get(['yourName', 'messageTemplates', 'throttledSendCount']);
+                let { messageTemplates, throttledSendCount = 0 } = await browser.storage.local.get(['messageTemplates', 'throttledSendCount']);
                 console.log('throttledSendCount', throttledSendCount);
                 var sendHistory = await getSendHistory();
                 var currentSendCount = sendHistory.length;
@@ -147,39 +149,41 @@ async function getContactDetails() {
                 if (messageTemplates && messageTemplates.length > 0) {
                     console.log('Appending button...')
                     const button = document.createElement('button')
-                    button.onclick = () => {
-                        launchMessagingApp(currentPhoneNumber, contactName);
+                    button.onclick = async () => {
+                        const markTexted = await launchMessagingApp(currentPhoneNumber, contactName);
+                        console.log('markTexted', markTexted);
+                        if (markTexted) {
 
+                            const surveySelect = document.getElementsByClassName('surveyquestion-element-select')[0];
 
-                        const surveySelect = document.getElementsByClassName('surveyquestion-element-select')[0];
+                            function simulateClick(item) {
+                                item.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+                                item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+                                item.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+                                item.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+                                item.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
+                                item.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                                item.dispatchEvent(new Event('change', { bubbles: true }));
 
-                        function simulateClick(item) {
-                            item.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
-                            item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-                            item.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
-                            item.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
-                            item.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
-                            item.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-                            item.dispatchEvent(new Event('change', { bubbles: true }));
-
-                            return true;
-                        }
-
-                        for (let i = 0, sL = surveySelect.length; i < sL; i++) {
-                            if ((surveySelect.options[i].text).toString().toLowerCase() == 'yes') {
-                                surveySelect.selectedIndex = i;
-                                surveySelect.options[i].selected = true;
-                                simulateClick(surveySelect);
-                                break;
+                                return true;
                             }
-                        }
 
-                        if (configuration['testmode'] == false) {
-                            const saveNext = saveNextButton();
-                            setTimeout(() => {
-                                saveNext.click()
-                            }, 1000)
-                            console.log('fetching next...')
+                            for (let i = 0, sL = surveySelect.length; i < sL; i++) {
+                                if ((surveySelect.options[i].text).toString().toLowerCase() == 'yes') {
+                                    surveySelect.selectedIndex = i;
+                                    surveySelect.options[i].selected = true;
+                                    simulateClick(surveySelect);
+                                    break;
+                                }
+                            }
+
+                            if (configuration['testmode'] == false) {
+                                const saveNext = saveNextButton();
+                                setTimeout(() => {
+                                    saveNext.click()
+                                }, 1000)
+                                console.log('fetching next...')
+                            }
                         }
                     }
 
