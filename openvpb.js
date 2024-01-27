@@ -32,6 +32,9 @@ function saveNextButton() {
 
 async function launchMessagingApp(currentPhoneNumber, contactName) {
     let { messageSwitch, yourName, messageTemplates, sendHistory, throttledSendCount } = await browser.storage.local.get(['messageSwitch', 'yourName', 'messageTemplates', 'sendHistory', 'throttledSendCount']);
+    let { label, message, result } = messageTemplates[0];
+    let messageBody = message.replace(THEIR_NAME_REGEX, contactName).replace(YOUR_NAME_REGEX, yourName);
+    console.log('messageBody', messageBody);
     currentSendCount = sendHistory ? sendHistory.length : 0;
 
     console.log('throttledSendCount', throttledSendCount);
@@ -43,10 +46,6 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
         alert("NO!");
         return false;
     }
-
-    let { label, message, result } = messageTemplates[0];
-    let messageBody = message.replace(THEIR_NAME_REGEX, contactName).replace(YOUR_NAME_REGEX, yourName);
-+   console.log('messageBody', messageBody);
 
     if (configuration['testmode'] == true){
         currentPhoneNumber = configuration['defaultNumber']

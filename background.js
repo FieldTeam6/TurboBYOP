@@ -31,43 +31,36 @@ async function recordMessageSent() {
     // We'll want to release v0.4.4 that replaces these remaining references
     // to the chrome API once we're certain most everyone has upgraded and 
     // used the new version so their counts are preserved
-    var items = await chrome.storage.sync.get(['sendCounts', 'sendHistory']);
-    const now = new Date();
+    var items = await chrome.storage.sync.get(['sendCounts']);
     items.sendCounts = items.sendCounts || {};
-    console.log('sendHistory', items.sendHistory);
-    items.sendHistory = cullSendHistory(items.sendHistory);
-    console.log('sendHistory', items.sendHistory);
+    items.sendHistory = await getSendHistory(true);
     
     // We maintain a history of texts send over a rolling 24-hour
     // period so users can more easily track how many messages they
     // are able to send before getting throttled by Google Voice
-    items.sendHistory.push(now.toISOString())
-
-
+    const now = new Date();
     const thisMonth = getYearAndMonth(now);
     const thisMonthCount = (items.sendCounts[thisMonth] || 0) + 1;
+    console.log('thisMonthCount', thisMonthCount);
 
     chrome.storage.sync.set({
         sendCounts: {
             ...items.sendCounts,
             [thisMonth]: thisMonthCount
-        },
-        sendHistory: items.sendHistory
+        }
     });
 
     browser.storage.local.set({
         sendCounts: {
             ...items.sendCounts,
             [thisMonth]: thisMonthCount
-        },
-        sendHistory: items.sendHistory
+        }
     });
 }
 
 async function recordUserThrottled() {
     console.log('recordUserThrottled');
     let sendHistory = await getSendHistory();
-    console.log('sendHistory', sendHistory);
     browser.storage.local.set({ throttledSendCount: sendHistory.length });
 }
 

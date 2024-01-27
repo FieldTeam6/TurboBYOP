@@ -68,7 +68,6 @@ async function onOpen() {
     });
 
     let sendHistory = await getSendHistory();
-    console.log('sendHistory', sendHistory);
 
     setTotalCalls(sendCountAllTime, sendHistory.length)
 

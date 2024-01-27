@@ -28,9 +28,10 @@ function keepTrying(method, silenceErrors, cb) {
     var keepTryingInterval = setInterval(function () {
         var successful = method();
         var giveUp = successful === false || tryCount-- < 0;
+        let functionName = getFunctionName(method);
 
         if (successful === true || giveUp) {
-            if (getFunctionName(method) === 'confirmSent') {
+            if (functionName === 'confirmSent') {
                 // If error occurs on confirmSent, it is almost always 
                 // indicative to throttling and we want to abort
                 silenceErrors = false;
@@ -40,11 +41,11 @@ function keepTrying(method, silenceErrors, cb) {
             // the app failed
             if (!silenceErrors && giveUp) {
                 if (siteIsGoogleVoice) {
-                    if (getFunctionName(method) === 'confirmSent') {
+                    if (functionName === 'confirmSent') {
                         browser.runtime.sendMessage({ type: "USER_THROTTLED" });
-                        showFatalError(`If the problem persists, please wait 24 hours and try again.\n\nError: "${getFunctionName(method)}" failed.`, true)
+                        showFatalError(`If the problem persists, please try a different campaign, or wait 24 hours and try again.\n\nError: "${functionName}" failed.`, true)
                     } else {
-                        showFatalError(`If the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${getFunctionName(method)}" failed.`, true);
+                        showFatalError(`If the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${functionName}" failed.`, true);
                     }
                 } else {
                     showFatalError('Are you sure Google Voice texting via Hangouts is enabled?\nAlso, be aware that this extension is not compatible with the Google Hangouts Chrome extension. If you have the Hangouts extension installed you\'ll need to temporarily disable it.', false);
