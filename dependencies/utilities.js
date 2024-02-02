@@ -15,15 +15,17 @@ async function getSendHistory(increment = false) {
         dateSent.setHours(dateSent.getHours() + 24);
 
         console.log(`${dateSent.toISOString()} < ${now.toISOString()}`, dateSent < now);
-        if (dateSent < now) {
-            sendHistory.splice(i, 1);
-        } else {
+        if (!(dateSent < now)) {
             // Items will always be added to the end of the array,so break 
             // out of the loop when we encounter the first element within 
             // the 24-hour window; everything else after that will be too
+            console.log("break on i = " + i);
             break;
         }
     }
+
+    // discard everything prior to element i as it is more than 24 hours old
+    sendHistory = sendHistory.slice(i);
 
     if (increment) {
         sendHistory.push(now.toISOString())
