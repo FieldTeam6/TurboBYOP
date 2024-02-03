@@ -41,7 +41,6 @@ async function recordMessageSent() {
     const now = new Date();
     const thisMonth = getYearAndMonth(now);
     const thisMonthCount = (items.sendCounts[thisMonth] || 0) + 1;
-    console.log('thisMonthCount', thisMonthCount);
 
     chrome.storage.sync.set({
         sendCounts: {

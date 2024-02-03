@@ -31,16 +31,16 @@ function saveNextButton() {
 }
 
 async function launchMessagingApp(currentPhoneNumber, contactName) {
-    let { messageSwitch, yourName, messageTemplates, sendHistory, throttledSendCount } = await browser.storage.local.get(['messageSwitch', 'yourName', 'messageTemplates', 'sendHistory', 'throttledSendCount']);
+    let { messageSwitch, yourName, messageTemplates, throttledSendCount } = await browser.storage.local.get(['messageSwitch', 'yourName', 'messageTemplates', 'throttledSendCount']);
     let { label, message, result } = messageTemplates[0];
     let messageBody = message.replace(THEIR_NAME_REGEX, contactName).replace(YOUR_NAME_REGEX, yourName);
-    console.log('messageBody', messageBody);
-    currentSendCount = sendHistory ? sendHistory.length : 0;
+    const sendHistory = await getSendHistory();    
+    const currentSendCount = sendHistory ? sendHistory.length : 0;
 
+    console.log('messageBody', messageBody);
     console.log('throttledSendCount', throttledSendCount);
     console.log('currentSendCount', currentSendCount);
     let showAlert = throttledSendCount && currentSendCount >= throttledSendCount;
-    console.log('showAlert', showAlert);
 
     if (showAlert) {
         alert("NO!");
@@ -97,7 +97,7 @@ async function getContactDetails() {
 
         // Determine if they couldn't reach the contact
         if (couldntReachButton()) {
-            couldntReachButton().addEventListener('click', async() => {
+            couldntReachButton().addEventListener('click', async () => {
                 couldntReachContact = true
                 console.log(`couldn't reach contact: ${couldntReachContact}`)
 
@@ -105,7 +105,7 @@ async function getContactDetails() {
                     waitForButton(['contactresultscancelbutton', 'contactResultsCancelButton']),
                     waitForButton(['contactresultssavenextbutton', 'contactResultsSaveNextButton'])
                 ])
-                cancelButton.addEventListener('click', () => {
+                cancelButton.addEventListener('click', async () => {
                     couldntReachContact = false
                     console.log(`couldn't reach contact: ${couldntReachContact}`)
                 })
@@ -140,9 +140,9 @@ async function getContactDetails() {
                 sidebarContainer.appendChild(container)
 
                 let { messageTemplates, throttledSendCount = 0 } = await browser.storage.local.get(['messageTemplates', 'throttledSendCount']);
-                console.log('throttledSendCount', throttledSendCount);
                 var sendHistory = await getSendHistory();
                 var currentSendCount = sendHistory.length;
+                console.log('throttledSendCount', throttledSendCount);
                 console.log('currentSendCount', currentSendCount);
 
                 if (messageTemplates && messageTemplates.length > 0) {
@@ -150,7 +150,6 @@ async function getContactDetails() {
                     const button = document.createElement('button')
                     button.onclick = async () => {
                         const markTexted = await launchMessagingApp(currentPhoneNumber, contactName);
-                        console.log('markTexted', markTexted);
                         if (markTexted) {
 
                             const surveySelect = document.getElementsByClassName('surveyquestion-element-select')[0];

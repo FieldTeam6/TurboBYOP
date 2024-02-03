@@ -43,7 +43,7 @@ function keepTrying(method, silenceErrors, cb) {
                 if (siteIsGoogleVoice) {
                     if (functionName === 'confirmSent') {
                         browser.runtime.sendMessage({ type: "USER_THROTTLED" });
-                        showFatalError(`If the problem persists, please try a different campaign, or wait 24 hours and try again.\n\nError: "${functionName}" failed.`, true)
+                        showFatalError(`You've been throttled by Google Voice.  Please try a different campaign, or wait 24 hours and try again.\n\nError: "${functionName}" failed.`, true)
                     } else {
                         showFatalError(`If the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${functionName}" failed.`, true);
                     }
@@ -88,7 +88,7 @@ function showFatalError(message, reload) {
     }
     const manifest = browser.runtime.getManifest();
     const reloadMessage = '\n\nWhen you click "OK" the page will refresh.';
-    const fullMessage = `BYOP v${manifest.version}:\nText failed. ${message} ${reload ? reloadMessage : ''}`;
+    const fullMessage = `BYOP v${manifest.version}: Text failed.\n\n${message} ${reload ? reloadMessage : ''}`;
     console.error('BYOP SMS - ' + fullMessage);
     alert(fullMessage);
     if (reload) {

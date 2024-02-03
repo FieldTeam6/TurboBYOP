@@ -11,7 +11,6 @@ async function getSendHistory(increment = false) {
 
     for (var i = 0; i < sendHistory.length; i++) {
         const dateSent = new Date(sendHistory[i]);
-        console.log('dateSent', dateSent.toISOString());
         dateSent.setHours(dateSent.getHours() + 24);
 
         console.log(`${dateSent.toISOString()} < ${now.toISOString()}`, dateSent < now);
@@ -19,7 +18,6 @@ async function getSendHistory(increment = false) {
             // Items will always be added to the end of the array,so break 
             // out of the loop when we encounter the first element within 
             // the 24-hour window; everything else after that will be too
-            console.log("break on i = " + i);
             break;
         }
     }
