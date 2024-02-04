@@ -5,13 +5,14 @@ const messageContainer = document.getElementById('messages')
 const messageTemplateHtml = document.getElementById('message-template')
 let messageIndex = 0
 
-document.getElementById('settings').addEventListener('change', saveSettings)
 
 browser.storage.local.get(['yourName', 'messageTemplates'])
     .then(({ yourName, messageTemplates }) => {
         if (yourName) {
             document.getElementById('yourName').value = yourName
         }
+
+        document.getElementById('settings').addEventListener('change', () => saveSettings(messageTemplates));
 
         if (messageTemplates && messageTemplates.length > 0) {
             messageTemplates.forEach(addMessageTemplate)
@@ -50,8 +51,9 @@ function addMessageTemplate(template) {
     messageContainer.appendChild(messageTemplateNode)
 }
 
-function saveSettings() {
+function saveSettings(arg) {
     console.log('saving settings')
+    console.log('arg', arg);
     const messageTemplates = []
     const elements = document.getElementsByClassName('message-template')
     let includesTextReplacement = false
@@ -63,11 +65,23 @@ function saveSettings() {
             if (!label.value) {
                 label.value = `Message ${i + 1}`
             }
+
             messageTemplates.push({
                 label: label.value,
                 message,
                 result: elem.querySelector('.message-template-result-texted').checked ? 'Texted' : null
-            })
+            });
+
+            if (arg[i]) {
+                console.log('arg[i]', arg[i]);
+                console.log('message', message);
+                console.log('oldMessage', arg[i].message);
+
+                if (message != arg[i].message) {
+                    browser.storage.local.set({ throttledSendCount: 0 });
+                }
+            }
+
 
             includesTextReplacement = includesTextReplacement || SUBSTITUTION_REGEX.test(message)
         }

@@ -43,8 +43,11 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
     let showAlert = throttledSendCount && currentSendCount >= throttledSendCount;
 
     if (showAlert) {
-        alert("NO!");
-        return false;
+        var continueTexting = confirm("You've been throttled by Google Voice.  If you'd like to attempt to send another text, click \"OK.\"  Otherwise, click \"Cancel\" to quit or try a different campaign.");
+         
+        if (!continueTexting) {
+            return false;
+        }
     }
 
     if (configuration['testmode'] == true){
