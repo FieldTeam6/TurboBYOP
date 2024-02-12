@@ -17,23 +17,21 @@ class GoogleVoiceSiteManager {
 
     async initialize() {
         const checkUrl = window.location.href;
-        //https://voice.google.com/?phoneNo=123456789&sms=Hello
+
+        // https://voice.google.com/u/0/messages?phoneNo=123456789&sms=Hello
         if (checkUrl.startsWith('https://voice.google.com/')) {
-            if (checkUrl.includes('phoneNo') && checkUrl.includes('sms')) {
-                this.currentNumberSending = checkUrl.substring(checkUrl.indexOf('phoneNo') + 8, checkUrl.indexOf('&'))
-                this.messagesToSend = {
-                    [this.currentNumberSending]: decodeURIComponent(checkUrl.substring(checkUrl.indexOf('sms') + 4, checkUrl.length))
-                }
-                console.log(this.messagesToSend)
+            const urlParams = new URLSearchParams(window.location.search);
+
+            if (urlParams.has('phoneNo') && urlParams.has('sms')) {
+                this.currentNumberSending = urlParams.get('phoneNo');
+                this.messagesToSend = { 
+                    [this.currentNumberSending]: decodeURIComponent(urlParams.get('sms').replace(/\+/g, '%20'))
+                };
+                console.log('messagesToSend', this.messagesToSend)
 
                 this.sendFromQueueBYOP()
             }
         }
-    }
-
-    addMessagesToQueue(messages) {
-        Object.assign(this.messagesToSend, messages.messages);
-        this.numberQueue = this.numberQueue.concat(messages.queue);
     }
 
     async sendFromQueue() {
@@ -42,11 +40,12 @@ class GoogleVoiceSiteManager {
 
         if (this.numberQueue.length > 0) {
             this.currentNumberSending = this.numberQueue.shift();
-
             let sendExecutionQueue = this.getSendExecutionQueue();
+
             while (sendExecutionQueue.length) {
                 let currentStep = sendExecutionQueue.shift().bind(this);
                 const result = await keepTryingAsPromised(currentStep, retryCount > 0);
+
                 if (!result) {
                     console.log(`BYOP SMS - Step failed (${getFunctionName(currentStep)}), retrying message.`);
                     retryCount--; // if this keeps happening, alert on it
@@ -58,6 +57,7 @@ class GoogleVoiceSiteManager {
                         sendExecutionQueue = this.getSendExecutionQueue();
                     }
                 }
+                
                 if (getFunctionName(currentStep) === 'sendMessage') {
                     verifyOnly = true; // we don't want to risk sending a message twice
                 }
@@ -73,6 +73,7 @@ class GoogleVoiceSiteManager {
         while (sendExecutionQueue.length) {
             let currentStep = sendExecutionQueue.shift().bind(this);
             const result = await keepTryingAsPromised(currentStep, retryCount > 0);
+
             if (!result) {
                 if (getFunctionName(currentStep) === 'confirmSent') {
                     // We don't retry confirmSent failures as they almost always indicate throttling
@@ -166,12 +167,14 @@ class GoogleVoiceSiteManager {
 
     writeMessage() {
         const number = this.currentNumberSending;
+
         if (!this.messagesToSend[number]) {
             return false;
         }
 
         const message = this.messagesToSend[number];
         var messageEditor = document.querySelector(selectors.gvMessageEditor);
+
         if (messageEditor && messageEditor.offsetParent !== null) {
             // support both div and textarea
             messageEditor.value = message;
@@ -221,6 +224,7 @@ class GoogleVoiceSiteManager {
             let sentMessageIsThreaded = false;
             if (mostRecentMessages && mostRecentMessages.length) {
                 var i = mostRecentMessages.length - 1;
+
                 for (i; !sentMessageIsThreaded && i >= 0; i--) {
                     let messageIntended = removeWhitespace(removeUnicode(this.messagesToSend[this.currentNumberSending]));
                     let messageSent = removeWhitespace(removeUnicode(mostRecentMessages[mostRecentMessages.length - 1].innerText));

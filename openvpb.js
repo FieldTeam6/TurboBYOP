@@ -43,7 +43,7 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
     let showAlert = throttledSendCount && currentSendCount >= throttledSendCount;
 
     if (showAlert) {
-        var continueTexting = confirm("You've been throttled by Google Voice.  If you'd like to attempt to send another text, click \"OK.\"  Otherwise, click \"Cancel\" to quit or try a different campaign.");
+        var continueTexting = confirm("You've been throttled by Google Voice.\n\nIf you'd like to attempt to send another text, click \"OK.\"  Otherwise, click \"Cancel\" to quit or try a different campaign.");
          
         if (!continueTexting) {
             return false;
@@ -57,12 +57,14 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
     if (messageSwitch) {
         //open google voice if messageSwitch is true
         let digitsOnlyPhoneNumber = currentPhoneNumber.replace(/\D+/g, "")
-        console.log(`https://voice.google.com/u/0/messages/?phoneNo=${digitsOnlyPhoneNumber}&sms=${encodeURIComponent(messageBody)}`)
-        window.open(`https://voice.google.com/u/0/messages/?phoneNo=${digitsOnlyPhoneNumber}&sms=${encodeURIComponent(messageBody)}`, '_blank');
+        const targetUrl = `https://voice.google.com/u/0/messages?phoneNo=${digitsOnlyPhoneNumber}&sms=${encodeURIComponent(messageBody)}`;
+        console.log(targetUrl)
+        window.open(targetUrl, '_blank');
     } else {
         //open default messaging app if messageSwitch is false
-        console.log(`sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`)
-        window.open(`sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`, '_blank');
+        const targetUrl = `sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`;
+        console.log(targetUrl)
+        window.open(targetUrl, '_blank');
         browser.runtime.sendMessage({ type: "MESSAGE_SENT" });
     }
 
@@ -228,7 +230,6 @@ async function waitForButton(ids, interval = 10, timeout = 10000) {
             reject(new Error(`Could not find buttons: ${ids.join(', ')}`))
         }, timeout)
         const checkInterval = setInterval(() => {
-            let element
             for (let id of ids) {
                 if (document.getElementById(id)) {
                     clearInterval(checkInterval)
