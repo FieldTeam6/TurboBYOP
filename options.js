@@ -53,7 +53,6 @@ function addMessageTemplate(template) {
 
 function saveSettings(arg) {
     console.log('saving settings')
-    console.log('arg', arg);
     const messageTemplates = []
     const elements = document.getElementsByClassName('message-template')
     let includesTextReplacement = false
@@ -72,16 +71,9 @@ function saveSettings(arg) {
                 result: elem.querySelector('.message-template-result-texted').checked ? 'Texted' : null
             });
 
-            if (arg[i]) {
-                console.log('arg[i]', arg[i]);
-                console.log('message', message);
-                console.log('oldMessage', arg[i].message);
-
-                if (message != arg[i].message) {
-                    browser.storage.local.set({ throttledSendCount: 0 });
-                }
+            if (arg[i] && message != arg[i].message) {
+                browser.storage.local.set({ throttledSendCount: 0 });
             }
-
 
             includesTextReplacement = includesTextReplacement || SUBSTITUTION_REGEX.test(message)
         }

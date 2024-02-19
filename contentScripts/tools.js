@@ -36,7 +36,7 @@ function keepTrying(method, silenceErrors, cb) {
                 // indicative to throttling and we want to abort
                 silenceErrors = false;
             }
-            console.log('silenceErrors', silenceErrors);
+            //console.log('silenceErrors', silenceErrors);
             clearInterval(keepTryingInterval);
             // the app failed
             if (!silenceErrors && giveUp) {

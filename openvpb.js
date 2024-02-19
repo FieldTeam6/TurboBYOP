@@ -1,11 +1,10 @@
 console.log('using openvpb-specific content script')
 const DESIGNATED_CONTACT_REGEX = /designated[ _-]?contact/i
 
-let couldntReachContact = false
-    // OpenVPB displays a pop-up after you make your first call
-    // This is annoying for the BYOP experience because it looks like
-    // it's not loading the next contact right away. So, we just click through
-    // that popup
+// OpenVPB displays a pop-up after you make your first call
+// This is annoying for the BYOP experience because it looks like
+// it's not loading the next contact right away. So, we just click through
+// that popup
 let firstCall = true
 
 const THEIR_NAME_REGEX = /[\[\(\{<]+\s*(?:their|thier|there)\s*name\s*[\]\)\}>]+/ig
@@ -17,11 +16,6 @@ const configuration = {
 }
 
 setInterval(getContactDetails, 50)
-
-function couldntReachButton() {
-    return document.getElementById('displaycontactresultsbutton') ||
-        document.getElementById('displayContactResultsButton')
-}
 
 function saveNextButton() {
     return document.getElementById('openvpbsavenextbutton') ||
@@ -98,28 +92,6 @@ async function getContactDetails() {
 
     // Figure out if this is a new contact
     if (contactName && currentPhoneNumber && isNewContact(currentPhoneNumber)) {
-        couldntReachContact = false
-
-        // Determine if they couldn't reach the contact
-        if (couldntReachButton()) {
-            couldntReachButton().addEventListener('click', async () => {
-                couldntReachContact = true
-                console.log(`couldn't reach contact: ${couldntReachContact}`)
-
-                const [cancelButton, saveNextButton] = await Promise.all([
-                    waitForButton(['contactresultscancelbutton', 'contactResultsCancelButton']),
-                    waitForButton(['contactresultssavenextbutton', 'contactResultsSaveNextButton'])
-                ])
-                cancelButton.addEventListener('click', async () => {
-                    couldntReachContact = false
-                    console.log(`couldn't reach contact: ${couldntReachContact}`)
-                })
-                saveNextButton.addEventListener('click', onSaveNextClick)
-            })
-        } else {
-            console.warn('could not find couldn\'t reach button')
-        }
-
         // Log successful calls
         if (saveNextButton()) {
             saveNextButton().addEventListener('click', onSaveNextClick)
@@ -147,8 +119,8 @@ async function getContactDetails() {
                 let { messageTemplates, throttledSendCount = 0 } = await browser.storage.local.get(['messageTemplates', 'throttledSendCount']);
                 var sendHistory = await getSendHistory();
                 var currentSendCount = sendHistory.length;
-                console.log('throttledSendCount', throttledSendCount);
-                console.log('currentSendCount', currentSendCount);
+                //console.log('throttledSendCount', throttledSendCount);
+                //console.log('currentSendCount', currentSendCount);
 
                 if (messageTemplates && messageTemplates.length > 0) {
                     console.log('Appending button...')

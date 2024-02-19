@@ -1,7 +1,7 @@
 async function getSendHistory(increment = false) {
 
     let { sendHistory } = await browser.storage.local.get(['sendHistory']);
-    console.log('sendHistory', sendHistory);
+    //console.log('sendHistory', sendHistory);
 
     if (!sendHistory) {
         return [];
@@ -13,7 +13,7 @@ async function getSendHistory(increment = false) {
         const dateSent = new Date(sendHistory[i]);
         dateSent.setHours(dateSent.getHours() + 24);
 
-        console.log(`${dateSent.toISOString()} < ${now.toISOString()}`, dateSent < now);
+        //console.log(`${dateSent.toISOString()} < ${now.toISOString()}`, dateSent < now);
         if (!(dateSent < now)) {
             // Items will always be added to the end of the array,so break 
             // out of the loop when we encounter the first element within 

@@ -25,7 +25,7 @@ class GoogleVoiceSiteManager {
             if (urlParams.has('phoneNo') && urlParams.has('sms')) {
                 this.currentNumberSending = urlParams.get('phoneNo');
                 this.messagesToSend = { 
-                    [this.currentNumberSending]: decodeURIComponent(urlParams.get('sms').replace(/\+/g, '%20'))
+                    [this.currentNumberSending]: decodeURIComponent(urlParams.get('sms'))
                 };
                 console.log('messagesToSend', this.messagesToSend)
 
