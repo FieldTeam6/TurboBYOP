@@ -7,7 +7,7 @@ let messageIndex = 0
 
 
 browser.storage.local.get(['yourName', 'messageTemplates'])
-    .then(({ yourName, messageTemplates }) => {
+    .then(({ yourName, messageTemplates = [] }) => {
         if (yourName) {
             document.getElementById('yourName').value = yourName
         }
