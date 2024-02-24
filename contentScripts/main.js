@@ -11,7 +11,7 @@ const selectors = {
     gvRecipientButton: 'mat-chip-row, gmat-input-chip[gv-id="chip-phone-number"], div[aria-label="Select recipients"] md-chips md-chip button',
     gvMessageEditor: 'textarea[gv-test-id="gv-message-input"], textarea[placeholder="Type a message"], textarea[aria-label="Add a caption"], #gv-message-input, div[gv-test-id="gv-message-input"]',
     gvSendButtonOld: 'gv-icon-button[icon-name="send"] button[aria-label="Send message"]',
-    gvSendButtonNew: 'gv-icon-button-ng2[gv-test-id="send_message"] button, gv-icon-button-ng2[icon-name="send"][label="Send message"] button',
+    gvSendButtonNew: 'gv-icon-button-ng2[gv-test-id="send_message"] button, gv-icon-button-ng2[icon-name="send"][label="Send message"] button, button[aria-label="Send message"]',
     // this is the note that says "Sending" after clicking the send button; it will disappear when it is finished
     gvSendingNote: 'gv-message-item div[ng-if="ctrl.shouldDisplayTransmissionStatus()"] div[ng-if="!ctrl.isFailed()"]',
     gvMostRecentMessages: 'div[gv-id="content"] div[gv-test-id="bubble"] gv-annotation, gv-text-message-item gv-annotation',
