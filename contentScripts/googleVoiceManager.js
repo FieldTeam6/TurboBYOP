@@ -177,8 +177,7 @@ class GoogleVoiceSiteManager {
 
         if (messageEditor && messageEditor.offsetParent !== null) {
             // support both div and textarea
-            messageEditor.value = message;
-            messageEditor.innerText = message;
+            simulateTextEntry(messageEditor, message);
             return true;
         }
     }
@@ -189,18 +188,9 @@ class GoogleVoiceSiteManager {
             return;
         }
 
-        simulateKeyPress(messageEditor);
-
         // click send button
-        let sendButtonOld = document.querySelector(selectors.gvSendButtonOld);
-        let sendButtonNew = document.querySelector(selectors.gvSendButtonNew);
-        if (sendButtonOld && sendButtonOld.offsetParent !== null && sendButtonOld.getAttribute('aria-disabled') === 'false') {
-            sendButtonOld.click();
-            return true;
-        }
+        let sendButtonNew = document.querySelector(selectors.gvSendButton);
         if (sendButtonNew && sendButtonNew.offsetParent !== null && sendButtonNew.disabled === false) {
-            sendButtonNew.dispatchEvent(new Event('mousedown'));
-            sendButtonNew.dispatchEvent(new Event('mouseup'));
             sendButtonNew.click();
             return true;
         }
