@@ -24,19 +24,28 @@ function getFunctionName(func) {
  */
 function keepTrying(method, silenceErrors, cb) {
     const frequency = 100; // try every 100ms
-    let tryCount = 2 * 1000 / frequency; // keep trying for 2 seconds
+    let tryCount = 4 * 1000 / frequency; // keep trying for 4 seconds
     var keepTryingInterval = setInterval(function () {
         var successful = method();
         var giveUp = successful === false || tryCount-- < 0;
+        let functionName = getFunctionName(method);
+
         if (successful === true || giveUp) {
+            if (functionName === 'confirmSent') {
+                // If error occurs on confirmSent, it is almost always 
+                // indicative to throttling and we want to abort
+                silenceErrors = false;
+            }
+            //console.log('silenceErrors', silenceErrors);
             clearInterval(keepTryingInterval);
             // the app failed
             if (!silenceErrors && giveUp) {
                 if (siteIsGoogleVoice) {
-                    if (getFunctionName(method) == 'confirmSent') {
-                        showFatalError(`If the problem persists, please wait 24 hours and try again.\n\nError: "${getFunctionName(method)}" failed.`, true)
+                    if (functionName === 'confirmSent') {
+                        browser.runtime.sendMessage({ type: "USER_THROTTLED" });
+                        showFatalError(`You've been throttled by Google Voice.  Please try a different campaign, or wait 24 hours and try again.\n\nError: "${functionName}" failed.`, true)
                     } else {
-                        showFatalError(`If the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${getFunctionName(method)}" failed.`, true);
+                        showFatalError(`If the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${functionName}" failed.`, true);
                     }
                 } else {
                     showFatalError('Are you sure Google Voice texting via Hangouts is enabled?\nAlso, be aware that this extension is not compatible with the Google Hangouts Chrome extension. If you have the Hangouts extension installed you\'ll need to temporarily disable it.', false);
@@ -77,9 +86,9 @@ function showFatalError(message, reload) {
     if (siteManager) {
         siteManager.messagesToSend.length = 0;
     }
-    const manifest = chrome.runtime.getManifest();
+    const manifest = browser.runtime.getManifest();
     const reloadMessage = '\n\nWhen you click "OK" the page will refresh.';
-    const fullMessage = `BYOP v${manifest.version}:\nText failed. ${message} ${reload ? reloadMessage : ''}`;
+    const fullMessage = `BYOP v${manifest.version}: Text failed.\n\n${message} ${reload ? reloadMessage : ''}`;
     console.error('BYOP SMS - ' + fullMessage);
     alert(fullMessage);
     if (reload) {

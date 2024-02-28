@@ -17,39 +17,21 @@ class GoogleVoiceSiteManager {
 
     async initialize() {
         const checkUrl = window.location.href;
-        //https://voice.google.com/?phoneNo=123456789&sms=Hello
+
+        // https://voice.google.com/u/0/messages?phoneNo=123456789&sms=Hello
         if (checkUrl.startsWith('https://voice.google.com/')) {
-            if (checkUrl.includes('phoneNo') && checkUrl.includes('sms')) {
-                this.currentNumberSending = checkUrl.substring(checkUrl.indexOf('phoneNo') + 8, checkUrl.indexOf('&'))
-                this.messagesToSend = {
-                    [this.currentNumberSending]: decodeURIComponent(checkUrl.substring(checkUrl.indexOf('sms') + 4, checkUrl.length))
-                }
-                console.log(this.messagesToSend)
+            const urlParams = new URLSearchParams(window.location.search);
+
+            if (urlParams.has('phoneNo') && urlParams.has('sms')) {
+                this.currentNumberSending = urlParams.get('phoneNo');
+                this.messagesToSend = { 
+                    [this.currentNumberSending]: decodeURIComponent(urlParams.get('sms'))
+                };
+                console.log('messagesToSend', this.messagesToSend)
 
                 this.sendFromQueueBYOP()
             }
         }
-        chrome.runtime.onMessage.addListener((message, sender, response) => {
-            if (message.from === 'popup' && message.type === 'SEND_MESSAGES') {
-                this.addMessagesToQueue(message.messages);
-                this.sendInterval = message.sendInterval;
-
-                // switch To Text View
-                document.querySelector(selectors.gvMessagesTab).click();
-
-                this.sendFromQueue();
-            }
-
-            if (message.from === 'popup' && message.type === 'CHECK_GOOGLE_VOICE_SUPPORT') {
-                var url = window.location.href;
-                response(url.startsWith('https://voice.google.com/') ? 'GV' : false);
-            }
-        });
-    }
-
-    addMessagesToQueue(messages) {
-        Object.assign(this.messagesToSend, messages.messages);
-        this.numberQueue = this.numberQueue.concat(messages.queue);
     }
 
     async sendFromQueue() {
@@ -58,11 +40,12 @@ class GoogleVoiceSiteManager {
 
         if (this.numberQueue.length > 0) {
             this.currentNumberSending = this.numberQueue.shift();
-
             let sendExecutionQueue = this.getSendExecutionQueue();
+
             while (sendExecutionQueue.length) {
                 let currentStep = sendExecutionQueue.shift().bind(this);
                 const result = await keepTryingAsPromised(currentStep, retryCount > 0);
+
                 if (!result) {
                     console.log(`BYOP SMS - Step failed (${getFunctionName(currentStep)}), retrying message.`);
                     retryCount--; // if this keeps happening, alert on it
@@ -74,6 +57,7 @@ class GoogleVoiceSiteManager {
                         sendExecutionQueue = this.getSendExecutionQueue();
                     }
                 }
+                
                 if (getFunctionName(currentStep) === 'sendMessage') {
                     verifyOnly = true; // we don't want to risk sending a message twice
                 }
@@ -82,15 +66,22 @@ class GoogleVoiceSiteManager {
     }
 
     async sendFromQueueBYOP() {
-        let retryCount = 2;
+        let retryCount = 1;
         let verifyOnly = false;
 
         let sendExecutionQueue = this.getSendExecutionQueue();
         while (sendExecutionQueue.length) {
             let currentStep = sendExecutionQueue.shift().bind(this);
             const result = await keepTryingAsPromised(currentStep, retryCount > 0);
+
             if (!result) {
-                console.log(`BYOP SMS - Step failed (${getFunctionName(currentStep)}), retrying message.`);
+                if (getFunctionName(currentStep) === 'confirmSent') {
+                    // We don't retry confirmSent failures as they almost always indicate throttling
+                    console.log(`${retryCount}: BYOP SMS - Step failed (${getFunctionName(currentStep)}).`);
+                } else {
+                    console.log(`${retryCount}: BYOP SMS - Step failed (${getFunctionName(currentStep)}), retrying message.`);
+                }
+
                 retryCount--; // if this keeps happening, alert on it
 
                 if (verifyOnly) {
@@ -176,16 +167,17 @@ class GoogleVoiceSiteManager {
 
     writeMessage() {
         const number = this.currentNumberSending;
+
         if (!this.messagesToSend[number]) {
             return false;
         }
 
         const message = this.messagesToSend[number];
         var messageEditor = document.querySelector(selectors.gvMessageEditor);
+
         if (messageEditor && messageEditor.offsetParent !== null) {
             // support both div and textarea
-            messageEditor.value = message;
-            messageEditor.innerText = message;
+            simulateTextEntry(messageEditor, message);
             return true;
         }
     }
@@ -196,18 +188,9 @@ class GoogleVoiceSiteManager {
             return;
         }
 
-        simulateKeyPress(messageEditor);
-
         // click send button
-        let sendButtonOld = document.querySelector(selectors.gvSendButtonOld);
-        let sendButtonNew = document.querySelector(selectors.gvSendButtonNew);
-        if (sendButtonOld && sendButtonOld.offsetParent !== null && sendButtonOld.getAttribute('aria-disabled') === 'false') {
-            sendButtonOld.click();
-            return true;
-        }
+        let sendButtonNew = document.querySelector(selectors.gvSendButton);
         if (sendButtonNew && sendButtonNew.offsetParent !== null && sendButtonNew.disabled === false) {
-            sendButtonNew.dispatchEvent(new Event('mousedown'));
-            sendButtonNew.dispatchEvent(new Event('mouseup'));
             sendButtonNew.click();
             return true;
         }
@@ -231,6 +214,7 @@ class GoogleVoiceSiteManager {
             let sentMessageIsThreaded = false;
             if (mostRecentMessages && mostRecentMessages.length) {
                 var i = mostRecentMessages.length - 1;
+
                 for (i; !sentMessageIsThreaded && i >= 0; i--) {
                     let messageIntended = removeWhitespace(removeUnicode(this.messagesToSend[this.currentNumberSending]));
                     let messageSent = removeWhitespace(removeUnicode(mostRecentMessages[mostRecentMessages.length - 1].innerText));
@@ -239,7 +223,7 @@ class GoogleVoiceSiteManager {
             }
 
             if (sentMessageIsThreaded) {
-                chrome.runtime.sendMessage({ type: "MESSAGE_SENT" });
+                browser.runtime.sendMessage({ type: "MESSAGE_SENT" });
                 // continue with queue
                 setTimeout(this.sendFromQueue.bind(this), this.sendInterval);
                 return true;

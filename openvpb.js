@@ -1,11 +1,10 @@
 console.log('using openvpb-specific content script')
 const DESIGNATED_CONTACT_REGEX = /designated[ _-]?contact/i
 
-let couldntReachContact = false
-    // OpenVPB displays a pop-up after you make your first call
-    // This is annoying for the BYOP experience because it looks like
-    // it's not loading the next contact right away. So, we just click through
-    // that popup
+// OpenVPB displays a pop-up after you make your first call
+// This is annoying for the BYOP experience because it looks like
+// it's not loading the next contact right away. So, we just click through
+// that popup
 let firstCall = true
 
 const THEIR_NAME_REGEX = /[\[\(\{<]+\s*(?:their|thier|there)\s*name\s*[\]\)\}>]+/ig
@@ -18,11 +17,6 @@ const configuration = {
 
 setInterval(getContactDetails, 50)
 
-function couldntReachButton() {
-    return document.getElementById('displaycontactresultsbutton') ||
-        document.getElementById('displayContactResultsButton')
-}
-
 function saveNextButton() {
     return document.getElementById('openvpbsavenextbutton') ||
         document.getElementById('openVpbSaveNextButton') ||
@@ -31,10 +25,24 @@ function saveNextButton() {
 }
 
 async function launchMessagingApp(currentPhoneNumber, contactName) {
-    let { messageSwitch, yourName, messageTemplates } = await browser.storage.local.get(['messageSwitch', 'yourName', 'messageTemplates']);
+    let { messageSwitch, yourName, messageTemplates, throttledSendCount } = await browser.storage.local.get(['messageSwitch', 'yourName', 'messageTemplates', 'throttledSendCount']);
     let { label, message, result } = messageTemplates[0];
     let messageBody = message.replace(THEIR_NAME_REGEX, contactName).replace(YOUR_NAME_REGEX, yourName);
-+   console.log('messageBody', messageBody);
+    const sendHistory = await getSendHistory();    
+    const currentSendCount = sendHistory ? sendHistory.length : 0;
+
+    console.log('messageBody', messageBody);
+    console.log('throttledSendCount', throttledSendCount);
+    console.log('currentSendCount', currentSendCount);
+    let showAlert = throttledSendCount && currentSendCount >= throttledSendCount;
+
+    if (showAlert) {
+        var continueTexting = confirm("You've been throttled by Google Voice.\n\nIf you'd like to attempt to send another text, click \"OK.\"  Otherwise, click \"Cancel\" to quit or try a different campaign.");
+         
+        if (!continueTexting) {
+            return false;
+        }
+    }
 
     if (configuration['testmode'] == true){
         currentPhoneNumber = configuration['defaultNumber']
@@ -43,14 +51,18 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
     if (messageSwitch) {
         //open google voice if messageSwitch is true
         let digitsOnlyPhoneNumber = currentPhoneNumber.replace(/\D+/g, "")
-        console.log(`https://voice.google.com/u/0/messages/?phoneNo=${digitsOnlyPhoneNumber}&sms=${encodeURIComponent(messageBody)}`)
-        window.open(`https://voice.google.com/u/0/messages/?phoneNo=${digitsOnlyPhoneNumber}&sms=${encodeURIComponent(messageBody)}`, '_blank');
+        const targetUrl = `https://voice.google.com/u/0/messages?phoneNo=${digitsOnlyPhoneNumber}&sms=${encodeURIComponent(messageBody)}`;
+        console.log(targetUrl)
+        window.open(targetUrl, '_blank');
     } else {
         //open default messaging app if messageSwitch is false
-        console.log(`sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`)
-        window.open(`sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`, '_blank');
-        chrome.runtime.sendMessage({ type: "MESSAGE_SENT" });
+        const targetUrl = `sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`;
+        console.log(targetUrl)
+        window.open(targetUrl, '_blank');
+        browser.runtime.sendMessage({ type: "MESSAGE_SENT" });
     }
+
+    return true;
 }
 
 async function getContactDetails() {
@@ -80,28 +92,6 @@ async function getContactDetails() {
 
     // Figure out if this is a new contact
     if (contactName && currentPhoneNumber && isNewContact(currentPhoneNumber)) {
-        couldntReachContact = false
-
-        // Determine if they couldn't reach the contact
-        if (couldntReachButton()) {
-            couldntReachButton().addEventListener('click', async() => {
-                couldntReachContact = true
-                console.log(`couldn't reach contact: ${couldntReachContact}`)
-
-                const [cancelButton, saveNextButton] = await Promise.all([
-                    waitForButton(['contactresultscancelbutton', 'contactResultsCancelButton']),
-                    waitForButton(['contactresultssavenextbutton', 'contactResultsSaveNextButton'])
-                ])
-                cancelButton.addEventListener('click', () => {
-                    couldntReachContact = false
-                    console.log(`couldn't reach contact: ${couldntReachContact}`)
-                })
-                saveNextButton.addEventListener('click', onSaveNextClick)
-            })
-        } else {
-            console.warn('could not find couldn\'t reach button')
-        }
-
         // Log successful calls
         if (saveNextButton()) {
             saveNextButton().addEventListener('click', onSaveNextClick)
@@ -126,48 +116,61 @@ async function getContactDetails() {
                 container.appendChild(title)
                 sidebarContainer.appendChild(container)
 
-                let { yourName, messageTemplates } = await browser.storage.local.get(['yourName', 'messageTemplates'])
+                let { messageTemplates, throttledSendCount = 0 } = await browser.storage.local.get(['messageTemplates', 'throttledSendCount']);
+                var sendHistory = await getSendHistory();
+                var currentSendCount = sendHistory.length;
+                //console.log('throttledSendCount', throttledSendCount);
+                //console.log('currentSendCount', currentSendCount);
 
-                if (messageTemplates.length > 0) {
+                if (messageTemplates && messageTemplates.length > 0) {
                     console.log('Appending button...')
-
                     const button = document.createElement('button')
-                    button.onclick = () => {
-                        launchMessagingApp(currentPhoneNumber, contactName);
-                        const surveySelect = document.getElementsByClassName('surveyquestion-element-select')[0];
+                    button.onclick = async () => {
+                        const markTexted = await launchMessagingApp(currentPhoneNumber, contactName);
+                        if (markTexted) {
 
-                        function simulateClick(item) {
-                            item.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
-                            item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-                            item.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
-                            item.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
-                            item.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
-                            item.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-                            item.dispatchEvent(new Event('change', { bubbles: true }));
+                            const surveySelect = document.getElementsByClassName('surveyquestion-element-select')[0];
 
-                            return true;
-                        }
+                            function simulateClick(item) {
+                                item.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+                                item.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+                                item.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+                                item.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+                                item.dispatchEvent(new MouseEvent('mouseout', { bubbles: true }));
+                                item.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                                item.dispatchEvent(new Event('change', { bubbles: true }));
 
-                        for (let i = 0, sL = surveySelect.length; i < sL; i++) {
-                            if ((surveySelect.options[i].text).toString().toLowerCase() == 'yes') {
-                                surveySelect.selectedIndex = i;
-                                surveySelect.options[i].selected = true;
-                                simulateClick(surveySelect);
-                                break;
+                                return true;
+                            }
+
+                            for (let i = 0, sL = surveySelect.length; i < sL; i++) {
+                                if ((surveySelect.options[i].text).toString().toLowerCase() == 'yes') {
+                                    surveySelect.selectedIndex = i;
+                                    surveySelect.options[i].selected = true;
+                                    simulateClick(surveySelect);
+                                    break;
+                                }
+                            }
+
+                            if (configuration['testmode'] == false) {
+                                const saveNext = saveNextButton();
+                                setTimeout(() => {
+                                    saveNext.click()
+                                }, 1000)
+                                console.log('fetching next...')
                             }
                         }
-
-                        if(configuration['testmode'] == false){
-                            const saveNext = saveNextButton();
-                            setTimeout(() => {
-                                saveNext.click()
-                            }, 1000)
-                            console.log('fetching next...')
-                        }
                     }
+
                     button.style = 'width: 100%;height: 38px;background-color: #98BF64;margin-top: 10px;border: none;border-radius: 4px;cursor: pointer;color: white;font-size: 14px;'
                     button.textContent = "Set Up Text Message"
-                    container.appendChild(button)
+
+                    if (!throttledSendCount) {
+                        container.appendChild(button)
+                    } else if (currentSendCount < throttledSendCount) {
+                        container.appendChild(button)
+                        browser.storage.local.set({ throttledSendCount: 0 });
+                    }
                 } else {
                     console.log('NO msg templates')
                 }
@@ -199,7 +202,6 @@ async function waitForButton(ids, interval = 10, timeout = 10000) {
             reject(new Error(`Could not find buttons: ${ids.join(', ')}`))
         }, timeout)
         const checkInterval = setInterval(() => {
-            let element
             for (let id of ids) {
                 if (document.getElementById(id)) {
                     clearInterval(checkInterval)

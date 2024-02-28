@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Field Team 6 BYOP",
-    "version": "0.4.2",
+    "version": "0.4.3",
     "description": "Turbocharge Field Team 6's BYOP!",
     "author": "Field Team 6",
     "homepage_url": "https://www.fieldteam6.org",
@@ -32,6 +32,7 @@
         {
             "matches": ["https://voice.google.com/*"],
             "js": [
+                "dependencies/browser-polyfill.js",
                 "contentScripts/googleVoiceManager.js",
                 "contentScripts/tools.js",
                 "contentScripts/main.js"
@@ -42,6 +43,7 @@
             "matches": ["https://www.openvpb.com/*"],
             "js": [
                 "dependencies/browser-polyfill.js",
+                "dependencies/utilities.js",
                 "vpb-common.js",
                 "openvpb.js"
             ],
