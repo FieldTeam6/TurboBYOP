@@ -1,8 +1,26 @@
-const OPENVPB_REGEX = /https\:\/\/(www\.)?openvpb\.com/i;
-const OPENVPB_ORIGIN = 'https://www.openvpb.com/VirtualPhoneBank*';
-const manifest = chrome.runtime.getManifest();
-const currentVersion = document.getElementById('current-version');
-const appName = document.getElementById('app-name');
+const OPENVPB_REGEX = /https\:\/\/(www\.)?openvpb\.com/i
+const OPENVPB_ORIGIN = 'https://www.openvpb.com/VirtualPhoneBank*'
+const manifest = chrome.runtime.getManifest()
+const currentVersion = document.getElementById('current-version')
+const appName = document.getElementById('app-name')
+
+const enabledSites = [
+    {
+        regex: /https\:\/\/(www\.)?openvpb\.com/i,
+        origin: 'https://www.openvpb.com/VirtualPhoneBank*',
+        name: 'OpenVPB'
+    },
+    {
+        regex: /https\:\/\/(www\.)?voice\.google\.com/i,
+        origin: 'https://voice.google.com',
+        name: 'Google Voice'
+    },
+    {
+        regex: /https\:\/\/(www\.)?messages\.textfree\.us\/conversation/i,
+        origin: 'https://messages.textfree.us/conversation*',
+        name: 'Text Free'
+    }
+]
 
 let canEnable = false
 let isEnabled = false
@@ -10,77 +28,86 @@ let siteName
 let firstRender = true
 
 onOpen().catch(console.error)
-currentVersion.innerText = "v" + manifest.version;
-appName.innerText = manifest.name;
-document.getElementById('openOptions').addEventListener('click', async() => {
-    await browser.runtime.openOptionsPage()
+currentVersion.innerText = 'v' + manifest.version
+appName.innerText = manifest.name
+document.getElementById('openOptions').addEventListener('click', async () => {
+    await chrome.runtime.openOptionsPage()
     window.close()
 })
 document.getElementById('toggleOnSite').addEventListener('mouseenter', hoverToggleSite)
 document.getElementById('toggleOnSite').addEventListener('mouseleave', resetStatusLook)
 
-let Switch = document.querySelector('input[type="checkbox"]');
+let Select = document.querySelector('#texting-platform-select')
 
-Switch.addEventListener('change', async function () {
-    if (Switch.checked) {
-        // use Google Voice
-        await browser.storage.local.set({ messageSwitch: true })
-    } else {
-        // use default messaging app
-        await browser.storage.local.set({ messageSwitch: false })
-    }
-});
+Select.addEventListener('change', async function () {
+    const textPlatform = this.value
+    await chrome.storage.local.set({ textPlatform })
+})
 
 async function onOpen() {
     console.log('popup opened')
-    const [{ statsStartDate, messageSwitch = false }, [currentTab], permissions] = await Promise.all([
-        browser.storage.local.get([
-            'statsStartDate',
-            'messageSwitch'
-        ]),
-        browser.tabs.query({
+    const [{ statsStartDate, textPlatform = 'messaging-app' }, [currentTab], permissions] = await Promise.all([
+        chrome.storage.local.get(['statsStartDate', 'textPlatform']),
+        chrome.tabs.query({
             active: true,
             currentWindow: true
         }),
-        browser.permissions.getAll()
+        chrome.permissions.getAll()
     ])
 
-    // Display switch value based on browser last storage data.
-    if (messageSwitch) {
-        document.querySelector('input[type="checkbox"]').checked = true;
-    } else {
-        document.querySelector('input[type="checkbox"]').checked = false;
+    if (
+        (textPlatform === 'text-free' && !currentTab.url.startsWith('https://messages.textfree.us/conversation')) ||
+        textPlatform !== 'text-free'
+    ) {
+        document.querySelector('.find-contact-row').style.display = 'none'
     }
+
+    // Add functionality to find contact in contacts list on Text Free page
+    document.getElementById('find-contact-button').addEventListener('click', async function () {
+        chrome.tabs.sendMessage(currentTab.id, {
+            type: 'FIND_CONTACT',
+            contactName: document.getElementById('contact-to-find').value
+        })
+    })
+
+    // Display text platform value based on browser last storage data.
+    Select.value = textPlatform
 
     // Display stats
     if (statsStartDate) {
-        const date = new Date(statsStartDate).toLocaleDateString();
-        document.getElementById('statsStartDate').innerText = date;
+        const date = new Date(statsStartDate).toLocaleDateString()
+        document.getElementById('statsStartDate').innerText = date
     }
 
-    var {sendCountAllTime, sendCount24Hours} = await chrome.storage.sync.get(['sendCounts', 'sendHistory'])
+    var { sendCountAllTime, sendCount24Hours } = await chrome.storage.sync
+        .get(['sendCounts', 'sendHistory'])
         .then(function (items) {
-        const sendCountAllTime = items.sendCounts ? Object.values(items.sendCounts).reduce((total, val) => {
-            return total + val;
-        }, 0) : 0;
-        const sendHistory = updateSendHistory(items.sendHistory);
-        const sendCount24Hours = sendHistory.length;
-        chrome.storage.sync.set({ sendHistory: sendHistory });
+            const sendCountAllTime = items.sendCounts
+                ? Object.values(items.sendCounts).reduce((total, val) => {
+                      return total + val
+                  }, 0)
+                : 0
+            const sendHistory = updateSendHistory(items.sendHistory)
+            const sendCount24Hours = sendHistory.length
+            chrome.storage.sync.set({ sendHistory: sendHistory })
 
-        return { sendCountAllTime, sendCount24Hours };
-    });
+            return { sendCountAllTime, sendCount24Hours }
+        })
 
     setTotalCalls(sendCountAllTime, sendCount24Hours)
 
     if (currentTab && currentTab.url) {
         console.log('Current tab URL:', currentTab.url)
 
-        if (OPENVPB_REGEX.test(currentTab.url)) {
-            canEnable = true
-            siteName = 'OpenVPB'
-            origin = OPENVPB_ORIGIN
-            isEnabled = permissions.origins.some((o) => OPENVPB_REGEX.test(o))
-        }
+        // Show "Enabled Site" if the site is one of the sites compatible with the BYOP extension
+        enabledSites.forEach((site) => {
+            if (site.regex.test(currentTab.url)) {
+                canEnable = true
+                siteName = site.name
+                origin = site.origin
+                isEnabled = permissions.origins.some((o) => site.regex.test(o))
+            }
+        })
     }
 
     if (isEnabled) {
@@ -95,7 +122,9 @@ async function onOpen() {
 
 function setTotalCalls(totalCallsAllTime, totalCallsToday) {
     document.getElementById('numCallsToday').innerText = `${totalCallsToday} Text${totalCallsToday !== 1 ? 's' : ''}`
-    document.getElementById('numCallsAllTime').innerText = `${totalCallsAllTime} text${totalCallsAllTime !== 1 ? 's' : ''}`
+    document.getElementById('numCallsAllTime').innerText = `${totalCallsAllTime} text${
+        totalCallsAllTime !== 1 ? 's' : ''
+    }`
 
     if (totalCallsToday === 0) {
         document.getElementById('encouragement').innerText = 'Log in to a phone bank to get started!'
@@ -129,7 +158,6 @@ function resetStatusLook() {
         document.getElementById('statusText').innerText = `Enabled on ${siteName}`
         document.getElementById('iconEnabled').removeAttribute('hidden')
         document.getElementById('iconDisabled').setAttribute('hidden', true)
-
     } else {
         document.getElementById('statusText').innerText = 'Click to Enable' // `Disabled on ${siteName}`
         document.getElementById('iconEnabled').setAttribute('hidden', true)
@@ -152,25 +180,24 @@ function resetStatusLook() {
 }
 
 function updateSendHistory(sendHistory) {
-
     if (!sendHistory) {
-        return [];
+        return []
     }
 
-    const now = new Date();
+    const now = new Date()
 
     for (var i = 0; i < sendHistory.length; i++) {
-        const dateSent = new Date(sendHistory[i]);
-        dateSent.setHours(dateSent.getHours() + 24);
-        
-        console.log(`${dateSent} < ${now}`, dateSent < now);
+        const dateSent = new Date(sendHistory[i])
+        dateSent.setHours(dateSent.getHours() + 24)
+
+        console.log(`${dateSent} < ${now}`, dateSent < now)
         if (dateSent < now) {
-            sendHistory.splice(i, 1);
+            sendHistory.splice(i, 1)
         } else {
-            // Items will always be added to the end of the array,so break 
-            // out of the loop when we encounter the first element within 
+            // Items will always be added to the end of the array,so break
+            // out of the loop when we encounter the first element within
             // the 24-hour window; everything else after that will be too
-            break;
+            break
         }
     }
 

@@ -7,22 +7,21 @@ let messageIndex = 0
 
 document.getElementById('settings').addEventListener('change', saveSettings)
 
-browser.storage.local.get(['yourName', 'messageTemplates'])
-    .then(({ yourName, messageTemplates }) => {
-        if (yourName) {
-            document.getElementById('yourName').value = yourName
-        }
+chrome.storage.local.get(['yourName', 'messageTemplates']).then(({ yourName, messageTemplates }) => {
+    if (yourName) {
+        document.getElementById('yourName').value = yourName
+    }
 
-        if (messageTemplates && messageTemplates.length > 0) {
-            messageTemplates.forEach(addMessageTemplate)
-        } else {
-            addMessageTemplate({
-                label: '',
-                message: '',
-                result: 'Texted'
-            })
-        }
-    })
+    if (messageTemplates && messageTemplates.length > 0) {
+        messageTemplates.forEach(addMessageTemplate)
+    } else {
+        addMessageTemplate({
+            label: '',
+            message: '',
+            result: 'Texted'
+        })
+    }
+})
 
 function addMessageTemplate(template) {
     if (!template) {
@@ -81,7 +80,7 @@ function saveSettings() {
         }
     }
 
-    return browser.storage.local.set({
+    return chrome.storage.local.set({
         yourName: document.getElementById('yourName').value,
         messageTemplates
     })
