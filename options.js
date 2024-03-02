@@ -5,23 +5,25 @@ const messageContainer = document.getElementById('messages')
 const messageTemplateHtml = document.getElementById('message-template')
 let messageIndex = 0
 
-document.getElementById('settings').addEventListener('change', saveSettings)
 
-chrome.storage.local.get(['yourName', 'messageTemplates']).then(({ yourName, messageTemplates }) => {
-    if (yourName) {
-        document.getElementById('yourName').value = yourName
-    }
+browser.storage.local.get(['yourName', 'messageTemplates'])
+    .then(({ yourName, messageTemplates = [] }) => {
+        if (yourName) {
+            document.getElementById('yourName').value = yourName
+        }
 
-    if (messageTemplates && messageTemplates.length > 0) {
-        messageTemplates.forEach(addMessageTemplate)
-    } else {
-        addMessageTemplate({
-            label: '',
-            message: '',
-            result: 'Texted'
-        })
-    }
-})
+        document.getElementById('settings').addEventListener('change', () => saveSettings(messageTemplates));
+
+        if (messageTemplates && messageTemplates.length > 0) {
+            messageTemplates.forEach(addMessageTemplate)
+        } else {
+            addMessageTemplate({
+                label: '',
+                message: '',
+                result: 'Texted'
+            })
+        }
+    })
 
 function addMessageTemplate(template) {
     if (!template) {
@@ -49,7 +51,7 @@ function addMessageTemplate(template) {
     messageContainer.appendChild(messageTemplateNode)
 }
 
-function saveSettings() {
+function saveSettings(arg) {
     console.log('saving settings')
     const messageTemplates = []
     const elements = document.getElementsByClassName('message-template')
@@ -62,11 +64,16 @@ function saveSettings() {
             if (!label.value) {
                 label.value = `Message ${i + 1}`
             }
+
             messageTemplates.push({
                 label: label.value,
                 message,
                 result: elem.querySelector('.message-template-result-texted').checked ? 'Texted' : null
-            })
+            });
+
+            if (arg[i] && message != arg[i].message) {
+                browser.storage.local.set({ throttledSendCount: 0 });
+            }
 
             includesTextReplacement = includesTextReplacement || SUBSTITUTION_REGEX.test(message)
         }
@@ -80,7 +87,7 @@ function saveSettings() {
         }
     }
 
-    return chrome.storage.local.set({
+    browser.storage.local.set({
         yourName: document.getElementById('yourName').value,
         messageTemplates
     })

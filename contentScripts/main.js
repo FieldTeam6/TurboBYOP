@@ -7,17 +7,11 @@ const selectors = {
     // google voice (in cases where there are two selectors, it is to support newer versions to older versions, left to right)
     gvMessagesTab: 'a[gv-test-id="sidenav-messages"]',
     gvNumInputButton: 'div[gv-id="send-new-message"]',
-    gvNumInput:
-        'gv-recipient-picker input[ng-show="ctrl.allowToAddRecipients()"], input[placeholder="Type a name or phone number"]',
-    gvStartChatButton:
-        '#send_to_button-0, gv-contact-list-ng2 .send-to-button, gv-contact-list div[ng-class="::ctrl.CSS.SEND_TO_PHONE_NUMBER"]',
-    gvRecipientButton:
-        'mat-chip-row, gmat-input-chip[gv-id="chip-phone-number"], div[aria-label="Select recipients"] md-chips md-chip button',
-    gvMessageEditor:
-        'textarea[gv-test-id="gv-message-input"], textarea[aria-label="Type a message"], textarea[aria-label="Add a caption"], #gv-message-input, div[gv-test-id="gv-message-input"]',
-    gvSendButtonOld: 'gv-icon-button[icon-name="send"] button[aria-label="Send message"]',
-    gvSendButtonNew:
-        'gv-icon-button-ng2[gv-test-id="send_message"] button, gv-icon-button-ng2[icon-name="send"][label="Send message"] button',
+    gvNumInput: 'gv-recipient-picker input[ng-show="ctrl.allowToAddRecipients()"], input[placeholder="Type a name or phone number"]',
+    gvStartChatButton: '#send_to_button-0, gv-contact-list-ng2 .send-to-button, gv-contact-list div[ng-class="::ctrl.CSS.SEND_TO_PHONE_NUMBER"]',
+    gvRecipientButton: 'mat-chip-row, gmat-input-chip[gv-id="chip-phone-number"], div[aria-label="Select recipients"] md-chips md-chip button',
+    gvMessageEditor: 'textarea[gv-test-id="gv-message-input"], textarea[placeholder="Type a message"], textarea[aria-label="Add a caption"], #gv-message-input, div[gv-test-id="gv-message-input"]',
+    gvSendButton: 'button[aria-label="Send message"]',
     // this is the note that says "Sending" after clicking the send button; it will disappear when it is finished
     gvSendingNote: 'gv-message-item div[ng-if="ctrl.shouldDisplayTransmissionStatus()"] div[ng-if="!ctrl.isFailed()"]',
     gvMostRecentMessages:
@@ -48,7 +42,7 @@ function findGoogleVoice() {
     var button = document.querySelector(selectors.gvMessagesTab)
     if (button && siteIsGoogleVoice) {
         console.log('configuring google voice site')
-        siteManager = new GoogleVoiceSiteManager2()
+        siteManager = new GoogleVoiceSiteManager()
         siteManager.initialize()
         return true
     }
