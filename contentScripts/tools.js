@@ -136,35 +136,26 @@ const simulateKeyPress = (element) => {
 }
 
 function simulateTextEntry(inputField, textToEnter) {
-    inputField.focus()
-    let inputFieldValueProp = inputField.value !== undefined ? 'value' : 'innerText'
+    inputField.focus();
+    inputField.value = "";
 
-    // if (inputFieldValueProp === "value") {
-    //   for (let i = 0; i < textToEnter.length; i++) {
-    //     var charCode = textToEnter.charCodeAt(i);
+    for (let i = 0; i < textToEnter.length; i++) {
+        var charCode = textToEnter.charCodeAt(i);
 
-    //     let keydownEvent = new Event("keydown", { keyCode: charCode });
-    //     inputField.dispatchEvent(keydownEvent);
+        let keydownEvent = new Event('keydown', { keyCode: charCode });
+        inputField.dispatchEvent(keydownEvent);
 
-    //     let keypressEvent = new Event("keypress", { keyCode: charCode });
-    //     inputField.dispatchEvent(keypressEvent);
+        let keypressEvent = new Event('keypress', { keyCode: charCode });
+        inputField.dispatchEvent(keypressEvent);
 
-    //     inputField[inputFieldValueProp] =
-    //       inputField[inputFieldValueProp] + textToEnter[i];
+        inputField.value = inputField.value + textToEnter[i];
 
-    //     let inputEvent = new Event("input", { bubbles: true });
-    //     inputField.dispatchEvent(inputEvent);
+        let inputEvent = new Event('input', { bubbles: true });
+        inputField.dispatchEvent(inputEvent);
 
-    //     let keyupEvent = new Event("keyup", { keyCode: charCode });
-    //     inputField.dispatchEvent(keyupEvent);
-    //   }
-    // } else {
-    //   inputField[inputFieldValueProp] = textToEnter;
-    //   simulateKeyPress(inputField);
-    // }
-    inputField[inputFieldValueProp] = textToEnter
-    simulateKeyPress(inputField)
-    inputField.blur()
+        let keyupEvent = new Event('keyup', { keyCode: charCode });
+        inputField.dispatchEvent(keyupEvent);
+    }
 }
 
 function checkElementValue(value, element) {
