@@ -15,7 +15,7 @@ const configuration = {
     defaultNumber: '1234567890'
 }
 
-chrome.runtime.onMessage.addListener((message) => {
+browser.runtime.onMessage.addListener((message) => {
     if (message.type === 'RECORD_TEXT_IN_DB') {
         recordTextInDB()
     }
@@ -41,7 +41,7 @@ function saveNextButton() {
 }
 
 async function launchMessagingApp(currentPhoneNumber, contactName) {
-    let { textPlatform, yourName, messageTemplates } = await chrome.storage.local.get([
+    let { textPlatform, yourName, messageTemplates } = await browser.storage.local.get([
         'textPlatform',
         'yourName',
         'messageTemplates'
@@ -54,7 +54,7 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
     let messageBody = scriptText.match(THEIR_NAME_REGEX) ? scriptText : message
     if (!messageBody || !messageBody.match(THEIR_NAME_REGEX)) {
         showFatalError('Please add the script message to the BYOP extension message template', false)
-        chrome.runtime.sendMessage({ type: 'OPEN_OPTIONS_PAGE' })
+        browser.runtime.sendMessage({ type: 'OPEN_OPTIONS_PAGE' })
         return false
     }
 
@@ -84,7 +84,7 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
             console.log(`sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`)
             window.open(`sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`, '_blank')
             recordTextInDB()
-            chrome.runtime.sendMessage({ type: 'MESSAGE_SENT' })
+            browser.runtime.sendMessage({ type: 'MESSAGE_SENT' })
             break
         case 'text-free':
             try {
@@ -213,7 +213,7 @@ async function getContactDetails() {
                 container.appendChild(title)
                 sidebarContainer.appendChild(container)
 
-                let { yourName, messageTemplates } = await chrome.storage.local.get(['yourName', 'messageTemplates'])
+                let { yourName, messageTemplates } = await browser.storage.local.get(['yourName', 'messageTemplates'])
 
                 console.log('Appending button...')
 

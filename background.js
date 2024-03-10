@@ -17,17 +17,15 @@ browser.runtime.onInstalled.addListener(async () => {
 browser.runtime.onMessage.addListener(async (message, sender, response) => {
     if (message.type === 'MESSAGE_SENT') {
         recordMessageSent();
-    } else if (message.type === 'USER_THROTTLED') {
-        recordUserThrottled();
     }
     if (message.type === 'OPEN_OPTIONS_PAGE') {
-        chrome.runtime.openOptionsPage()
+        browser.runtime.openOptionsPage()
     }
     if (message.type === 'SWITCH_TAB') {
         // Find Text Free tab
         findTabId(message.url)
             .then((id) => {
-                chrome.tabs.update(id, { selected: true })
+                browser.tabs.update(id, { selected: true })
                 response({ type: 'TAB_OPEN' })
             })
             .catch((err) => {
@@ -50,7 +48,7 @@ browser.runtime.onMessage.addListener(async (message, sender, response) => {
     if (message.type === 'TALK_TO_TAB') {
         findTabId(message.url)
             .then((id) => {
-                chrome.tabs
+                browser.tabs
                     .sendMessage(id, {
                         ...message,
                         type: message.tabType
@@ -86,11 +84,7 @@ browser.runtime.onMessage.addListener(async (message, sender, response) => {
  * @return {[type]} [description]
  */
 async function recordMessageSent() {
-    // The browser and chrome APIs don't write data to the same place!
-    // We'll want to release v0.4.4 that replaces these remaining references
-    // to the chrome API once we're certain most everyone has upgraded and 
-    // used the new version so their counts are preserved
-    var items = await chrome.storage.sync.get(['sendCounts']);
+    var items = await browser.storage.local.get(['sendCounts']);
     items.sendCounts = items.sendCounts || {};
     items.sendHistory = await getSendHistory(true);
     
@@ -101,25 +95,12 @@ async function recordMessageSent() {
     const thisMonth = getYearAndMonth(now);
     const thisMonthCount = (items.sendCounts[thisMonth] || 0) + 1;
 
-    chrome.storage.sync.set({
-        sendCounts: {
-            ...items.sendCounts,
-            [thisMonth]: thisMonthCount
-        }
-    });
-
     browser.storage.local.set({
         sendCounts: {
             ...items.sendCounts,
             [thisMonth]: thisMonthCount
         }
     });
-}
-
-async function recordUserThrottled() {
-    console.log('recordUserThrottled');
-    let sendHistory = await getSendHistory();
-    browser.storage.local.set({ throttledSendCount: sendHistory.length });
 }
 
 /**
@@ -138,7 +119,7 @@ function getYearAndMonth(date) {
  */
 async function findTabId(url) {
     return new Promise((resolve, reject) => {
-        chrome.tabs
+        browser.tabs
             .query({
                 url,
                 currentWindow: true
