@@ -213,8 +213,6 @@ async function getContactDetails() {
                 container.appendChild(title)
                 sidebarContainer.appendChild(container)
 
-                let { yourName, messageTemplates } = await browser.storage.local.get(['yourName', 'messageTemplates'])
-
                 console.log('Appending button...')
 
                 const button = document.createElement('button')
@@ -230,7 +228,12 @@ async function getContactDetails() {
                 button.style =
                     'width: 100%;height: 38px;background-color: #98BF64;margin-top: 10px;border: none;border-radius: 4px;cursor: pointer;color: white;font-size: 14px;'
                 button.textContent = 'Set Up Text Message'
-                container.appendChild(button)
+
+                const { textPlatform } = await browser.storage.local.get(['textPlatform'])
+
+                if (textPlatform) {
+                    container.appendChild(button)
+                }
             }
         }
         storeContactDataInSessionStorage(contactName, currentPhoneNumber, additionalFields)

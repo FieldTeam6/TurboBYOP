@@ -39,7 +39,7 @@ document.getElementById('toggleOnSite').addEventListener('mouseleave', resetStat
 
 let Select = document.querySelector('#texting-platform-select')
 
-Select.addEventListener('change', async function () {
+Select.addEventListener('click', async function () {
     const textPlatform = this.value
     await browser.storage.local.set({ textPlatform })
 })
