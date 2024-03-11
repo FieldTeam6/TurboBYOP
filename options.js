@@ -71,10 +71,6 @@ function saveSettings(arg) {
                 result: elem.querySelector('.message-template-result-texted').checked ? 'Texted' : null
             });
 
-            if (arg[i] && message != arg[i].message) {
-                browser.storage.local.set({ throttledSendCount: 0 });
-            }
-
             includesTextReplacement = includesTextReplacement || SUBSTITUTION_REGEX.test(message)
         }
     }

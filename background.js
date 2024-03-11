@@ -84,11 +84,7 @@ browser.runtime.onMessage.addListener(async (message, sender, response) => {
  * @return {[type]} [description]
  */
 async function recordMessageSent() {
-    // The browser and chrome APIs don't write data to the same place!
-    // We'll want to release v0.4.4 that replaces these remaining references
-    // to the chrome API once we're certain most everyone has upgraded and 
-    // used the new version so their counts are preserved
-    var items = await chrome.storage.sync.get(['sendCounts']);
+    var items = await browser.storage.sync.get(['sendCounts']);
     items.sendCounts = items.sendCounts || {};
     items.sendHistory = await getSendHistory(true);
     
@@ -99,25 +95,12 @@ async function recordMessageSent() {
     const thisMonth = getYearAndMonth(now);
     const thisMonthCount = (items.sendCounts[thisMonth] || 0) + 1;
 
-    chrome.storage.sync.set({
-        sendCounts: {
-            ...items.sendCounts,
-            [thisMonth]: thisMonthCount
-        }
-    });
-
     browser.storage.local.set({
         sendCounts: {
             ...items.sendCounts,
             [thisMonth]: thisMonthCount
         }
     });
-}
-
-async function recordUserThrottled() {
-    console.log('recordUserThrottled');
-    let sendHistory = await getSendHistory();
-    browser.storage.local.set({ throttledSendCount: sendHistory.length });
 }
 
 /**

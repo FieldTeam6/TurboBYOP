@@ -42,7 +42,6 @@ function keepTrying(method, silenceErrors, cb) {
             if (!silenceErrors && giveUp) {
                 if (siteIsGoogleVoice) {
                     if (functionName === 'confirmSent') {
-                        browser.runtime.sendMessage({ type: "USER_THROTTLED" });
                         showFatalError(`You've been throttled by Google Voice.  Please try a different campaign, or wait 24 hours and try again.\n\nError: "${functionName}" failed.`, true)
                     } else {
                         showFatalError(`If the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${functionName}" failed.`, true);
