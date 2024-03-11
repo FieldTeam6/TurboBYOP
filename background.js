@@ -16,11 +16,68 @@ browser.runtime.onInstalled.addListener(async () => {
 // For logging
 browser.runtime.onMessage.addListener(async (message, sender, response) => {
     if (message.type === 'MESSAGE_SENT') {
-        recordMessageSent();
-    } else if (message.type === 'USER_THROTTLED') {
-        recordUserThrottled();
+        recordMessageSent()
     }
-});
+    if (message.type === 'OPEN_OPTIONS_PAGE') {
+        chrome.runtime.openOptionsPage()
+    }
+    if (message.type === 'SWITCH_TAB') {
+        // Find Text Free tab
+        findTabId(message.url)
+            .then((id) => {
+                chrome.tabs.update(id, { selected: true })
+                response({ type: 'TAB_OPEN' })
+            })
+            .catch((err) => {
+                console.error(err)
+                if (message.loginUrl) {
+                    // Check if Login page is open
+                    findTabId(message.loginUrl)
+                        .then(() => {
+                            response({ type: 'LOGIN_TAB_OPEN' })
+                        })
+                        .catch((err) => {
+                            console.error(err)
+                            response({ type: 'TAB_NOT_OPEN' })
+                        })
+                }
+            })
+        return true
+    }
+
+    if (message.type === 'TALK_TO_TAB') {
+        findTabId(message.url)
+            .then((id) => {
+                chrome.tabs
+                    .sendMessage(id, {
+                        ...message,
+                        type: message.tabType
+                    })
+                    .then(() => {
+                        response({ type: 'TAB_OPEN' })
+                    })
+                    .catch((err) => {
+                        console.error(err)
+                        response({ type: 'TAB_NOT_OPEN' })
+                    })
+            })
+            .catch((err) => {
+                console.error(err)
+                if (message.loginUrl) {
+                    // Check if Login page is open
+                    findTabId(message.loginUrl, response)
+                        .then(() => {
+                            response({ type: 'LOGIN_TAB_OPEN' })
+                        })
+                        .catch((err) => {
+                            console.error(err)
+                            response({ type: 'TAB_NOT_OPEN' })
+                        })
+                }
+            })
+        return true
+    }
+})
 
 /**
  * Records the message count sent by month
@@ -69,5 +126,26 @@ async function recordUserThrottled() {
  * @return {string}      year and month
  */
 function getYearAndMonth(date) {
-    return date.getFullYear() + '-' + ("0" + (date.getMonth() + 1)).slice(-2)
+    return date.getFullYear() + '-' + ('0' + (date.getMonth() + 1)).slice(-2)
+}
+
+/**
+ * Finds a tab in the current window
+ * @param {string} url
+ * @returns {Promise<number>} A promise that contains the id of the tab when fulfilled
+ */
+async function findTabId(url) {
+    return new Promise((resolve, reject) => {
+        chrome.tabs
+            .query({
+                url,
+                currentWindow: true
+            })
+            .then((tabs) => {
+                const tabId = tabs[0]?.id
+                if (tabId) resolve(tabId)
+                else reject(false)
+            })
+            .catch((err) => reject(false))
+    })
 }
