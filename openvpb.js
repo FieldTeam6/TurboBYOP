@@ -1,7 +1,6 @@
 console.log('using openvpb-specific content script')
 const DESIGNATED_CONTACT_REGEX = /designated[ _-]?contact/i
 
-let couldntReachContact = false
 // OpenVPB displays a pop-up after you make your first call
 // This is annoying for the BYOP experience because it looks like
 // it's not loading the next contact right away. So, we just click through
@@ -31,12 +30,6 @@ chrome.runtime.onMessage.addListener((message) => {
 })
 
 setInterval(getContactDetails, 50)
-
-function couldntReachButton() {
-    return (
-        document.getElementById('displaycontactresultsbutton') || document.getElementById('displayContactResultsButton')
-    )
-}
 
 function saveNextButton() {
     return (
@@ -124,6 +117,8 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
 
             break
     }
+
+    return true;
 }
 
 function recordTextInDB() {
@@ -193,28 +188,6 @@ async function getContactDetails() {
 
     // Figure out if this is a new contact
     if (contactName && currentPhoneNumber && isNewContact(currentPhoneNumber)) {
-        couldntReachContact = false
-
-        // Determine if they couldn't reach the contact
-        if (couldntReachButton()) {
-            couldntReachButton().addEventListener('click', async () => {
-                couldntReachContact = true
-                console.log(`couldn't reach contact: ${couldntReachContact}`)
-
-                const [cancelButton, saveNextButton] = await Promise.all([
-                    waitForButton(['contactresultscancelbutton', 'contactResultsCancelButton']),
-                    waitForButton(['contactresultssavenextbutton', 'contactResultsSaveNextButton'])
-                ])
-                cancelButton.addEventListener('click', () => {
-                    couldntReachContact = false
-                    console.log(`couldn't reach contact: ${couldntReachContact}`)
-                })
-                saveNextButton.addEventListener('click', onSaveNextClick)
-            })
-        } else {
-            console.warn("could not find couldn't reach button")
-        }
-
         // Log successful calls
         if (saveNextButton()) {
             saveNextButton().addEventListener('click', onSaveNextClick)
@@ -285,7 +258,6 @@ async function waitForButton(ids, interval = 10, timeout = 10000) {
             reject(new Error(`Could not find buttons: ${ids.join(', ')}`))
         }, timeout)
         const checkInterval = setInterval(() => {
-            let element
             for (let id of ids) {
                 if (document.getElementById(id)) {
                     clearInterval(checkInterval)

@@ -23,31 +23,29 @@ function getFunctionName(func) {
  * @param {Function}   cb             to be called with the results from method when we're done trying
  */
 function keepTrying(method, silenceErrors, cb) {
-    console.log('keep trying')
-    const frequency = 100 // try every 100ms
-    let tryCount = (2 * 1000) / frequency // keep trying for 2 seconds
+    const frequency = 100; // try every 100ms
+    let tryCount = 4 * 1000 / frequency; // keep trying for 4 seconds
     var keepTryingInterval = setInterval(function () {
-        var successful = method()
-        var giveUp = successful === false || tryCount-- < 0
+        var successful = method();
+        var giveUp = successful === false || tryCount-- < 0;
+        let functionName = getFunctionName(method);
+
         if (successful === true || giveUp) {
-            clearInterval(keepTryingInterval)
+            if (functionName === 'confirmSent') {
+                // If error occurs on confirmSent, it is almost always 
+                // indicative to throttling and we want to abort
+                silenceErrors = false;
+            }
+            //console.log('silenceErrors', silenceErrors);
+            clearInterval(keepTryingInterval);
             // the app failed
             if (!silenceErrors && giveUp) {
                 if (siteIsGoogleVoice) {
-                    if (getFunctionName(method) == 'confirmSent') {
-                        showFatalError(
-                            `If the problem persists, please wait 24 hours and try again.\n\nError: "${getFunctionName(
-                                method
-                            )}" failed.`,
-                            true
-                        )
+                    if (functionName === 'confirmSent') {
+                        browser.runtime.sendMessage({ type: "USER_THROTTLED" });
+                        showFatalError(`You've been throttled by Google Voice.  Please try a different campaign, or wait 24 hours and try again.\n\nError: "${functionName}" failed.`, true)
                     } else {
-                        showFatalError(
-                            `If the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${getFunctionName(
-                                method
-                            )}" failed.`,
-                            true
-                        )
+                        showFatalError(`If the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${functionName}" failed.`, true);
                     }
                 } else {
                     showFatalError(
