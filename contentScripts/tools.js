@@ -136,6 +136,29 @@ const simulateKeyPress = (element) => {
 }
 
 function simulateTextEntry(inputField, textToEnter) {
+    inputField.focus();
+    inputField.value = "";
+
+    for (let i = 0; i < textToEnter.length; i++) {
+        var charCode = textToEnter.charCodeAt(i);
+
+        let keydownEvent = new Event('keydown', { keyCode: charCode });
+        inputField.dispatchEvent(keydownEvent);
+
+        let keypressEvent = new Event('keypress', { keyCode: charCode });
+        inputField.dispatchEvent(keypressEvent);
+
+        inputField.value = inputField.value + textToEnter[i];
+
+        let inputEvent = new Event('input', { bubbles: true });
+        inputField.dispatchEvent(inputEvent);
+
+        let keyupEvent = new Event('keyup', { keyCode: charCode });
+        inputField.dispatchEvent(keyupEvent);
+    }
+}
+
+function enterText(inputField, textToEnter) {
     inputField.focus()
     let inputFieldValueProp = inputField.value !== undefined ? 'value' : 'innerText'
 
@@ -175,7 +198,7 @@ function checkElementValue(value, element) {
 
 function fillElementAndCheckValue(value, inputElement, elementWithValue = inputElement) {
     if (inputElement) {
-        simulateTextEntry(inputElement, value)
+        enterText(inputElement, value)
         return checkElementValue(value, elementWithValue)
     }
     return false

@@ -42,7 +42,7 @@ function findGoogleVoice() {
     var button = document.querySelector(selectors.gvMessagesTab)
     if (button && siteIsGoogleVoice) {
         console.log('configuring google voice site')
-        siteManager = new GoogleVoiceSiteManager2()
+        siteManager = new GoogleVoiceSiteManager()
         siteManager.initialize()
         return true
     }
