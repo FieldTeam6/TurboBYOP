@@ -228,25 +228,31 @@ async function interactWithTab(
     intervalFrequency = 1000
 ) {
     return new Promise((resolve, reject) => {
-        const errorMessage = `Please try loading the page ${message.url} and click the green Set up Text Message button again.`
+        console.log('message', message)
+        const errorMessage = `Try loading the page ${message.url} and click Set Up Text Message again.`
         let retryCount = 0
         let switchTabInterval = setInterval(() => {
             chrome.runtime
                 .sendMessage(message)
                 .then((response) => {
+                    console.log('response', response);
                     if (response?.type === 'TAB_NOT_OPEN') {
-                        if (tabNotOpenCB) tabNotOpenCB()
+                        if (tabNotOpenCB) {
+                            tabNotOpenCB()
+                        }
                     } else if (response?.type === 'LOGIN_TAB_OPEN') {
                         clearInterval(switchTabInterval)
                         if (loginTabOpenCB) loginTabOpenCB()
                         reject(false)
                         showFatalError(
-                            `Please make sure you are logged in on ${message.url} and click on the green Set Up Text Message button again`,
+                            `Make sure you are logged in on ${message.url} and click on Set Up Text Message again`,
                             false
                         )
                     } else {
                         clearInterval(switchTabInterval)
-                        if (tabOpenCB) tabOpenCB()
+                        if (tabOpenCB) {
+                            tabOpenCB()
+                        }
                         resolve(true)
                     }
                 })

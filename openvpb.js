@@ -59,7 +59,7 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
     }
 
     messageBody = messageBody.replace(THEIR_NAME_REGEX, contactName).replace(YOUR_NAME_REGEX, yourName)
-    ;+console.log('messageBody', messageBody)
+    console.log('messageBody', messageBody)
 
     if (configuration['testmode'] == true) {
         currentPhoneNumber = configuration['defaultNumber']
@@ -68,17 +68,41 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
     switch (textPlatform) {
         case 'google-voice':
             let digitsOnlyPhoneNumber = currentPhoneNumber.replace(/\D+/g, '')
-            console.log(
-                `https://voice.google.com/u/0/messages/?phoneNo=${digitsOnlyPhoneNumber}&sms=${encodeURIComponent(
-                    messageBody
-                )}`
-            )
-            window.open(
-                `https://voice.google.com/u/0/messages/?phoneNo=${digitsOnlyPhoneNumber}&sms=${encodeURIComponent(
-                    messageBody
-                )}`,
-                '_blank'
-            )
+            const url = 'https://voice.google.com/u/0/messages'
+
+            try {
+                const switchedTab = await interactWithTab(
+                    {
+                        url: `${url}*`,
+                        loginUrl: '',
+                        type: 'SWITCH_TAB'
+                    },
+                    null,
+                    () => {
+                        window.open(url, '_blank')
+                    }
+                )
+
+                console.log('switchedTab', switchedTab);
+
+                if (switchedTab) {
+                    // Send contact details to Text Free tab to send text
+                    const interactWithTabResult = await interactWithTab({
+                        type: 'TALK_TO_TAB',
+                        tabType: 'SEND_MESSAGE',
+                        url: `${url}*`,
+                        loginUrl: '',
+                        message: messageBody,
+                        phoneNumber: digitsOnlyPhoneNumber,
+                        contactName
+                    })
+
+                    console.log('interactWithTabResult', interactWithTabResult);
+                }
+            } catch (err) {
+                console.log(err)
+            }
+
             break
         case 'messaging-app':
             console.log(`sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`)

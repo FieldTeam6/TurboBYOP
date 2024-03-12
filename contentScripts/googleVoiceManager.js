@@ -30,6 +30,24 @@ class GoogleVoiceSiteManager {
                 this.sendFromQueueBYOP()
             }
         }
+
+        chrome.runtime.onMessage.addListener((message) => {
+            if (message.type === 'SEND_MESSAGE') {
+                this.currentNumberSending = message.phoneNumber
+                this.currentContactName = message.contactName
+                const currentContactFirstName = this.currentContactName.split(' ')[0]
+                this.messagesToSend = {
+                    [this.currentNumberSending]: message.message.replace(
+                        this.currentContactName,
+                        currentContactFirstName
+                    )
+                }
+                this.sendFromQueueBYOP()
+            }
+            if (message.type === 'FIND_CONTACT') {
+                findContact(message.contactName)
+            }
+        })
     }
 
     async sendFromQueue() {
@@ -115,6 +133,7 @@ class GoogleVoiceSiteManager {
 
     showNumberInput() {
         var showInputButton = document.querySelector(selectors.gvNumInputButton)
+        console.log('showInputButton', showInputButton);
         if (showInputButton && showInputButton.offsetParent !== null) {
             showInputButton.click()
             return true

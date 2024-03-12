@@ -15,17 +15,21 @@ browser.runtime.onInstalled.addListener(() => {
 
 // For logging
 browser.runtime.onMessage.addListener((message, sender, response) => {
+    console.log('called listener', message)
     if (message.type === 'MESSAGE_SENT') {
+        console.log('1');
         recordMessageSent()
     }
     if (message.type === 'OPEN_OPTIONS_PAGE') {
+        console.log('2');
         chrome.runtime.openOptionsPage()
     }
     if (message.type === 'SWITCH_TAB') {
+        console.log('3');
         // Find Text Free tab
         findTabId(message.url)
             .then((id) => {
-                chrome.tabs.update(id, { selected: true })
+                browser.tabs.update(id, { selected: true })
                 response({ type: 'TAB_OPEN' })
             })
             .catch((err) => {
@@ -42,15 +46,20 @@ browser.runtime.onMessage.addListener((message, sender, response) => {
                             console.error(err)
                             response({ type: 'TAB_NOT_OPEN' })
                         })
+                } else {
+                    response({ type: 'TAB_NOT_OPEN' })
                 }
             })
         return true
     }
 
     if (message.type === 'TALK_TO_TAB') {
+        console.log('-- TALK TO TAB --')
+        console.log('4');
         findTabId(message.url)
             .then((id) => {
-                chrome.tabs
+                console.log('id', id)
+                browser.tabs
                     .sendMessage(id, {
                         ...message,
                         type: message.tabType
@@ -75,6 +84,8 @@ browser.runtime.onMessage.addListener((message, sender, response) => {
                             console.error(err)
                             response({ type: 'TAB_NOT_OPEN' })
                         })
+                } else {
+                    response({ type: 'TAB_NOT_OPEN' })
                 }
             })
         return true
@@ -119,18 +130,27 @@ function getYearAndMonth(date) {
  * @param {string} url
  * @returns {Promise<number>} A promise that contains the id of the tab when fulfilled
  */
-async function findTabId(url) {
+function findTabId(url) {
+    console.log('calling findTabId')
     return new Promise((resolve, reject) => {
-        chrome.tabs
+        browser.tabs
             .query({
                 url,
                 currentWindow: true
             })
             .then((tabs) => {
+                console.log('tabs', tabs);
                 const tabId = tabs[0]?.id
-                if (tabId) resolve(tabId)
-                else reject(false)
+
+                if (tabId) {
+                    resolve(tabId)
+                } else {
+                    reject(false)
+                }
             })
-            .catch((err) => reject(false))
+            .catch((err) => {
+                console.error(err)
+                reject(false)
+            })
     })
 }

@@ -33,13 +33,17 @@ const selectors = {
 }
 
 function findGoogleVoice() {
+    console.log('findGoogleVoiceMethod')
     // stop looking, wrong url
     if (!window.location.href.startsWith('https://voice.google.com')) {
+        console.log('could not find google voice!')
         return false
     }
 
     // check if this is the google voice site
     var button = document.querySelector(selectors.gvMessagesTab)
+    console.log('button', button)
+    console.log('siteIsGoogleVoice', siteIsGoogleVoice);
     if (button && siteIsGoogleVoice) {
         console.log('configuring google voice site')
         siteManager = new GoogleVoiceSiteManager()
@@ -68,7 +72,7 @@ function findTextFree() {
         })
         .catch((err) => {
             console.error(err)
-            showFatalError(`Please try re-loading the page and click the green Set up Text Message button again.`, true)
+            showFatalError(`Please try re-loading the page and click Set Up Text Message again.`, true)
         })
 }
 

@@ -173,14 +173,14 @@ class TextFreeSiteManager {
             }
             this.errorActions[currentStepName] = () =>
                 showFatalError(
-                    `Please check your network connection and try reloading the page and clicking the green Set Up Text Message button on the OpenVPB page again. If the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${currentStepName}" failed.`,
+                    `Please check your network connection and try reloading the page and clicking Set Up Text Message again.\n\nIf the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${currentStepName}" failed.`,
                     false
                 )
             // If the current step is before the final step (switching back to OpenVPB tab)
         } else if (queueNum < sendExecutionQueue.length - 1)
             this.errorActions[currentStepName] = () =>
                 showFatalError(
-                    `Please check your network connection and try reloading the page and clicking the green Set Up Text Message button on the OpenVPB page again. If the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${currentStepName}" failed.`,
+                    `Please check your network connection and try reloading the page and clicking Set Up Text Message again.\n\nIf the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${currentStepName}" failed.`,
                     false
                 )
         tryStep(
