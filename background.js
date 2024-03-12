@@ -3,8 +3,8 @@ const OPENVPB_ORIGIN = 'https://www.openvpb.com/VirtualPhoneBank*'
 const unregisterContentScripts = {}
 
 // Run when installed or updated
-browser.runtime.onInstalled.addListener(async () => {
-    const { statsStartDate } = await browser.storage.local.get(['statsStartDate'])
+browser.runtime.onInstalled.addListener(() => {
+    const { statsStartDate } = browser.storage.local.get(['statsStartDate'])
     if (!statsStartDate) {
         console.log('setting stats start date')
         browser.storage.local.set({ statsStartDate: (new Date()).toISOString() })
@@ -14,7 +14,7 @@ browser.runtime.onInstalled.addListener(async () => {
 // Google Voice stuff
 
 // For logging
-browser.runtime.onMessage.addListener(async (message, sender, response) => {
+browser.runtime.onMessage.addListener((message, sender, response) => {
     if (message.type === 'MESSAGE_SENT') {
         recordMessageSent()
     }
@@ -34,9 +34,11 @@ browser.runtime.onMessage.addListener(async (message, sender, response) => {
                     // Check if Login page is open
                     findTabId(message.loginUrl)
                         .then(() => {
+                            console.log('LOGIN TAB OPEN')
                             response({ type: 'LOGIN_TAB_OPEN' })
                         })
                         .catch((err) => {
+                            console.log('TAB NOT OPEN')
                             console.error(err)
                             response({ type: 'TAB_NOT_OPEN' })
                         })
@@ -84,7 +86,7 @@ browser.runtime.onMessage.addListener(async (message, sender, response) => {
  * @return {[type]} [description]
  */
 async function recordMessageSent() {
-    var items = await browser.storage.sync.get(['sendCounts']);
+    var items = await browser.storage.local.get(['sendCounts']);
     items.sendCounts = items.sendCounts || {};
     items.sendHistory = await getSendHistory(true);
     
