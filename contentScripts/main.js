@@ -19,7 +19,7 @@ const selectors = {
     // the header switches to this after sending is complete
     gvChatLoadedHeader: 'gv-message-list-header p[gv-test-id="conversation-title"]',
 
-    // Text Free selectors
+    // TextFree selectors
     tfRenameButton: '.contact.is-selected #renameButton',
     tfMessageBubble: '.sent-message',
     tfMessageEditor: '.emojionearea-editor',
@@ -33,7 +33,6 @@ const selectors = {
 }
 
 function findGoogleVoice() {
-    console.log('findGoogleVoiceMethod')
     // stop looking, wrong url
     if (!window.location.href.startsWith('https://voice.google.com')) {
         console.log('could not find google voice!')
@@ -66,7 +65,7 @@ function findTextFree() {
     // Wait for the Start Chat button to load before starting the process to send the text
     waitForElementToLoad(selectors.tfStartChatButton)
         .then(() => {
-            console.log('configuring text free site')
+            console.log('configuring TextFree site')
             siteManager = new TextFreeSiteManager()
             siteManager.initialize()
         })

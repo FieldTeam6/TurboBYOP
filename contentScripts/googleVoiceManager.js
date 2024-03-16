@@ -18,12 +18,12 @@ class GoogleVoiceSiteManager {
             if (message.type === 'SEND_MESSAGE') {
                 this.currentNumberSending = message.phoneNumber
                 this.currentContactName = message.contactName
-                const currentContactFirstName = this.currentContactName.split(' ')[0]
                 this.messagesToSend = {
                     [this.currentNumberSending]: message.message
                 }
                 this.sendFromQueueBYOP()
             }
+            
             if (message.type === 'FIND_CONTACT') {
                 findContact(message.contactName)
             }
