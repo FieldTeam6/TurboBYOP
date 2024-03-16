@@ -73,8 +73,9 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
             try {
                 const switchedTab = await interactWithTab(
                     {
+                        textPlatform: 'Google Voice',
                         url: `${url}*`,
-                        loginUrl: '',
+                        loginUrl: 'https://voice.google.com/about',
                         type: 'SWITCH_TAB'
                     },
                     null,
@@ -88,10 +89,11 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
                 if (switchedTab) {
                     // Send contact details to Text Free tab to send text
                     const interactWithTabResult = await interactWithTab({
+                        textPlatform: 'Google Voice',
                         type: 'TALK_TO_TAB',
                         tabType: 'SEND_MESSAGE',
                         url: `${url}*`,
-                        loginUrl: '',
+                        loginUrl: 'https://voice.google.com/about',
                         message: messageBody,
                         phoneNumber: digitsOnlyPhoneNumber,
                         contactName
@@ -115,6 +117,7 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
                 // Switch to Text Free Tab or open it
                 const switchedTab = await interactWithTab(
                     {
+                        textPlatform: 'Text Free',
                         url: 'https://messages.textfree.us/conversation*',
                         loginUrl: 'https://messages.textfree.us/login',
                         type: 'SWITCH_TAB'
@@ -128,6 +131,7 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
                 if (switchedTab) {
                     // Send contact details to Text Free tab to send text
                     await interactWithTab({
+                        textPlatform: 'Text Free',
                         type: 'TALK_TO_TAB',
                         tabType: 'SEND_MESSAGE',
                         url: 'https://messages.textfree.us/conversation/*',

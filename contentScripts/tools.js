@@ -96,7 +96,7 @@ function showFatalError(message, reload) {
     })
     const manifest = chrome.runtime.getManifest()
     const reloadMessage = '\n\nWhen you click "OK" the page will refresh.'
-    const fullMessage = `BYOP v${manifest.version}:\nText failed. ${message} ${reload ? reloadMessage : ''}`
+    const fullMessage = `BYOP v${manifest.version}: Text failed.\n\n${message} ${reload ? reloadMessage : ''}`
     console.error('BYOP SMS - ' + fullMessage)
     alert(fullMessage)
     if (reload) {
@@ -245,7 +245,7 @@ async function interactWithTab(
                         if (loginTabOpenCB) loginTabOpenCB()
                         reject(false)
                         showFatalError(
-                            `Make sure you are logged in on ${message.url} and click on Set Up Text Message again`,
+                            `Please make sure you are logged in on ${message.textPlatform} and try again.`,
                             false
                         )
                     } else {
