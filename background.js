@@ -22,11 +22,11 @@ browser.runtime.onMessage.addListener((message, sender, response) => {
     }
     if (message.type === 'OPEN_OPTIONS_PAGE') {
         console.log('2');
-        chrome.runtime.openOptionsPage()
+        browser.runtime.openOptionsPage()
     }
     if (message.type === 'SWITCH_TAB') {
         console.log('3');
-        // Find Text Free tab
+        // Find TextFree tab
         findTabId(message.url)
             .then((id) => {
                 browser.tabs.update(id, { selected: true })
@@ -130,7 +130,7 @@ function getYearAndMonth(date) {
  * @param {string} url
  * @returns {Promise<number>} A promise that contains the id of the tab when fulfilled
  */
-function findTabId(url) {
+async function findTabId(url) {
     console.log('calling findTabId')
     return new Promise((resolve, reject) => {
         browser.tabs

@@ -11,7 +11,7 @@ class TextFreeSiteManager {
     }
 
     async initialize() {
-        chrome.runtime.onMessage.addListener((message) => {
+        browser.runtime.onMessage.addListener((message) => {
             if (message.type === 'SEND_MESSAGE') {
                 this.currentNumberSending = message.phoneNumber
                 this.currentContactName = message.contactName
@@ -108,14 +108,14 @@ class TextFreeSiteManager {
 
     goBackToOpenVPBTab() {
         console.log('going back to OpenVPBTab')
-        chrome.runtime.sendMessage({ type: 'MESSAGE_SENT' })
+        browser.runtime.sendMessage({ type: 'MESSAGE_SENT' })
 
         // Switch to OpenVPB tab and save contact
-        chrome.runtime.sendMessage({
+        browser.runtime.sendMessage({
             type: 'SWITCH_TAB',
             url: 'https://www.openvpb.com/VirtualPhoneBank*'
         })
-        chrome.runtime.sendMessage({
+        browser.runtime.sendMessage({
             type: 'TALK_TO_TAB',
             url: 'https://www.openvpb.com/VirtualPhoneBank*',
             tabType: 'RECORD_TEXT_IN_DB'

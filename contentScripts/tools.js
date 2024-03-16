@@ -89,12 +89,12 @@ function showFatalError(message, reload) {
         siteManager.messagesToSend.length = 0
     }
     // Re-enable Set Up Text Message button
-    chrome.runtime.sendMessage({
+    browser.runtime.sendMessage({
         type: 'TALK_TO_TAB',
         url: 'https://www.openvpb.com/VirtualPhoneBank*',
         tabType: 'SENDING_ERROR'
     })
-    const manifest = chrome.runtime.getManifest()
+    const manifest = browser.runtime.getManifest()
     const reloadMessage = '\n\nWhen you click "OK" the page will refresh.'
     const fullMessage = `BYOP v${manifest.version}: Text failed.\n\n${message} ${reload ? reloadMessage : ''}`
     console.error('BYOP SMS - ' + fullMessage)
@@ -229,10 +229,10 @@ async function interactWithTab(
 ) {
     return new Promise((resolve, reject) => {
         console.log('message', message)
-        const errorMessage = `Try loading the page ${message.url} and click Set Up Text Message again.`
+        const errorMessage = `Please close any existing ${message.textPlatform} tabs and try again.`
         let retryCount = 0
         let switchTabInterval = setInterval(() => {
-            chrome.runtime
+            browser.runtime
                 .sendMessage(message)
                 .then((response) => {
                     console.log('response', response);
@@ -245,7 +245,7 @@ async function interactWithTab(
                         if (loginTabOpenCB) loginTabOpenCB()
                         reject(false)
                         showFatalError(
-                            `Please make sure you are logged in on ${message.textPlatform} and try again.`,
+                            `Please make sure you are logged in to ${message.textPlatform} and try again.`,
                             false
                         )
                     } else {

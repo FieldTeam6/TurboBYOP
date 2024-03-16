@@ -15,7 +15,7 @@ const configuration = {
     defaultNumber: '1234567890'
 }
 
-chrome.runtime.onMessage.addListener((message) => {
+browser.runtime.onMessage.addListener((message) => {
     if (message.type === 'RECORD_TEXT_IN_DB') {
         recordTextInDB()
     }
@@ -41,7 +41,7 @@ function saveNextButton() {
 }
 
 async function launchMessagingApp(currentPhoneNumber, contactName) {
-    let { textPlatform, yourName, messageTemplates } = await chrome.storage.local.get([
+    let { textPlatform, yourName, messageTemplates } = await browser.storage.local.get([
         'textPlatform',
         'yourName',
         'messageTemplates'
@@ -54,7 +54,7 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
     let messageBody = scriptText.match(THEIR_NAME_REGEX) ? scriptText : message
     if (!messageBody || !messageBody.match(THEIR_NAME_REGEX)) {
         showFatalError('Please add the script message to the BYOP extension message template', false)
-        chrome.runtime.sendMessage({ type: 'OPEN_OPTIONS_PAGE' })
+        browser.runtime.sendMessage({ type: 'OPEN_OPTIONS_PAGE' })
         return false
     }
 
@@ -87,7 +87,7 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
                 console.log('switchedTab', switchedTab);
 
                 if (switchedTab) {
-                    // Send contact details to Text Free tab to send text
+                    // Send contact details to TextFree tab to send text
                     const interactWithTabResult = await interactWithTab({
                         textPlatform: 'Google Voice',
                         type: 'TALK_TO_TAB',
@@ -110,14 +110,14 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
             console.log(`sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`)
             window.open(`sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`, '_blank')
             recordTextInDB()
-            chrome.runtime.sendMessage({ type: 'MESSAGE_SENT' })
+            browser.runtime.sendMessage({ type: 'MESSAGE_SENT' })
             break
         case 'text-free':
             try {
-                // Switch to Text Free Tab or open it
+                // Switch to TextFree Tab or open it
                 const switchedTab = await interactWithTab(
                     {
-                        textPlatform: 'Text Free',
+                        textPlatform: 'TextFree',
                         url: 'https://messages.textfree.us/conversation*',
                         loginUrl: 'https://messages.textfree.us/login',
                         type: 'SWITCH_TAB'
@@ -129,9 +129,9 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
                 )
 
                 if (switchedTab) {
-                    // Send contact details to Text Free tab to send text
+                    // Send contact details to TextFree tab to send text
                     await interactWithTab({
-                        textPlatform: 'Text Free',
+                        textPlatform: 'TextFree',
                         type: 'TALK_TO_TAB',
                         tabType: 'SEND_MESSAGE',
                         url: 'https://messages.textfree.us/conversation/*',
@@ -241,7 +241,7 @@ async function getContactDetails() {
                 container.appendChild(title)
                 sidebarContainer.appendChild(container)
 
-                let { textPlatform } = await chrome.storage.local.get(['textPlatform'])
+                let { textPlatform } = await browser.storage.local.get(['textPlatform'])
 
                 if (textPlatform) {
                     console.log('Appending button...')
