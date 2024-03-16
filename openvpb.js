@@ -68,7 +68,7 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
     switch (textPlatform) {
         case 'google-voice':
             let digitsOnlyPhoneNumber = currentPhoneNumber.replace(/\D+/g, '')
-            const url = 'https://voice.google.com/u/0/messages/'
+            const url = 'https://voice.google.com/u/0/messages'
 
             try {
                 const switchedTab = await interactWithTab(

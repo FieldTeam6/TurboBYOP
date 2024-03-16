@@ -14,33 +14,13 @@ class GoogleVoiceSiteManager {
     }
 
     async initialize() {
-        const checkUrl = window.location.href;
-
-        // https://voice.google.com/u/0/messages?phoneNo=123456789&sms=Hello
-        if (checkUrl.startsWith('https://voice.google.com/')) {
-            const urlParams = new URLSearchParams(window.location.search);
-
-            if (urlParams.has('phoneNo') && urlParams.has('sms')) {
-                this.currentNumberSending = urlParams.get('phoneNo');
-                this.messagesToSend = { 
-                    [this.currentNumberSending]: decodeURIComponent(urlParams.get('sms'))
-                };
-                console.log('messagesToSend', this.messagesToSend)
-
-                this.sendFromQueueBYOP()
-            }
-        }
-
         chrome.runtime.onMessage.addListener((message) => {
             if (message.type === 'SEND_MESSAGE') {
                 this.currentNumberSending = message.phoneNumber
                 this.currentContactName = message.contactName
                 const currentContactFirstName = this.currentContactName.split(' ')[0]
                 this.messagesToSend = {
-                    [this.currentNumberSending]: message.message.replace(
-                        this.currentContactName,
-                        currentContactFirstName
-                    )
+                    [this.currentNumberSending]: message.message
                 }
                 this.sendFromQueueBYOP()
             }
