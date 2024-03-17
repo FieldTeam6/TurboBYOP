@@ -15,15 +15,12 @@ class TextFreeSiteManager {
             if (message.type === 'SEND_MESSAGE') {
                 this.currentNumberSending = message.phoneNumber
                 this.currentContactName = message.contactName
-                const currentContactFirstName = this.currentContactName.split(' ')[0]
                 this.messagesToSend = {
-                    [this.currentNumberSending]: message.message.replace(
-                        this.currentContactName,
-                        currentContactFirstName
-                    )
+                    [this.currentNumberSending]: message.message
                 }
                 this.sendFromQueueBYOP()
             }
+
             if (message.type === 'FIND_CONTACT') {
                 findContact(message.contactName)
             }
@@ -31,7 +28,7 @@ class TextFreeSiteManager {
     }
 
     // Clicks on the New Message button
-    startChat() {
+    showNumberInput() {
         if (this.verifyChat()) return true
         const startChatButton = document.querySelector(selectors.tfStartChatButton)
         if (startChatButton) {
@@ -144,7 +141,7 @@ class TextFreeSiteManager {
 
     getSendExecutionQueue() {
         return [
-            this.startChat,
+            this.showNumberInput,
             this.fillNumberInput,
             this.writeMessage,
             this.sendMessage,
@@ -164,30 +161,25 @@ class TextFreeSiteManager {
         const currentStepName = getFunctionName(currentStep)
 
         if (currentStepName === 'fillNumberInput') {
-            if (checkElementValue(this.currentContactName, document.querySelector(selectors.tfNewMessageToInput))) {
-                showFatalError(
-                    `The phone number entered may be a duplicate. Try searching for the contact name using the search button in the BYOP popup window. 
-                    If the contact is found and the number for that contact is the same as the current contact's phone number, it is a duplicate. Please report this in the BYOP Slack channel.`,
-                    false
-                )
-            }
             this.errorActions[currentStepName] = () =>
                 showFatalError(
                     `Please check your network connection and try reloading the page and clicking Set Up Text Message again.\n\nIf the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${currentStepName}" failed.`,
                     false
                 )
             // If the current step is before the final step (switching back to OpenVPB tab)
-        } else if (queueNum < sendExecutionQueue.length - 1)
+        } else if (queueNum < sendExecutionQueue.length - 1) {
             this.errorActions[currentStepName] = () =>
                 showFatalError(
                     `Please check your network connection and try reloading the page and clicking Set Up Text Message again.\n\nIf the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${currentStepName}" failed.`,
                     false
                 )
+        }
+
         tryStep(
             currentStep,
             () => this.sendFromQueueBYOP(queueNum + 1),
             this.errorActions,
-            currentStepName === 'startChat' || currentStepName === 'confirmSent' ? 10 : 3
+            currentStepName === 'showNumberInput' || currentStepName === 'confirmSent' ? 10 : 3
         )
     }
 }

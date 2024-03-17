@@ -34,17 +34,16 @@ const selectors = {
 
 function findGoogleVoice() {
     // stop looking, wrong url
-    if (!window.location.href.startsWith('https://voice.google.com')) {
-        console.log('could not find google voice!')
+    if (!siteIsGoogleVoice) {
+        showFatalError('Could not find Google Voice!', false)
         return false
     }
 
     // check if this is the google voice site
     var button = document.querySelector(selectors.gvMessagesTab)
-    console.log('button', button)
-    console.log('siteIsGoogleVoice', siteIsGoogleVoice);
+
     if (button && siteIsGoogleVoice) {
-        console.log('configuring google voice site')
+        console.log('configuring Google Voice site')
         siteManager = new GoogleVoiceSiteManager()
         siteManager.initialize()
         return true
@@ -56,10 +55,7 @@ function findGoogleVoice() {
 function findTextFree() {
     // stop looking, wrong url
     if (!siteIsTextFree) {
-        showFatalError(
-            `Please make sure you select the correct texting platform in the BYOP popup window and are using the correct texting platform.`,
-            false
-        )
+        showFatalError('Could not find TextFree!', false)
     }
 
     // Wait for the Start Chat button to load before starting the process to send the text
@@ -71,12 +67,12 @@ function findTextFree() {
         })
         .catch((err) => {
             console.error(err)
-            showFatalError(`Please try re-loading the page and click Set Up Text Message again.`, true)
+            showFatalError('Please try reloading the page and click Set Up Text Message again.', true)
         })
 }
 
 async function chooseTextPlatform() {
-    let { textPlatform } = await chrome.storage.local.get(['textPlatform'])
+    const { textPlatform } = await chrome.storage.local.get(['textPlatform'])
     if (textPlatform === 'google-voice') keepTryingAsPromised(findGoogleVoice, true)
     if (textPlatform === 'text-free') findTextFree()
 }
