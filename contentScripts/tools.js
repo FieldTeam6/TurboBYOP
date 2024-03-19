@@ -135,26 +135,22 @@ const simulateKeyPress = (element) => {
 }
 
 function simulateTextEntry(inputField, textToEnter) {
-    inputField.focus();
-    inputField.value = "";
+    inputField.focus()
+    let inputFieldValueProp = inputField.value !== undefined ? 'value' : 'innerText'
+    inputField[inputFieldValueProp] = textToEnter
 
-    for (let i = 0; i < textToEnter.length; i++) {
-        var charCode = textToEnter.charCodeAt(i);
+    var charCode = ' '.charCodeAt();
+    let keydownEvent = new Event('keydown', { keyCode: charCode });
+    inputField.dispatchEvent(keydownEvent);
 
-        let keydownEvent = new Event('keydown', { keyCode: charCode });
-        inputField.dispatchEvent(keydownEvent);
+    let keypressEvent = new Event('keypress', { keyCode: charCode });
+    inputField.dispatchEvent(keypressEvent);
 
-        let keypressEvent = new Event('keypress', { keyCode: charCode });
-        inputField.dispatchEvent(keypressEvent);
+    let inputEvent = new Event('input', { bubbles: true });
+    inputField.dispatchEvent(inputEvent);
 
-        inputField.value = inputField.value + textToEnter[i];
-
-        let inputEvent = new Event('input', { bubbles: true });
-        inputField.dispatchEvent(inputEvent);
-
-        let keyupEvent = new Event('keyup', { keyCode: charCode });
-        inputField.dispatchEvent(keyupEvent);
-    }
+    let keyupEvent = new Event('keyup', { keyCode: charCode });
+    inputField.dispatchEvent(keyupEvent);
 }
 
 function enterText(inputField, textToEnter) {
