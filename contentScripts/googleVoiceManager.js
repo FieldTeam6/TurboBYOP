@@ -23,10 +23,6 @@ class GoogleVoiceSiteManager {
                 }
                 this.sendFromQueueBYOP()
             }
-            
-            if (message.type === 'FIND_CONTACT') {
-                findContact(message.contactName)
-            }
         })
     }
 
@@ -113,7 +109,7 @@ class GoogleVoiceSiteManager {
 
     showNumberInput() {
         var showInputButton = document.querySelector(selectors.gvNumInputButton)
-        console.log('showInputButton', showInputButton);
+
         if (showInputButton && showInputButton.offsetParent !== null) {
             showInputButton.click()
             return true
