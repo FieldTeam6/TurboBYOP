@@ -146,8 +146,6 @@ class TextFreeSiteManager {
             this.writeMessage,
             this.sendMessage,
             this.confirmSent,
-            this.clickRenameChat,
-            this.renameChat,
             this.goBackToOpenVPBTab
         ]
     }

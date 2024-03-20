@@ -269,15 +269,18 @@ async function interactWithTab(
 }
 
 function findContact(search, scrollHeight = 0) {
-    if (!search) {
-        alert('Please enter a contact name to search')
+    const searchDigitsOnly = search.replace(/\D+/g, '')
+    if (!searchDigitsOnly) {
         return
     }
+
     let found = false
     const contacts = document.querySelectorAll('.contact')
     for (let i = 0; i < contacts.length; i++) {
         const contact = contacts[i]
-        if (contact.querySelector('.name')?.innerText === search) {
+        const contactDigitsOnly = contact.querySelector('.name')?.innerText.replace(/\D+/g, '')
+
+        if (contactDigitsOnly && contactDigitsOnly === searchDigitsOnly) {
             found = true
             contact.click()
             return

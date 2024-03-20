@@ -171,12 +171,12 @@ input:checked + .slider:before {
         </div>
         <div class="row mt-4 find-contact-row">
             <div class="col">
-                <div class="form-row">
+                <form class="form-row">
                     <div class="col-8">
-                      <input id="contact-to-find" type="text" class="form-control" placeholder="Contact name">
+                        <input id="contact-to-find" type="number" min="2" class="form-control" placeholder="Phone number" required>
                     </div>
-                    <div class="col-4"><button id="find-contact-button" type="button" class="btn form-control">Search</button></div>
-                  </div>
+                    <div class="col-4"><input id="find-contact-button" type="submit" class="btn form-control" value="Search"></div>
+                </form>
             </div>
         </div>
         <div class="row mt-4">
