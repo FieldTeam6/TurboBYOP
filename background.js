@@ -17,15 +17,14 @@ browser.runtime.onInstalled.addListener(() => {
 browser.runtime.onMessage.addListener((message, sender, response) => {
     console.log('called listener', message)
     if (message.type === 'MESSAGE_SENT') {
-        console.log('1');
         recordMessageSent()
     }
+
     if (message.type === 'OPEN_OPTIONS_PAGE') {
-        console.log('2');
         browser.runtime.openOptionsPage()
     }
+
     if (message.type === 'SWITCH_TAB') {
-        console.log('3');
         // Find TextFree tab
         findTabId(message.url)
             .then((id) => {
@@ -54,8 +53,7 @@ browser.runtime.onMessage.addListener((message, sender, response) => {
     }
 
     if (message.type === 'TALK_TO_TAB') {
-        console.log('-- TALK TO TAB --')
-        console.log('4');
+        console.log('TALK TO TAB')
         findTabId(message.url)
             .then((id) => {
                 console.log('id', id)
@@ -131,7 +129,6 @@ function getYearAndMonth(date) {
  * @returns {Promise<number>} A promise that contains the id of the tab when fulfilled
  */
 async function findTabId(url) {
-    console.log('calling findTabId')
     return new Promise((resolve, reject) => {
         browser.tabs
             .query({

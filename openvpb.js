@@ -68,41 +68,37 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
     switch (textPlatform) {
         case 'google-voice':
             let digitsOnlyPhoneNumber = currentPhoneNumber.replace(/\D+/g, '')
-            const url = 'https://voice.google.com/u/0/messages'
+            const gvUrl = 'https://voice.google.com/u/0/messages'
 
             try {
                 const switchedTab = await interactWithTab(
                     {
                         textPlatform: 'Google Voice',
-                        url: `${url}*`,
+                        url: `${gvUrl}*`,
                         loginUrl: 'https://voice.google.com/about',
                         type: 'SWITCH_TAB'
                     },
                     null,
                     () => {
-                        window.open(url, '_blank')
+                        window.open(gvUrl, '_blank')
                     }
                 )
 
-                console.log('switchedTab', switchedTab);
-
                 if (switchedTab) {
                     // Send contact details to TextFree tab to send text
-                    const interactWithTabResult = await interactWithTab({
+                    await interactWithTab({
                         textPlatform: 'Google Voice',
                         type: 'TALK_TO_TAB',
                         tabType: 'SEND_MESSAGE',
-                        url: `${url}*`,
+                        url: `${gvUrl}*`,
                         loginUrl: 'https://voice.google.com/about',
                         message: messageBody,
                         phoneNumber: digitsOnlyPhoneNumber,
                         contactName
                     })
-
-                    console.log('interactWithTabResult', interactWithTabResult);
                 }
             } catch (err) {
-                console.log(err)
+                console.err(err)
             }
 
             break
@@ -113,18 +109,19 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
             browser.runtime.sendMessage({ type: 'MESSAGE_SENT' })
             break
         case 'text-free':
+            const tfUrl = 'https://messages.textfree.us/conversation'
             try {
                 // Switch to TextFree Tab or open it
                 const switchedTab = await interactWithTab(
                     {
                         textPlatform: 'TextFree',
-                        url: 'https://messages.textfree.us/conversation*',
+                        url: `${tfUrl}*`,
                         loginUrl: 'https://messages.textfree.us/login',
                         type: 'SWITCH_TAB'
                     },
                     null,
                     () => {
-                        window.open('https://messages.textfree.us/conversation/', '_blank')
+                        window.open(tfUrl, '_blank')
                     }
                 )
 
@@ -134,7 +131,7 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
                         textPlatform: 'TextFree',
                         type: 'TALK_TO_TAB',
                         tabType: 'SEND_MESSAGE',
-                        url: 'https://messages.textfree.us/conversation/*',
+                        url: `${tfUrl}*`,
                         loginUrl: 'https://messages.textfree.us/login',
                         message: messageBody,
                         phoneNumber: currentPhoneNumber,

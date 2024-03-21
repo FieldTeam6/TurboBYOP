@@ -100,6 +100,7 @@ function showFatalError(message, reload) {
     console.error('BYOP SMS - ' + fullMessage)
     alert(fullMessage)
     if (reload) {
+        console.log('reloading page')
         window.location.reload()
     }
 }

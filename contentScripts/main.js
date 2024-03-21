@@ -1,5 +1,5 @@
 const siteIsGoogleVoice = window.location.href.startsWith('https://voice.google.com')
-const siteIsTextFree = window.location.href.startsWith('https://messages.textfree.us/conversation')
+const siteIsTextFree = window.location.href.startsWith('https://messages.textfree.us')
 let siteManager // globally available
 
 // all of the selectors used for automation
