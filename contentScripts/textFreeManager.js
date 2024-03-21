@@ -11,19 +11,16 @@ class TextFreeSiteManager {
     }
 
     async initialize() {
-        chrome.runtime.onMessage.addListener((message) => {
+        browser.runtime.onMessage.addListener((message) => {
             if (message.type === 'SEND_MESSAGE') {
                 this.currentNumberSending = message.phoneNumber
                 this.currentContactName = message.contactName
-                const currentContactFirstName = this.currentContactName.split(' ')[0]
                 this.messagesToSend = {
-                    [this.currentNumberSending]: message.message.replace(
-                        this.currentContactName,
-                        currentContactFirstName
-                    )
+                    [this.currentNumberSending]: message.message
                 }
                 this.sendFromQueueBYOP()
             }
+
             if (message.type === 'FIND_CONTACT') {
                 findContact(message.contactName)
             }
@@ -31,7 +28,7 @@ class TextFreeSiteManager {
     }
 
     // Clicks on the New Message button
-    startChat() {
+    showNumberInput() {
         if (this.verifyChat()) return true
         const startChatButton = document.querySelector(selectors.tfStartChatButton)
         if (startChatButton) {
@@ -108,14 +105,14 @@ class TextFreeSiteManager {
 
     goBackToOpenVPBTab() {
         console.log('going back to OpenVPBTab')
-        chrome.runtime.sendMessage({ type: 'MESSAGE_SENT' })
+        browser.runtime.sendMessage({ type: 'MESSAGE_SENT' })
 
         // Switch to OpenVPB tab and save contact
-        chrome.runtime.sendMessage({
+        browser.runtime.sendMessage({
             type: 'SWITCH_TAB',
             url: 'https://www.openvpb.com/VirtualPhoneBank*'
         })
-        chrome.runtime.sendMessage({
+        browser.runtime.sendMessage({
             type: 'TALK_TO_TAB',
             url: 'https://www.openvpb.com/VirtualPhoneBank*',
             tabType: 'RECORD_TEXT_IN_DB'
@@ -144,13 +141,11 @@ class TextFreeSiteManager {
 
     getSendExecutionQueue() {
         return [
-            this.startChat,
+            this.showNumberInput,
             this.fillNumberInput,
             this.writeMessage,
             this.sendMessage,
             this.confirmSent,
-            this.clickRenameChat,
-            this.renameChat,
             this.goBackToOpenVPBTab
         ]
     }
@@ -164,30 +159,25 @@ class TextFreeSiteManager {
         const currentStepName = getFunctionName(currentStep)
 
         if (currentStepName === 'fillNumberInput') {
-            if (checkElementValue(this.currentContactName, document.querySelector(selectors.tfNewMessageToInput))) {
-                showFatalError(
-                    `The phone number entered may be a duplicate. Try searching for the contact name using the search button in the BYOP popup window. 
-                    If the contact is found and the number for that contact is the same as the current contact's phone number, it is a duplicate. Please report this in the BYOP Slack channel.`,
-                    false
-                )
-            }
             this.errorActions[currentStepName] = () =>
                 showFatalError(
-                    `Please check your network connection and try reloading the page and clicking the green Set Up Text Message button on the OpenVPB page again. If the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${currentStepName}" failed.`,
+                    `Please check your network connection and try reloading the page and clicking Set Up Text Message again.\n\nIf the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${currentStepName}" failed.`,
                     false
                 )
             // If the current step is before the final step (switching back to OpenVPB tab)
-        } else if (queueNum < sendExecutionQueue.length - 1)
+        } else if (queueNum < sendExecutionQueue.length - 1) {
             this.errorActions[currentStepName] = () =>
                 showFatalError(
-                    `Please check your network connection and try reloading the page and clicking the green Set Up Text Message button on the OpenVPB page again. If the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${currentStepName}" failed.`,
+                    `Please check your network connection and try reloading the page and clicking Set Up Text Message again.\n\nIf the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${currentStepName}" failed.`,
                     false
                 )
+        }
+
         tryStep(
             currentStep,
             () => this.sendFromQueueBYOP(queueNum + 1),
             this.errorActions,
-            currentStepName === 'startChat' || currentStepName === 'confirmSent' ? 10 : 3
+            currentStepName === 'showNumberInput' || currentStepName === 'confirmSent' ? 10 : 3
         )
     }
 }

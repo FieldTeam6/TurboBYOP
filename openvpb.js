@@ -15,7 +15,7 @@ const configuration = {
     defaultNumber: '1234567890'
 }
 
-chrome.runtime.onMessage.addListener((message) => {
+browser.runtime.onMessage.addListener((message) => {
     if (message.type === 'RECORD_TEXT_IN_DB') {
         recordTextInDB()
     }
@@ -41,7 +41,7 @@ function saveNextButton() {
 }
 
 async function launchMessagingApp(currentPhoneNumber, contactName) {
-    let { textPlatform, yourName, messageTemplates } = await chrome.storage.local.get([
+    let { textPlatform, yourName, messageTemplates } = await browser.storage.local.get([
         'textPlatform',
         'yourName',
         'messageTemplates'
@@ -54,12 +54,12 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
     let messageBody = scriptText.match(THEIR_NAME_REGEX) ? scriptText : message
     if (!messageBody || !messageBody.match(THEIR_NAME_REGEX)) {
         showFatalError('Please add the script message to the BYOP extension message template', false)
-        chrome.runtime.sendMessage({ type: 'OPEN_OPTIONS_PAGE' })
+        browser.runtime.sendMessage({ type: 'OPEN_OPTIONS_PAGE' })
         return false
     }
 
     messageBody = messageBody.replace(THEIR_NAME_REGEX, contactName).replace(YOUR_NAME_REGEX, yourName)
-    ;+console.log('messageBody', messageBody)
+    console.log('messageBody', messageBody)
 
     if (configuration['testmode'] == true) {
         currentPhoneNumber = configuration['defaultNumber']
@@ -68,45 +68,70 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
     switch (textPlatform) {
         case 'google-voice':
             let digitsOnlyPhoneNumber = currentPhoneNumber.replace(/\D+/g, '')
-            console.log(
-                `https://voice.google.com/u/0/messages/?phoneNo=${digitsOnlyPhoneNumber}&sms=${encodeURIComponent(
-                    messageBody
-                )}`
-            )
-            window.open(
-                `https://voice.google.com/u/0/messages/?phoneNo=${digitsOnlyPhoneNumber}&sms=${encodeURIComponent(
-                    messageBody
-                )}`,
-                '_blank'
-            )
+            const gvUrl = 'https://voice.google.com/u/0/messages'
+
+            try {
+                const switchedTab = await interactWithTab(
+                    {
+                        textPlatform: 'Google Voice',
+                        url: `${gvUrl}*`,
+                        loginUrl: 'https://voice.google.com/about',
+                        type: 'SWITCH_TAB'
+                    },
+                    null,
+                    () => {
+                        window.open(gvUrl, '_blank')
+                    }
+                )
+
+                if (switchedTab) {
+                    // Send contact details to TextFree tab to send text
+                    await interactWithTab({
+                        textPlatform: 'Google Voice',
+                        type: 'TALK_TO_TAB',
+                        tabType: 'SEND_MESSAGE',
+                        url: `${gvUrl}*`,
+                        loginUrl: 'https://voice.google.com/about',
+                        message: messageBody,
+                        phoneNumber: digitsOnlyPhoneNumber,
+                        contactName
+                    })
+                }
+            } catch (err) {
+                console.err(err)
+            }
+
             break
         case 'messaging-app':
             console.log(`sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`)
             window.open(`sms://${currentPhoneNumber};?&body=${encodeURIComponent(messageBody)}`, '_blank')
             recordTextInDB()
-            chrome.runtime.sendMessage({ type: 'MESSAGE_SENT' })
+            browser.runtime.sendMessage({ type: 'MESSAGE_SENT' })
             break
         case 'text-free':
+            const tfUrl = 'https://messages.textfree.us/conversation'
             try {
-                // Switch to Text Free Tab or open it
+                // Switch to TextFree Tab or open it
                 const switchedTab = await interactWithTab(
                     {
-                        url: 'https://messages.textfree.us/conversation*',
+                        textPlatform: 'TextFree',
+                        url: `${tfUrl}*`,
                         loginUrl: 'https://messages.textfree.us/login',
                         type: 'SWITCH_TAB'
                     },
                     null,
                     () => {
-                        window.open('https://messages.textfree.us/conversation/', '_blank')
+                        window.open(tfUrl, '_blank')
                     }
                 )
 
                 if (switchedTab) {
-                    // Send contact details to Text Free tab to send text
+                    // Send contact details to TextFree tab to send text
                     await interactWithTab({
+                        textPlatform: 'TextFree',
                         type: 'TALK_TO_TAB',
                         tabType: 'SEND_MESSAGE',
-                        url: 'https://messages.textfree.us/conversation/*',
+                        url: `${tfUrl}*`,
                         loginUrl: 'https://messages.textfree.us/login',
                         message: messageBody,
                         phoneNumber: currentPhoneNumber,
@@ -213,24 +238,26 @@ async function getContactDetails() {
                 container.appendChild(title)
                 sidebarContainer.appendChild(container)
 
-                let { yourName, messageTemplates } = await chrome.storage.local.get(['yourName', 'messageTemplates'])
+                let { textPlatform } = await browser.storage.local.get(['textPlatform'])
 
-                console.log('Appending button...')
+                if (textPlatform) {
+                    console.log('Appending button...')
 
-                const button = document.createElement('button')
-                button.onclick = () => {
-                    // Disable button after it's clicked so only 1 text will be sent at a time
-                    button.style.opacity = 0.5
-                    button.style.cursor = 'not-allowed'
-                    button.disabled = true
-                    button.title = 'You already set up the text message.'
+                    const button = document.createElement('button')
+                    button.onclick = () => {
+                        // Disable button after it's clicked so only 1 text will be sent at a time
+                        button.style.opacity = 0.5
+                        button.style.cursor = 'not-allowed'
+                        button.disabled = true
+                        button.title = 'You already set up the text message.'
 
-                    launchMessagingApp(currentPhoneNumber, contactName)
+                        launchMessagingApp(currentPhoneNumber, contactName)
+                    }
+                    button.style =
+                        'width: 100%;height: 38px;background-color: #98BF64;margin-top: 10px;border: none;border-radius: 4px;cursor: pointer;color: white;font-size: 14px;'
+                    button.textContent = 'Set Up Text Message'
+                    container.appendChild(button)
                 }
-                button.style =
-                    'width: 100%;height: 38px;background-color: #98BF64;margin-top: 10px;border: none;border-radius: 4px;cursor: pointer;color: white;font-size: 14px;'
-                button.textContent = 'Set Up Text Message'
-                container.appendChild(button)
             }
         }
         storeContactDataInSessionStorage(contactName, currentPhoneNumber, additionalFields)

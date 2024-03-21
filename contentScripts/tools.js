@@ -42,7 +42,6 @@ function keepTrying(method, silenceErrors, cb) {
             if (!silenceErrors && giveUp) {
                 if (siteIsGoogleVoice) {
                     if (functionName === 'confirmSent') {
-                        browser.runtime.sendMessage({ type: "USER_THROTTLED" });
                         showFatalError(`You've been throttled by Google Voice.  Please try a different campaign, or wait 24 hours and try again.\n\nError: "${functionName}" failed.`, true)
                     } else {
                         showFatalError(`If the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${functionName}" failed.`, true);
@@ -90,17 +89,18 @@ function showFatalError(message, reload) {
         siteManager.messagesToSend.length = 0
     }
     // Re-enable Set Up Text Message button
-    chrome.runtime.sendMessage({
+    browser.runtime.sendMessage({
         type: 'TALK_TO_TAB',
         url: 'https://www.openvpb.com/VirtualPhoneBank*',
         tabType: 'SENDING_ERROR'
     })
-    const manifest = chrome.runtime.getManifest()
+    const manifest = browser.runtime.getManifest()
     const reloadMessage = '\n\nWhen you click "OK" the page will refresh.'
-    const fullMessage = `BYOP v${manifest.version}:\nText failed. ${message} ${reload ? reloadMessage : ''}`
+    const fullMessage = `BYOP v${manifest.version}: Text failed.\n\n${message} ${reload ? reloadMessage : ''}`
     console.error('BYOP SMS - ' + fullMessage)
     alert(fullMessage)
     if (reload) {
+        console.log('reloading page')
         window.location.reload()
     }
 }
@@ -136,26 +136,22 @@ const simulateKeyPress = (element) => {
 }
 
 function simulateTextEntry(inputField, textToEnter) {
-    inputField.focus();
-    inputField.value = "";
+    inputField.focus()
+    let inputFieldValueProp = inputField.value !== undefined ? 'value' : 'innerText'
+    inputField[inputFieldValueProp] = textToEnter
 
-    for (let i = 0; i < textToEnter.length; i++) {
-        var charCode = textToEnter.charCodeAt(i);
+    var charCode = ' '.charCodeAt();
+    let keydownEvent = new Event('keydown', { keyCode: charCode });
+    inputField.dispatchEvent(keydownEvent);
 
-        let keydownEvent = new Event('keydown', { keyCode: charCode });
-        inputField.dispatchEvent(keydownEvent);
+    let keypressEvent = new Event('keypress', { keyCode: charCode });
+    inputField.dispatchEvent(keypressEvent);
 
-        let keypressEvent = new Event('keypress', { keyCode: charCode });
-        inputField.dispatchEvent(keypressEvent);
+    let inputEvent = new Event('input', { bubbles: true });
+    inputField.dispatchEvent(inputEvent);
 
-        inputField.value = inputField.value + textToEnter[i];
-
-        let inputEvent = new Event('input', { bubbles: true });
-        inputField.dispatchEvent(inputEvent);
-
-        let keyupEvent = new Event('keyup', { keyCode: charCode });
-        inputField.dispatchEvent(keyupEvent);
-    }
+    let keyupEvent = new Event('keyup', { keyCode: charCode });
+    inputField.dispatchEvent(keyupEvent);
 }
 
 function enterText(inputField, textToEnter) {
@@ -229,25 +225,31 @@ async function interactWithTab(
     intervalFrequency = 1000
 ) {
     return new Promise((resolve, reject) => {
-        const errorMessage = `Please try loading the page ${message.url} and click the green Set up Text Message button again.`
+        console.log('message', message)
+        const errorMessage = `Please close any existing ${message.textPlatform} tabs and try again.`
         let retryCount = 0
         let switchTabInterval = setInterval(() => {
-            chrome.runtime
+            browser.runtime
                 .sendMessage(message)
                 .then((response) => {
+                    console.log('response', response);
                     if (response?.type === 'TAB_NOT_OPEN') {
-                        if (tabNotOpenCB) tabNotOpenCB()
+                        if (tabNotOpenCB) {
+                            tabNotOpenCB()
+                        }
                     } else if (response?.type === 'LOGIN_TAB_OPEN') {
                         clearInterval(switchTabInterval)
                         if (loginTabOpenCB) loginTabOpenCB()
                         reject(false)
                         showFatalError(
-                            `Please make sure you are logged in on ${message.url} and click on the green Set Up Text Message button again`,
+                            `Please make sure you are logged in to ${message.textPlatform} and try again.`,
                             false
                         )
                     } else {
                         clearInterval(switchTabInterval)
-                        if (tabOpenCB) tabOpenCB()
+                        if (tabOpenCB) {
+                            tabOpenCB()
+                        }
                         resolve(true)
                     }
                 })
@@ -268,15 +270,18 @@ async function interactWithTab(
 }
 
 function findContact(search, scrollHeight = 0) {
-    if (!search) {
-        alert('Please enter a contact name to search')
+    const searchDigitsOnly = search.replace(/\D+/g, '')
+    if (!searchDigitsOnly) {
         return
     }
+
     let found = false
     const contacts = document.querySelectorAll('.contact')
     for (let i = 0; i < contacts.length; i++) {
         const contact = contacts[i]
-        if (contact.querySelector('.name')?.innerText === search) {
+        const contactDigitsOnly = contact.querySelector('.name')?.innerText.replace(/\D+/g, '')
+
+        if (contactDigitsOnly && contactDigitsOnly === searchDigitsOnly) {
             found = true
             contact.click()
             return

@@ -26,7 +26,7 @@ class GoogleVoiceSiteManager2 {
                 this.sendFromQueueBYOP()
             }
         }
-        chrome.runtime.onMessage.addListener((message, sender, response) => {
+        browser.runtime.onMessage.addListener((message, sender, response) => {
             if (message.from === 'popup' && message.type === 'SEND_MESSAGES') {
                 this.addMessagesToQueue(message.messages)
                 this.sendInterval = message.sendInterval
@@ -217,14 +217,14 @@ class GoogleVoiceSiteManager2 {
     }
 
     goBackToOpenVPBTab() {
-        chrome.runtime.sendMessage({ type: 'MESSAGE_SENT' })
+        browser.runtime.sendMessage({ type: 'MESSAGE_SENT' })
 
         // Switch to OpenVPB tab and record text in db
-        chrome.runtime.sendMessage({
+        browser.runtime.sendMessage({
             type: 'SWITCH_TAB',
             url: 'https://www.openvpb.com/VirtualPhoneBank*'
         })
-        chrome.runtime.sendMessage({
+        browser.runtime.sendMessage({
             type: 'TALK_TO_TAB',
             url: 'https://www.openvpb.com/VirtualPhoneBank*',
             tabType: 'RECORD_TEXT_IN_DB'

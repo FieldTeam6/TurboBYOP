@@ -1,6 +1,6 @@
 const OPENVPB_REGEX = /https\:\/\/(www\.)?openvpb\.com/i
 const OPENVPB_ORIGIN = 'https://www.openvpb.com/VirtualPhoneBank*'
-const manifest = chrome.runtime.getManifest()
+const manifest = browser.runtime.getManifest()
 const currentVersion = document.getElementById('current-version')
 const appName = document.getElementById('app-name')
 
@@ -18,7 +18,7 @@ const enabledSites = [
     {
         regex: /https\:\/\/(www\.)?messages\.textfree\.us\/conversation/i,
         origin: 'https://messages.textfree.us/conversation*',
-        name: 'Text Free'
+        name: 'TextFree'
     }
 ]
 
@@ -31,7 +31,7 @@ onOpen().catch(console.error)
 currentVersion.innerText = 'v' + manifest.version
 appName.innerText = manifest.name
 document.getElementById('openOptions').addEventListener('click', async () => {
-    await chrome.runtime.openOptionsPage()
+    await browser.runtime.openOptionsPage()
     window.close()
 })
 document.getElementById('toggleOnSite').addEventListener('mouseenter', hoverToggleSite)
@@ -39,20 +39,20 @@ document.getElementById('toggleOnSite').addEventListener('mouseleave', resetStat
 
 let Select = document.querySelector('#texting-platform-select')
 
-Select.addEventListener('change', async function () {
+Select.addEventListener('click', async function () {
     const textPlatform = this.value
-    await chrome.storage.local.set({ textPlatform })
+    await browser.storage.local.set({ textPlatform })
 })
 
 async function onOpen() {
     console.log('popup opened')
     const [{ statsStartDate, textPlatform = 'messaging-app' }, [currentTab], permissions] = await Promise.all([
-        chrome.storage.local.get(['statsStartDate', 'textPlatform']),
-        chrome.tabs.query({
+        browser.storage.local.get(['statsStartDate', 'textPlatform']),
+        browser.tabs.query({
             active: true,
             currentWindow: true
         }),
-        chrome.permissions.getAll()
+        browser.permissions.getAll()
     ])
 
     if (
@@ -62,9 +62,9 @@ async function onOpen() {
         document.querySelector('.find-contact-row').style.display = 'none'
     }
 
-    // Add functionality to find contact in contacts list on Text Free page
+    // Add functionality to find contact in contacts list on TextFree page
     document.getElementById('find-contact-button').addEventListener('click', async function () {
-        chrome.tabs.sendMessage(currentTab.id, {
+        browser.tabs.sendMessage(currentTab.id, {
             type: 'FIND_CONTACT',
             contactName: document.getElementById('contact-to-find').value
         })

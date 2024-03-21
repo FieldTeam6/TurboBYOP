@@ -14,22 +14,16 @@ class GoogleVoiceSiteManager {
     }
 
     async initialize() {
-        const checkUrl = window.location.href;
-
-        // https://voice.google.com/u/0/messages?phoneNo=123456789&sms=Hello
-        if (checkUrl.startsWith('https://voice.google.com/')) {
-            const urlParams = new URLSearchParams(window.location.search);
-
-            if (urlParams.has('phoneNo') && urlParams.has('sms')) {
-                this.currentNumberSending = urlParams.get('phoneNo');
-                this.messagesToSend = { 
-                    [this.currentNumberSending]: decodeURIComponent(urlParams.get('sms'))
-                };
-                console.log('messagesToSend', this.messagesToSend)
-
+        browser.runtime.onMessage.addListener((message) => {
+            if (message.type === 'SEND_MESSAGE') {
+                this.currentNumberSending = message.phoneNumber
+                this.currentContactName = message.contactName
+                this.messagesToSend = {
+                    [this.currentNumberSending]: message.message
+                }
                 this.sendFromQueueBYOP()
             }
-        }
+        })
     }
 
     async sendFromQueue() {
@@ -115,6 +109,7 @@ class GoogleVoiceSiteManager {
 
     showNumberInput() {
         var showInputButton = document.querySelector(selectors.gvNumInputButton)
+
         if (showInputButton && showInputButton.offsetParent !== null) {
             showInputButton.click()
             return true
@@ -219,13 +214,13 @@ class GoogleVoiceSiteManager {
             }
 
             if (sentMessageIsThreaded) {
-                chrome.runtime.sendMessage({ type: 'MESSAGE_SENT' })
+                browser.runtime.sendMessage({ type: 'MESSAGE_SENT' })
                 // Switch to OpenVPB tab and record text in db
-                chrome.runtime.sendMessage({
+                browser.runtime.sendMessage({
                     type: 'SWITCH_TAB',
                     url: 'https://www.openvpb.com/VirtualPhoneBank*'
                 })
-                chrome.runtime.sendMessage({
+                browser.runtime.sendMessage({
                     type: 'TALK_TO_TAB',
                     url: 'https://www.openvpb.com/VirtualPhoneBank*',
                     tabType: 'RECORD_TEXT_IN_DB'

@@ -164,25 +164,19 @@ input:checked + .slider:before {
                     <select class="custom-select" id="texting-platform-select">
                       <option value="messaging-app" selected>Messaging App</option>
                       <option value="google-voice">Google Voice</option>
-                      <option value="text-free">Text Free</option>
+                      <option value="text-free">TextFree</option>
                     </select>
                   </div>
-                <!-- <span>Messaging App</span>
-                <label class="switch">
-                    <input type="checkbox">
-                    <span class="slider round"></span>
-                  </label>
-                <span>Google Voice</span> -->
             </div>
         </div>
         <div class="row mt-4 find-contact-row">
             <div class="col">
-                <div class="form-row">
+                <form class="form-row">
                     <div class="col-8">
-                      <input id="contact-to-find" type="text" class="form-control" placeholder="Contact name">
+                        <input id="contact-to-find" type="number" min="2" class="form-control" placeholder="Phone number" required>
                     </div>
-                    <div class="col-4"><button id="find-contact-button" type="button" class="btn form-control">Search</button></div>
-                  </div>
+                    <div class="col-4"><input id="find-contact-button" type="submit" class="btn form-control" value="Search"></div>
+                </form>
             </div>
         </div>
         <div class="row mt-4">
@@ -219,7 +213,7 @@ input:checked + .slider:before {
                     </small>
                 </a>
             </div>
-            <div class="col">
+            <div class="col" style="display: none">
                 <a id="openOptions" class="text-dark" href="#" title="Enable 2-click texting in the settings">
                     <div class="buttonIcon">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
