@@ -3,8 +3,8 @@ const OPENVPB_ORIGIN = 'https://www.openvpb.com/VirtualPhoneBank*'
 const unregisterContentScripts = {}
 
 // Run when installed or updated
-browser.runtime.onInstalled.addListener(async () => {
-    const { statsStartDate } = await browser.storage.local.get(['statsStartDate'])
+browser.runtime.onInstalled.addListener(() => {
+    const { statsStartDate } = browser.storage.local.get(['statsStartDate'])
     if (!statsStartDate) {
         console.log('setting stats start date')
         browser.storage.local.set({ statsStartDate: (new Date()).toISOString() })
@@ -14,24 +14,88 @@ browser.runtime.onInstalled.addListener(async () => {
 // Google Voice stuff
 
 // For logging
-browser.runtime.onMessage.addListener(async (message, sender, response) => {
+browser.runtime.onMessage.addListener((message, sender, response) => {
+    console.log('called listener', message)
     if (message.type === 'MESSAGE_SENT') {
-        recordMessageSent();
-    } else if (message.type === 'USER_THROTTLED') {
-        recordUserThrottled();
+        recordMessageSent()
     }
-});
+
+    if (message.type === 'OPEN_OPTIONS_PAGE') {
+        browser.runtime.openOptionsPage()
+    }
+
+    if (message.type === 'SWITCH_TAB') {
+        // Find TextFree tab
+        findTabId(message.url)
+            .then((id) => {
+                browser.tabs.update(id, { selected: true })
+                response({ type: 'TAB_OPEN' })
+            })
+            .catch((err) => {
+                console.error(err)
+                if (message.loginUrl) {
+                    // Check if Login page is open
+                    findTabId(message.loginUrl)
+                        .then(() => {
+                            console.log('LOGIN TAB OPEN')
+                            response({ type: 'LOGIN_TAB_OPEN' })
+                        })
+                        .catch((err) => {
+                            console.log('TAB NOT OPEN')
+                            console.error(err)
+                            response({ type: 'TAB_NOT_OPEN' })
+                        })
+                } else {
+                    response({ type: 'TAB_NOT_OPEN' })
+                }
+            })
+        return true
+    }
+
+    if (message.type === 'TALK_TO_TAB') {
+        console.log('TALK TO TAB')
+        findTabId(message.url)
+            .then((id) => {
+                console.log('id', id)
+                browser.tabs
+                    .sendMessage(id, {
+                        ...message,
+                        type: message.tabType
+                    })
+                    .then(() => {
+                        response({ type: 'TAB_OPEN' })
+                    })
+                    .catch((err) => {
+                        console.error(err)
+                        response({ type: 'TAB_NOT_OPEN' })
+                    })
+            })
+            .catch((err) => {
+                console.error(err)
+                if (message.loginUrl) {
+                    // Check if Login page is open
+                    findTabId(message.loginUrl, response)
+                        .then(() => {
+                            response({ type: 'LOGIN_TAB_OPEN' })
+                        })
+                        .catch((err) => {
+                            console.error(err)
+                            response({ type: 'TAB_NOT_OPEN' })
+                        })
+                } else {
+                    response({ type: 'TAB_NOT_OPEN' })
+                }
+            })
+        return true
+    }
+})
 
 /**
  * Records the message count sent by month
  * @return {[type]} [description]
  */
 async function recordMessageSent() {
-    // The browser and chrome APIs don't write data to the same place!
-    // We'll want to release v0.4.4 that replaces these remaining references
-    // to the chrome API once we're certain most everyone has upgraded and 
-    // used the new version so their counts are preserved
-    var items = await chrome.storage.sync.get(['sendCounts']);
+    var items = await browser.storage.local.get(['sendCounts']);
     items.sendCounts = items.sendCounts || {};
     items.sendHistory = await getSendHistory(true);
     
@@ -42,13 +106,6 @@ async function recordMessageSent() {
     const thisMonth = getYearAndMonth(now);
     const thisMonthCount = (items.sendCounts[thisMonth] || 0) + 1;
 
-    chrome.storage.sync.set({
-        sendCounts: {
-            ...items.sendCounts,
-            [thisMonth]: thisMonthCount
-        }
-    });
-
     browser.storage.local.set({
         sendCounts: {
             ...items.sendCounts,
@@ -57,17 +114,40 @@ async function recordMessageSent() {
     });
 }
 
-async function recordUserThrottled() {
-    console.log('recordUserThrottled');
-    let sendHistory = await getSendHistory();
-    browser.storage.local.set({ throttledSendCount: sendHistory.length });
-}
-
 /**
  * Takes a date and returns the Year and month, like 2019-03
  * @param  {Date} date
  * @return {string}      year and month
  */
 function getYearAndMonth(date) {
-    return date.getFullYear() + '-' + ("0" + (date.getMonth() + 1)).slice(-2)
+    return date.getFullYear() + '-' + ('0' + (date.getMonth() + 1)).slice(-2)
+}
+
+/**
+ * Finds a tab in the current window
+ * @param {string} url
+ * @returns {Promise<number>} A promise that contains the id of the tab when fulfilled
+ */
+async function findTabId(url) {
+    return new Promise((resolve, reject) => {
+        browser.tabs
+            .query({
+                url,
+                currentWindow: true
+            })
+            .then((tabs) => {
+                console.log('tabs', tabs);
+                const tabId = tabs[0]?.id
+
+                if (tabId) {
+                    resolve(tabId)
+                } else {
+                    reject(false)
+                }
+            })
+            .catch((err) => {
+                console.error(err)
+                reject(false)
+            })
+    })
 }
