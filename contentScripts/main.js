@@ -56,18 +56,20 @@ function findTextFree() {
     // stop looking, wrong url
     if (!siteIsTextFree) {
         showFatalError('Could not find TextFree!', false)
+        return false
     }
 
     // Wait for the Start Chat button to load before starting the process to send the text
     waitForElementToLoad(selectors.tfStartChatButton)
         .then(() => {
+
             console.log('configuring TextFree site')
             siteManager = new TextFreeSiteManager()
             siteManager.initialize()
         })
         .catch((err) => {
             console.error(err)
-            showFatalError('Please try reloading the page and click Set Up Text Message again.', true)
+            showFatalError('Please try reloading the page and click Set Up Text Message again.', false)
         })
 }
 
