@@ -39,14 +39,14 @@ document.getElementById('toggleOnSite').addEventListener('mouseleave', resetStat
 
 let Select = document.querySelector('#texting-platform-select')
 
-Select.addEventListener('click', async function () {
+Select.addEventListener('change', async function () {
     const textPlatform = this.value
     await browser.storage.local.set({ textPlatform })
 })
 
 async function onOpen() {
     console.log('popup opened')
-    const [{ statsStartDate, textPlatform = 'messaging-app' }, [currentTab], permissions] = await Promise.all([
+    let [{ statsStartDate, textPlatform }, [currentTab], permissions] = await Promise.all([
         browser.storage.local.get(['statsStartDate', 'textPlatform']),
         browser.tabs.query({
             active: true,
@@ -54,6 +54,11 @@ async function onOpen() {
         }),
         browser.permissions.getAll()
     ])
+
+    if (!textPlatform) {
+        textPlatform = 'messaging-app'
+        browser.storage.local.set({textPlatform: textPlatform})
+    }
 
     if (
         (textPlatform === 'text-free' && !currentTab.url.startsWith('https://messages.textfree.us/conversation')) ||

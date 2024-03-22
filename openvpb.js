@@ -138,7 +138,9 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
                         contactName
                     })
                 }
-            } catch (err) {}
+            } catch (err) {
+                console.err(err)
+            }
 
             break
     }
