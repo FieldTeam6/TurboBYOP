@@ -1,7 +1,7 @@
 /**
- * This runs on textfree.us
+ * This runs on https://www.textnow.com/messaging
  */
-class TextFreeSiteManager {
+class TextNowSiteManager {
     constructor() {
         this.messagesToSend = {};
         this.errorActions = {};
@@ -22,7 +22,12 @@ class TextFreeSiteManager {
             }
 
             if (message.type === 'FIND_CONTACT') {
-                findContact(message.contactName, '.message-unit-wrap', '.contact', '.name');
+                findContact(
+                    message.contactName,
+                    '.chat-preview-list',
+                    '.uikit-summary-list__cell',
+                    '.js-conversation-name'
+                );
             }
         });
     }
@@ -30,11 +35,11 @@ class TextFreeSiteManager {
     // Clicks on the New Message button
     showNumberInput() {
         if (this.verifyChat()) return true;
-        const startChatButton = document.querySelector(selectors.tfStartChatButton);
+        const startChatButton = document.querySelector(selectors.tnStartChatButton);
         if (startChatButton) {
             console.log('starting chat');
             startChatButton.click();
-            if (document.querySelector(selectors.tfNumInput)) return true;
+            if (document.querySelector(selectors.tnNumInput)) return true;
         }
         return false;
     }
@@ -44,9 +49,9 @@ class TextFreeSiteManager {
         if (this.verifyChat()) return true;
         console.log('entering phone number');
         return fillElementAndCheckValue(
-            this.currentNumberSending,
-            document.querySelector(selectors.tfNumInput),
-            document.querySelector(selectors.tfNewMessageToInput)
+            `+1${this.currentNumberSending.replace(/\D/g, '')}`,
+            document.querySelector(selectors.tnNumInput),
+            document.querySelector(selectors.tnNewMessageToInput)
         );
     }
 
@@ -59,14 +64,14 @@ class TextFreeSiteManager {
             return false;
         }
 
-        return fillElementAndCheckValue(message, document.querySelector(selectors.tfMessageEditor));
+        return fillElementAndCheckValue(message, document.querySelector(selectors.tnMessageEditor));
     }
 
     // Clicks the send button
     sendMessage() {
         if (this.verifyChat()) return true;
-        let sendButton = document.querySelector(selectors.tfSendButton);
-        if (sendButton && sendButton.disabled === false) {
+        let sendButton = document.querySelector(selectors.tnSendButton);
+        if (sendButton) {
             console.log('clicking send button');
             sendButton.click();
             return true;
@@ -76,31 +81,8 @@ class TextFreeSiteManager {
 
     // Confirms message was sent
     confirmSent() {
-        if (this.verifyChat()) return true;
         console.log('confirming sent');
-        return document.querySelector(selectors.tfMessageBubble) ? true : false;
-    }
-
-    clickRenameChat() {
-        if (this.verifyChatRenamed()) return true;
-        const optionsMenuDropdownArrow = document.querySelector(selectors.tfOptionsMenuDropdownArrow);
-        optionsMenuDropdownArrow?.click();
-        const renameButton = document.querySelector(selectors.tfRenameButton);
-        if (!renameButton) return false;
-        renameButton.click();
-        console.log('clicking to rename chat');
-        return true;
-    }
-
-    // Renames the conversation from the phone number to the contact's full name
-    renameChat() {
-        if (this.verifyChatRenamed()) return true;
-        console.log('renaming chat');
-        return fillElementAndCheckValue(
-            this.currentContactName,
-            document.querySelector(selectors.tfEditNameInput),
-            document.querySelector(selectors.tfName)
-        );
+        return document.querySelector(selectors.tnMessageBubble) ? true : false;
     }
 
     goBackToOpenVPBTab() {
@@ -123,20 +105,16 @@ class TextFreeSiteManager {
     verifyChat() {
         // Check if phone number and sent message are correct
         if (
-            checkElementValue(this.currentNumberSending, document.querySelector(selectors.tfNewMessageToInput)) &&
+            checkElementValue(this.currentNumberSending, document.querySelector(selectors.tnNewMessageToInput)) &&
             checkElementValue(
                 this.messagesToSend[this.currentNumberSending],
-                document.querySelector(selectors.tfMessageBubble)
+                document.querySelector(selectors.tnMessageBubble)
             )
         ) {
             console.log('chat verified');
             return true;
         }
         return false;
-    }
-
-    verifyChatRenamed() {
-        return checkElementValue(this.currentContactName, document.querySelector(selectors.tfName));
     }
 
     getSendExecutionQueue() {
@@ -158,14 +136,8 @@ class TextFreeSiteManager {
         let currentStep = sendExecutionQueue[queueNum].bind(this);
         const currentStepName = getFunctionName(currentStep);
 
-        if (currentStepName === 'fillNumberInput') {
-            this.errorActions[currentStepName] = () =>
-                showFatalError(
-                    `Please check your network connection and try reloading the page and clicking Set Up Text Message again.\n\nIf the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${currentStepName}" failed.`,
-                    false
-                );
-            // If the current step is before the final step (switching back to OpenVPB tab)
-        } else if (queueNum < sendExecutionQueue.length - 1) {
+        // If the current step is before the final step (switching back to OpenVPB tab)
+        if (queueNum < sendExecutionQueue.length - 1) {
             this.errorActions[currentStepName] = () =>
                 showFatalError(
                     `Please check your network connection and try reloading the page and clicking Set Up Text Message again.\n\nIf the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${currentStepName}" failed.`,

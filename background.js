@@ -1,94 +1,94 @@
-const OPENVPB_REGEX = /https\:\/\/(www\.)?openvpb\.com/i
-const OPENVPB_ORIGIN = 'https://www.openvpb.com/VirtualPhoneBank*'
-const unregisterContentScripts = {}
+const OPENVPB_REGEX = /https\:\/\/(www\.)?openvpb\.com/i;
+const OPENVPB_ORIGIN = 'https://www.openvpb.com/VirtualPhoneBank*';
+const unregisterContentScripts = {};
 
 // Run when installed or updated
 browser.runtime.onInstalled.addListener(() => {
-    const { statsStartDate } = browser.storage.local.get(['statsStartDate'])
+    const { statsStartDate } = browser.storage.local.get(['statsStartDate']);
     if (!statsStartDate) {
-        console.log('setting stats start date')
-        browser.storage.local.set({ statsStartDate: (new Date()).toISOString() })
+        console.log('setting stats start date');
+        browser.storage.local.set({ statsStartDate: new Date().toISOString() });
     }
-})
+});
 
 // Google Voice stuff
 
 // For logging
 browser.runtime.onMessage.addListener((message, sender, response) => {
-    console.log('called listener', message)
+    console.log('called listener', message);
     if (message.type === 'MESSAGE_SENT') {
-        recordMessageSent()
+        recordMessageSent();
     }
 
     if (message.type === 'OPEN_OPTIONS_PAGE') {
-        browser.runtime.openOptionsPage()
+        browser.runtime.openOptionsPage();
     }
 
     if (message.type === 'SWITCH_TAB') {
-        // Find TextFree tab
+        // Find Tab
         findTabId(message.url)
             .then((id) => {
-                browser.tabs.update(id, { selected: true })
-                response({ type: 'TAB_OPEN' })
+                browser.tabs.update(id, { selected: true });
+                response({ type: 'TAB_OPEN' });
             })
             .catch((err) => {
-                console.error(err)
+                console.error(err);
                 if (message.loginUrl) {
                     // Check if Login page is open
                     findTabId(message.loginUrl)
                         .then(() => {
-                            console.log('LOGIN TAB OPEN')
-                            response({ type: 'LOGIN_TAB_OPEN' })
+                            console.log('LOGIN TAB OPEN');
+                            response({ type: 'LOGIN_TAB_OPEN' });
                         })
                         .catch((err) => {
-                            console.log('TAB NOT OPEN')
-                            console.error(err)
-                            response({ type: 'TAB_NOT_OPEN' })
-                        })
+                            console.log('TAB NOT OPEN');
+                            console.error(err);
+                            response({ type: 'TAB_NOT_OPEN' });
+                        });
                 } else {
-                    response({ type: 'TAB_NOT_OPEN' })
+                    response({ type: 'TAB_NOT_OPEN' });
                 }
-            })
-        return true
+            });
+        return true;
     }
 
     if (message.type === 'TALK_TO_TAB') {
-        console.log('TALK TO TAB')
+        console.log('TALK TO TAB');
         findTabId(message.url)
             .then((id) => {
-                console.log('id', id)
+                console.log('id', id);
                 browser.tabs
                     .sendMessage(id, {
                         ...message,
                         type: message.tabType
                     })
                     .then(() => {
-                        response({ type: 'TAB_OPEN' })
+                        response({ type: 'TAB_OPEN' });
                     })
                     .catch((err) => {
-                        console.error(err)
-                        response({ type: 'TAB_NOT_OPEN' })
-                    })
+                        console.error(err);
+                        response({ type: 'TAB_NOT_OPEN' });
+                    });
             })
             .catch((err) => {
-                console.error(err)
+                console.error(err);
                 if (message.loginUrl) {
                     // Check if Login page is open
                     findTabId(message.loginUrl, response)
                         .then(() => {
-                            response({ type: 'LOGIN_TAB_OPEN' })
+                            response({ type: 'LOGIN_TAB_OPEN' });
                         })
                         .catch((err) => {
-                            console.error(err)
-                            response({ type: 'TAB_NOT_OPEN' })
-                        })
+                            console.error(err);
+                            response({ type: 'TAB_NOT_OPEN' });
+                        });
                 } else {
-                    response({ type: 'TAB_NOT_OPEN' })
+                    response({ type: 'TAB_NOT_OPEN' });
                 }
-            })
-        return true
+            });
+        return true;
     }
-})
+});
 
 /**
  * Records the message count sent by month
@@ -98,7 +98,7 @@ async function recordMessageSent() {
     var items = await browser.storage.local.get(['sendCounts']);
     items.sendCounts = items.sendCounts || {};
     items.sendHistory = await getSendHistory(true);
-    
+
     // We maintain a history of texts send over a rolling 24-hour
     // period so users can more easily track how many messages they
     // are able to send before getting throttled by Google Voice
@@ -120,7 +120,7 @@ async function recordMessageSent() {
  * @return {string}      year and month
  */
 function getYearAndMonth(date) {
-    return date.getFullYear() + '-' + ('0' + (date.getMonth() + 1)).slice(-2)
+    return date.getFullYear() + '-' + ('0' + (date.getMonth() + 1)).slice(-2);
 }
 
 /**
@@ -137,17 +137,17 @@ async function findTabId(url) {
             })
             .then((tabs) => {
                 console.log('tabs', tabs);
-                const tabId = tabs[0]?.id
+                const tabId = tabs[0]?.id;
 
                 if (tabId) {
-                    resolve(tabId)
+                    resolve(tabId);
                 } else {
-                    reject(false)
+                    reject(false);
                 }
             })
             .catch((err) => {
-                console.error(err)
-                reject(false)
-            })
-    })
+                console.error(err);
+                reject(false);
+            });
+    });
 }
