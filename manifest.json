@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Field Team 6 BYOP",
-    "version": "0.5.1",
+    "version": "0.5.2",
     "description": "Turbocharge Field Team 6's BYOP!",
     "author": "Field Team 6",
     "homepage_url": "https://www.fieldteam6.org",
@@ -12,7 +12,8 @@
     "host_permissions": [
         "https://www.openvpb.com/VirtualPhoneBank*",
         "https://voice.google.com/*",
-        "https://messages.textfree.us/conversation/*"
+        "https://messages.textfree.us/conversation/*",
+        "https://www.textnow.com/messaging"
     ],
     "icons": {
         "32": "icons/byop_icon_32.png",
@@ -47,6 +48,16 @@
             "js": [
                 "dependencies/browser-polyfill.js",
                 "contentScripts/textFreeManager.js",
+                "contentScripts/tools.js",
+                "contentScripts/main.js"
+            ],
+            "all_frames": true
+        },
+        {
+            "matches": ["https://www.textnow.com/messaging"],
+            "js": [
+                "dependencies/browser-polyfill.js",
+                "contentScripts/textNowManager.js",
                 "contentScripts/tools.js",
                 "contentScripts/main.js"
             ],
