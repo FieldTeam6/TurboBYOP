@@ -82,7 +82,10 @@ class TextNowSiteManager {
     // Confirms message was sent
     confirmSent() {
         console.log('confirming sent');
-        return document.querySelector(selectors.tnMessageBubble) ? true : false;
+        return document.querySelector(selectors.tnMessageBubble) &&
+            !document.querySelector(selectors.tnSentMessageError)
+            ? true
+            : false;
     }
 
     goBackToOpenVPBTab() {

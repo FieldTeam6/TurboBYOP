@@ -42,7 +42,8 @@ const selectors = {
     tnNewMessageToInput: '.recipients .uikit-text',
     tnNumInput: '.newConversationTextField',
     tnSendButton: '#send_button',
-    tnStartChatButton: '#newText'
+    tnStartChatButton: '#newText',
+    tnSentMessageError: '.failed-message'
 };
 
 function findGoogleVoice() {

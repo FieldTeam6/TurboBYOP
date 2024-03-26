@@ -216,7 +216,7 @@ function fillElementAndCheckValue(value, inputElement, elementWithValue = inputE
     return false;
 }
 
-function tryStep(step, cb, errorActions, tryLimit = 3, intervalFrequency = 1000) {
+function tryStep(step, cb, errorActions, tryLimit = 30, intervalFrequency = 100) {
     let tryCount = 0;
     let doStepInterval = setInterval(() => {
         if (step()) {
@@ -237,8 +237,8 @@ async function interactWithTab(
     tabOpenCB = null,
     tabNotOpenCB = null,
     loginTabOpenCB = null,
-    tryLimit = 3,
-    intervalFrequency = 1000
+    tryLimit = 30,
+    intervalFrequency = 100
 ) {
     return new Promise((resolve, reject) => {
         console.log('message', message);
