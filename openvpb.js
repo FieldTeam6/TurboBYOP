@@ -98,7 +98,7 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
                     })
                 }
             } catch (err) {
-                console.err(err)
+                console.error(err)
             }
 
             break
@@ -139,7 +139,7 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
                     })
                 }
             } catch (err) {
-                console.err(err)
+                console.error(err)
             }
 
             break

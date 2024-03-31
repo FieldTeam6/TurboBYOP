@@ -3,11 +3,12 @@ const OPENVPB_ORIGIN = 'https://www.openvpb.com/VirtualPhoneBank*'
 const unregisterContentScripts = {}
 
 // Run when installed or updated
-browser.runtime.onInstalled.addListener(() => {
-    const { statsStartDate } = browser.storage.local.get(['statsStartDate'])
+browser.runtime.onInstalled.addListener(async () => {
+    const { statsStartDate } = await browser.storage.local.get(['statsStartDate'])
+    
     if (!statsStartDate) {
         console.log('setting stats start date')
-        browser.storage.local.set({ statsStartDate: (new Date()).toISOString() })
+        await browser.storage.local.set({ statsStartDate: (new Date()).toISOString() })
     }
 })
 
