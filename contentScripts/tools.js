@@ -158,29 +158,6 @@ function enterText(inputField, textToEnter) {
     inputField.focus()
     let inputFieldValueProp = inputField.value !== undefined ? 'value' : 'innerText'
 
-    // if (inputFieldValueProp === "value") {
-    //   for (let i = 0; i < textToEnter.length; i++) {
-    //     var charCode = textToEnter.charCodeAt(i);
-
-    //     let keydownEvent = new Event("keydown", { keyCode: charCode });
-    //     inputField.dispatchEvent(keydownEvent);
-
-    //     let keypressEvent = new Event("keypress", { keyCode: charCode });
-    //     inputField.dispatchEvent(keypressEvent);
-
-    //     inputField[inputFieldValueProp] =
-    //       inputField[inputFieldValueProp] + textToEnter[i];
-
-    //     let inputEvent = new Event("input", { bubbles: true });
-    //     inputField.dispatchEvent(inputEvent);
-
-    //     let keyupEvent = new Event("keyup", { keyCode: charCode });
-    //     inputField.dispatchEvent(keyupEvent);
-    //   }
-    // } else {
-    //   inputField[inputFieldValueProp] = textToEnter;
-    //   simulateKeyPress(inputField);
-    // }
     inputField[inputFieldValueProp] = textToEnter
     simulateKeyPress(inputField)
     inputField.blur()

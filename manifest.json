@@ -57,7 +57,6 @@
             "js": [
                 "dependencies/browser-polyfill.js",
                 "dependencies/utilities.js",
-                "vpb-common.js",
                 "openvpb.js",
                 "contentScripts/tools.js"
             ],

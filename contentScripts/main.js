@@ -39,17 +39,17 @@ function findGoogleVoice() {
         return false
     }
 
-    // check if this is the google voice site
-    var button = document.querySelector(selectors.gvMessagesTab)
-
-    if (button && siteIsGoogleVoice) {
-        console.log('configuring Google Voice site')
-        siteManager = new GoogleVoiceSiteManager()
-        siteManager.initialize()
-        return true
-    }
-
-    return false
+    // Wait for the Start Chat button to load before starting the process to send the text
+    waitForElementToLoad(selectors.gvMessagesTab)
+        .then(() => {
+            console.log('configuring Google Voice site')
+            siteManager = new GoogleVoiceSiteManager()
+            siteManager.initialize()
+        })
+        .catch((err) => {
+            console.error(err)
+            showFatalError('Please try reloading the page and click Set Up Text Message again.', false)
+        })
 }
 
 function findTextFree() {
@@ -62,7 +62,6 @@ function findTextFree() {
     // Wait for the Start Chat button to load before starting the process to send the text
     waitForElementToLoad(selectors.tfStartChatButton)
         .then(() => {
-
             console.log('configuring TextFree site')
             siteManager = new TextFreeSiteManager()
             siteManager.initialize()

@@ -46,12 +46,14 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
         'yourName',
         'messageTemplates'
     ])
+
     let message
     if (messageTemplates) {
         message = messageTemplates[0]?.message
     }
     const scriptText = document.querySelector('[id*=scripttext]').innerText
     let messageBody = scriptText.match(THEIR_NAME_REGEX) ? scriptText : message
+
     if (!messageBody || !messageBody.match(THEIR_NAME_REGEX)) {
         showFatalError('Please add the script message to the BYOP extension message template', false)
         browser.runtime.sendMessage({ type: 'OPEN_OPTIONS_PAGE' })
@@ -180,6 +182,7 @@ function recordTextInDB() {
         console.log('fetching next...')
     }
 }
+
 async function getContactDetails() {
     // Find phone number
     const currentPhoneNumber = (
@@ -195,10 +198,9 @@ async function getContactDetails() {
     ).innerText
 
     const contactName = (document.getElementById('contactName') || {}).innerText
-
     const additionalFields = {}
-    const detailsSidebar =
-        document.getElementById('openvpb-target-details') || document.querySelector('.openvpb-sidebar-fields')
+    const detailsSidebar = document.getElementById('openvpb-target-details') || document.querySelector('.openvpb-sidebar-fields')
+
     if (detailsSidebar && detailsSidebar.querySelector('dl')) {
         const dl = detailsSidebar.querySelector('dl')
         const pairs = dl.querySelectorAll('dt, dd')
@@ -214,7 +216,7 @@ async function getContactDetails() {
     }
 
     // Figure out if this is a new contact
-    if (contactName && currentPhoneNumber && isNewContact(currentPhoneNumber)) {
+    if (contactName && currentPhoneNumber) {
         // Log successful calls
         if (saveNextButton()) {
             saveNextButton().addEventListener('click', onSaveNextClick)
@@ -253,16 +255,20 @@ async function getContactDetails() {
                         button.disabled = true
                         button.title = 'You already set up the text message.'
 
-                        launchMessagingApp(currentPhoneNumber, contactName)
+                        launchMessagingApp(currentPhoneNumber, contactName) 
                     }
                     button.style =
-                        'width: 100%;height: 38px;background-color: #98BF64;margin-top: 10px;border: none;border-radius: 4px;cursor: pointer;color: white;font-size: 14px;'
+                        'width: 100%; height: 38px; background-color: #98BF64; margin-top: 10px; border: none; border-radius: 4px; color: white; font-size: 14px;'
                     button.textContent = 'Set Up Text Message'
                     container.appendChild(button)
+                } else {
+                    const byopDisabled = document.createElement('div')
+                    byopDisabled.style = 'text-align: center; font-style: italic'
+                    byopDisabled.innerHTML = 'Select a text platform to continue'
+                    container.appendChild(byopDisabled)
                 }
             }
         }
-        storeContactDataInSessionStorage(contactName, currentPhoneNumber, additionalFields)
     }
 }
 
@@ -296,4 +302,19 @@ async function waitForButton(ids, interval = 10, timeout = 10000) {
             }
         }, interval)
     })
+}
+
+function createTitleElementBYOP(tag = 'div') {
+    const title = document.createElement(tag)
+    title.style = 'text-align: center'
+    title.innerHTML = `<svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-telephone-outbound-fill"
+                fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                    d="M2.267.98a1.636 1.636 0 0 1 2.448.152l1.681 2.162c.309.396.418.913.296 1.4l-.513 2.053a.636.636 0 0 0 .167.604L8.65 9.654a.636.636 0 0 0 .604.167l2.052-.513a1.636 1.636 0 0 1 1.401.296l2.162 1.681c.777.604.849 1.753.153 2.448l-.97.97c-.693.693-1.73.998-2.697.658a17.471 17.471 0 0 1-6.571-4.144A17.47 17.47 0 0 1 .639 4.646c-.34-.967-.035-2.004.658-2.698l.97-.969zM11 .5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V1.707l-4.146 4.147a.5.5 0 0 1-.708-.708L14.293 1H11.5a.5.5 0 0 1-.5-.5z" />
+                </svg>`
+    const name = document.createElement('span')
+    name.style = 'padding-left:.3rem; padding-right: .3rem; padding-top: .1rem; font-size: 1.17em; font-weight: bold; color: #000;'
+    name.innerText = 'BYOP'
+    title.appendChild(name)
+    return title
 }
