@@ -73,8 +73,7 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
             const gvUrl = 'https://voice.google.com/u/0/messages'
 
             try {
-                const switchedTab = await interactWithTab(
-                    {
+                const switchedTab = await interactWithTab({
                         textPlatform: 'Google Voice',
                         url: `${gvUrl}*`,
                         loginUrl: 'https://voice.google.com/about',
@@ -114,8 +113,7 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
             const tfUrl = 'https://messages.textfree.us/conversation'
             try {
                 // Switch to TextFree Tab or open it
-                const switchedTab = await interactWithTab(
-                    {
+                const switchedTab = await interactWithTab({
                         textPlatform: 'TextFree',
                         url: `${tfUrl}*`,
                         loginUrl: 'https://messages.textfree.us/login',

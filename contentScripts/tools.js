@@ -20,12 +20,13 @@ function getFunctionName(func) {
  * continually calls the given method until successful
  * @param {Function}   method         should return true when successful, or false when we should give up early
  * @param {bool}       silenceErrors  true if we should not alert on errors
- * @param {Function}   cb             to be called with the results from method when we're done trying
+ * @param {Function}   callback       to be called with the results from method when we're done trying
  */
-function keepTrying(method, silenceErrors, cb) {
+function keepTrying(method, silenceErrors, callback) {
     const frequency = 100; // try every 100ms
-    let tryCount = 4 * 1000 / frequency; // keep trying for 4 seconds
+    let tryCount = 5 * 1000 / frequency; // keep trying for 5 seconds
     var keepTryingInterval = setInterval(function () {
+        console.log('tryCount', tryCount)
         var successful = method();
         var giveUp = successful === false || tryCount-- < 0;
         let functionName = getFunctionName(method);
@@ -53,8 +54,8 @@ function keepTrying(method, silenceErrors, cb) {
                     )
                 }
             }
-            if (cb) {
-                cb(successful)
+            if (callback) {
+                callback(successful)
             }
         }
     }, frequency)
@@ -69,7 +70,7 @@ function keepTrying(method, silenceErrors, cb) {
  */
 function keepTryingAsPromised(method, silenceErrors) {
     console.log('BYOP SMS - Running: ', getFunctionName(method))
-    const waitTime = 400 // 400ms
+    const waitTime = 100 // 100ms
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             keepTrying(method, silenceErrors, (successful) => {
@@ -195,11 +196,11 @@ function tryStep(step, cb, errorActions, tryLimit = 30, intervalFrequency = 100)
 
 async function interactWithTab(
     message,
-    tabOpenCB = null,
-    tabNotOpenCB = null,
-    loginTabOpenCB = null,
-    tryLimit = 30,
-    intervalFrequency = 100
+    tabOpenCallback = null,
+    tabNotOpenCallback = null,
+    loginTabOpenCallback = null,
+    tryLimit = 3,
+    intervalFrequency = 200
 ) {
     return new Promise((resolve, reject) => {
         console.log('message', message)
@@ -211,12 +212,14 @@ async function interactWithTab(
                 .then((response) => {
                     console.log('response', response);
                     if (response?.type === 'TAB_NOT_OPEN') {
-                        if (tabNotOpenCB) {
-                            tabNotOpenCB()
+                        if (tabNotOpenCallback) {
+                            tabNotOpenCallback()
                         }
                     } else if (response?.type === 'LOGIN_TAB_OPEN') {
                         clearInterval(switchTabInterval)
-                        if (loginTabOpenCB) loginTabOpenCB()
+                        if (loginTabOpenCallback) {
+                            loginTabOpenCallback()
+                        }
                         reject(false)
                         showFatalError(
                             `Please make sure you are logged in to ${message.textPlatform} and try again.`,
@@ -224,8 +227,8 @@ async function interactWithTab(
                         )
                     } else {
                         clearInterval(switchTabInterval)
-                        if (tabOpenCB) {
-                            tabOpenCB()
+                        if (tabOpenCallback) {
+                            tabOpenCallback()
                         }
                         resolve(true)
                     }
