@@ -200,52 +200,64 @@ async function interactWithTab(
     tabNotOpenCallback = null,
     loginTabOpenCallback = null,
     tryLimit = 3,
-    intervalFrequency = 200
+    intervalFrequency = 1000
 ) {
     return new Promise((resolve, reject) => {
         console.log('message', message)
         const errorMessage = `Please close any existing ${message.textPlatform} tabs and try again.`
         let retryCount = 0
-        let switchTabInterval = setInterval(() => {
-            browser.runtime
+        let shouldReturn = false
+
+        let switchTab = async (arg = 'default') => {
+            console.log('arg ' + message.tag, arg)
+            console.log('retryCount ' + message.tag, retryCount);
+            await browser.runtime
                 .sendMessage(message)
                 .then((response) => {
-                    console.log('response', response);
+                    console.log('response ' + message.tag, response);
                     if (response?.type === 'TAB_NOT_OPEN') {
                         if (tabNotOpenCallback) {
-                            tabNotOpenCallback()
+                            tabNotOpenCallback();
                         }
                     } else if (response?.type === 'LOGIN_TAB_OPEN') {
-                        clearInterval(switchTabInterval)
                         if (loginTabOpenCallback) {
-                            loginTabOpenCallback()
+                            loginTabOpenCallback();
                         }
-                        reject(false)
+                        reject(false);
                         showFatalError(
                             `Please make sure you are logged in to ${message.textPlatform} and try again.`,
                             false
-                        )
+                        );
                     } else {
-                        clearInterval(switchTabInterval)
                         if (tabOpenCallback) {
-                            tabOpenCallback()
+                            tabOpenCallback();
                         }
-                        resolve(true)
+                        resolve(true);
+                        shouldReturn = true;
                     }
                 })
                 .catch((err) => {
-                    console.error(err)
-                    clearInterval(switchTabInterval)
-                    reject(false)
-                    showFatalError(errorMessage, false)
-                })
-            retryCount++
-            if (retryCount === tryLimit) {
-                clearInterval(switchTabInterval)
-                reject(false)
-                showFatalError(errorMessage, false)
+                    console.error(err);
+                    reject(false);
+                    showFatalError(errorMessage, false);
+                });
+
+            console.log('shouldReturn', shouldReturn);
+            if (shouldReturn) {
+                return;
+            } else {
+                retryCount++;
+                if (retryCount === tryLimit) {
+                    console.log('HIT RETRY LIMIT');
+                    reject(false); 
+                    showFatalError(errorMessage, false);
+                } else {
+                    setTimeout(() => switchTab('setTimeout'), intervalFrequency);
+                }
             }
-        }, intervalFrequency)
+        } // end switchTab
+
+        switchTab('initial')
     })
 }
 
