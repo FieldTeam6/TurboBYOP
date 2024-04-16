@@ -12,7 +12,7 @@
     "host_permissions": [
         "https://www.openvpb.com/VirtualPhoneBank*",
         "https://voice.google.com/*",
-        "https://messages.textfree.us/conversation/*"
+        "https://messages.textfree.us/web/*"
     ],
     "icons": {
         "32": "icons/byop_icon_32.png",
@@ -43,7 +43,7 @@
             "all_frames": true
         },
         {
-            "matches": ["https://messages.textfree.us/conversation/*"],
+            "matches": ["https://messages.textfree.us/web/*"],
             "js": [
                 "dependencies/browser-polyfill.js",
                 "contentScripts/textFreeManager.js",
