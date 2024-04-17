@@ -16,7 +16,6 @@ browser.runtime.onInstalled.addListener(() => {
 
 // For logging
 browser.runtime.onMessage.addListener((message, sender, response) => {
-    //console.log('called listener', message)
     if (message.type === 'MESSAGE_SENT') {
         recordMessageSent()
     }

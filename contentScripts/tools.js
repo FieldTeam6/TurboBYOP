@@ -26,7 +26,6 @@ function keepTrying(method, silenceErrors, callback) {
     const frequency = 100; // try every 100ms
     let tryCount = 5 * 1000 / frequency; // keep trying for 5 seconds
     var keepTryingInterval = setInterval(function () {
-        console.log('tryCount', tryCount)
         var successful = method();
         var giveUp = successful === false || tryCount-- < 0;
         let functionName = getFunctionName(method);
