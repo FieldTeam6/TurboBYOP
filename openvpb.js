@@ -1,4 +1,3 @@
-console.log('using openvpb-specific content script')
 const DESIGNATED_CONTACT_REGEX = /designated[ _-]?contact/i
 
 // OpenVPB displays a pop-up after you make your first call
@@ -74,7 +73,6 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
 
             try {
                 const switchedTab = await interactWithTab({
-                        tag: 'ONE', 
                         textPlatform: 'Google Voice',
                         url: `${gvUrl}*`,
                         loginUrl: 'https://voice.google.com/about',
@@ -89,7 +87,6 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
                 if (switchedTab) {
                     // Send contact details to TextFree tab to send text
                     await interactWithTab({
-                        tag: 'TWO',
                         textPlatform: 'Google Voice',
                         type: 'TALK_TO_TAB',
                         tabType: 'SEND_MESSAGE',

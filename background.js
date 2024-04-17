@@ -16,7 +16,7 @@ browser.runtime.onInstalled.addListener(() => {
 
 // For logging
 browser.runtime.onMessage.addListener((message, sender, response) => {
-    console.log('called listener', message)
+    //console.log('called listener', message)
     if (message.type === 'MESSAGE_SENT') {
         recordMessageSent()
     }
@@ -38,11 +38,9 @@ browser.runtime.onMessage.addListener((message, sender, response) => {
                     // Check if Login page is open
                     findTabId(message.loginUrl)
                         .then(() => {
-                            console.log('LOGIN TAB OPEN')
                             response({ type: 'LOGIN_TAB_OPEN' })
                         })
                         .catch((err) => {
-                            console.log('TAB NOT OPEN')
                             console.error(err)
                             response({ type: 'TAB_NOT_OPEN' })
                         })
@@ -54,10 +52,8 @@ browser.runtime.onMessage.addListener((message, sender, response) => {
     }
 
     if (message.type === 'TALK_TO_TAB') {
-        console.log('TALK TO TAB')
         findTabId(message.url)
             .then((id) => {
-                console.log('id', id)
                 browser.tabs
                     .sendMessage(id, {
                         ...message,
@@ -137,7 +133,6 @@ async function findTabId(url) {
                 currentWindow: true
             })
             .then((tabs) => {
-                console.log('tabs', tabs);
                 const tabId = tabs[0]?.id
 
                 if (tabId) {

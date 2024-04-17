@@ -3,5 +3,5 @@ try {
                   "dependencies/utilities.js",
                   "background.js");
 } catch (e) {
-    console.log(e);
+    console.error(e);
 }
