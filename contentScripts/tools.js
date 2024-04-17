@@ -26,7 +26,6 @@ function keepTrying(method, silenceErrors, callback) {
     const frequency = 100; // try every 100ms
     let tryCount = (5 * 1000) / frequency; // keep trying for 5 seconds
     var keepTryingInterval = setInterval(function () {
-        console.log('tryCount', tryCount);
         var successful = method();
         var giveUp = successful === false || tryCount-- < 0;
         let functionName = getFunctionName(method);
@@ -37,7 +36,7 @@ function keepTrying(method, silenceErrors, callback) {
                 // indicative to throttling and we want to abort
                 silenceErrors = false;
             }
-            //console.log('silenceErrors', silenceErrors);
+
             clearInterval(keepTryingInterval);
             // the app failed
             if (!silenceErrors && giveUp) {
@@ -233,18 +232,14 @@ async function interactWithTab(
     intervalFrequency = 1000
 ) {
     return new Promise((resolve, reject) => {
-        console.log('message', message);
-        const errorMessage = `Please close any existing ${message.textPlatform} tabs and try again.`;
-        let retryCount = 0;
-        let shouldReturn = false;
+        const errorMessage = `Please close any existing ${message.textPlatform} tabs and try again.`
+        let retryCount = 0
+        let shouldReturn = false
 
         let switchTab = async (arg = 'default') => {
-            console.log('arg ' + message.tag, arg);
-            console.log('retryCount ' + message.tag, retryCount);
             await browser.runtime
                 .sendMessage(message)
                 .then((response) => {
-                    console.log('response ' + message.tag, response);
                     if (response?.type === 'TAB_NOT_OPEN') {
                         if (tabNotOpenCallback) {
                             tabNotOpenCallback();
@@ -272,14 +267,12 @@ async function interactWithTab(
                     showFatalError(errorMessage, false);
                 });
 
-            console.log('shouldReturn', shouldReturn);
             if (shouldReturn) {
                 return;
             } else {
                 retryCount++;
                 if (retryCount === tryLimit) {
-                    console.log('HIT RETRY LIMIT');
-                    reject(false);
+                    reject(false); 
                     showFatalError(errorMessage, false);
                 } else {
                     setTimeout(() => switchTab('setTimeout'), intervalFrequency);

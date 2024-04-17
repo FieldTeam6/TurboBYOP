@@ -45,7 +45,6 @@ Select.addEventListener('change', async function () {
 });
 
 async function onOpen() {
-    console.log('popup opened');
     let [{ statsStartDate, textPlatform }, [currentTab], permissions] = await Promise.all([
         browser.storage.local.get(['statsStartDate', 'textPlatform']),
         browser.tabs.query({
@@ -99,8 +98,6 @@ async function onOpen() {
     setTotalCalls(sendCountAllTime, sendHistory.length);
 
     if (currentTab && currentTab.url) {
-        console.log('Current tab URL:', currentTab.url);
-
         // Show "Enabled Site" if the site is one of the sites compatible with the BYOP extension
         enabledSites.forEach((site) => {
             if (site.regex.test(currentTab.url)) {

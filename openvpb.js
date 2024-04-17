@@ -1,5 +1,4 @@
-console.log('using openvpb-specific content script');
-const DESIGNATED_CONTACT_REGEX = /designated[ _-]?contact/i;
+const DESIGNATED_CONTACT_REGEX = /designated[ _-]?contact/i
 
 // OpenVPB displays a pop-up after you make your first call
 // This is annoying for the BYOP experience because it looks like
@@ -73,9 +72,7 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
             const gvUrl = 'https://voice.google.com/u/0/messages';
 
             try {
-                const switchedTab = await interactWithTab(
-                    {
-                        tag: 'ONE',
+                const switchedTab = await interactWithTab({
                         textPlatform: 'Google Voice',
                         url: `${gvUrl}*`,
                         loginUrl: 'https://voice.google.com/about',
@@ -90,7 +87,6 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
                 if (switchedTab) {
                     // Send contact details to TextFree tab to send text
                     await interactWithTab({
-                        tag: 'TWO',
                         textPlatform: 'Google Voice',
                         type: 'TALK_TO_TAB',
                         tabType: 'SEND_MESSAGE',
