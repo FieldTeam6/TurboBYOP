@@ -4,16 +4,16 @@
  * @return {string}         i.e. 2234567890
  */
 function formatNumber(number) {
-    var simplifiedNumber = number.trim().replace(/\D/g, '')
+    var simplifiedNumber = number.trim().replace(/\D/g, '');
     // remove international code for US numbers
     if (simplifiedNumber.length === 11 && simplifiedNumber.charAt(0) === '1') {
-        simplifiedNumber = simplifiedNumber.substr(1)
+        simplifiedNumber = simplifiedNumber.substr(1);
     }
-    return simplifiedNumber
+    return simplifiedNumber;
 }
 
 function getFunctionName(func) {
-    return func.name.replace(/bound /g, '')
+    return func.name.replace(/bound /g, '');
 }
 
 /**
@@ -24,7 +24,7 @@ function getFunctionName(func) {
  */
 function keepTrying(method, silenceErrors, callback) {
     const frequency = 100; // try every 100ms
-    let tryCount = 5 * 1000 / frequency; // keep trying for 5 seconds
+    let tryCount = (5 * 1000) / frequency; // keep trying for 5 seconds
     var keepTryingInterval = setInterval(function () {
         var successful = method();
         var giveUp = successful === false || tryCount-- < 0;
@@ -32,7 +32,7 @@ function keepTrying(method, silenceErrors, callback) {
 
         if (successful === true || giveUp) {
             if (functionName === 'confirmSent') {
-                // If error occurs on confirmSent, it is almost always 
+                // If error occurs on confirmSent, it is almost always
                 // indicative to throttling and we want to abort
                 silenceErrors = false;
             }
@@ -42,22 +42,28 @@ function keepTrying(method, silenceErrors, callback) {
             if (!silenceErrors && giveUp) {
                 if (siteIsGoogleVoice) {
                     if (functionName === 'confirmSent') {
-                        showFatalError(`You've been throttled by Google Voice.  Please try a different campaign, or wait 24 hours and try again.\n\nError: "${functionName}" failed.`, true)
+                        showFatalError(
+                            `You've been throttled by Google Voice.  Please try a different campaign, or wait 24 hours and try again.\n\nError: "${functionName}" failed.`,
+                            true
+                        );
                     } else {
-                        showFatalError(`If the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${functionName}" failed.`, true);
+                        showFatalError(
+                            `If the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${functionName}" failed.`,
+                            true
+                        );
                     }
                 } else {
                     showFatalError(
                         "Are you sure Google Voice texting via Hangouts is enabled?\nAlso, be aware that this extension is not compatible with the Google Hangouts Chrome extension. If you have the Hangouts extension installed you'll need to temporarily disable it.",
                         false
-                    )
+                    );
                 }
             }
             if (callback) {
-                callback(successful)
+                callback(successful);
             }
         }
-    }, frequency)
+    }, frequency);
 }
 
 /**
@@ -68,15 +74,15 @@ function keepTrying(method, silenceErrors, callback) {
  * @param {Function}   cb             to be called with the results from method when we're done trying
  */
 function keepTryingAsPromised(method, silenceErrors) {
-    console.log('BYOP SMS - Running: ', getFunctionName(method))
-    const waitTime = 100 // 100ms
+    console.log('BYOP SMS - Running: ', getFunctionName(method));
+    const waitTime = 100; // 100ms
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             keepTrying(method, silenceErrors, (successful) => {
-                resolve(successful)
-            })
-        }, waitTime)
-    })
+                resolve(successful);
+            });
+        }, waitTime);
+    });
 }
 
 /**
@@ -86,22 +92,22 @@ function keepTryingAsPromised(method, silenceErrors) {
  */
 function showFatalError(message, reload) {
     if (typeof siteManager !== 'undefined' && siteManager) {
-        siteManager.messagesToSend.length = 0
+        siteManager.messagesToSend.length = 0;
     }
     // Re-enable Set Up Text Message button
     browser.runtime.sendMessage({
         type: 'TALK_TO_TAB',
         url: 'https://www.openvpb.com/VirtualPhoneBank*',
         tabType: 'SENDING_ERROR'
-    })
-    const manifest = browser.runtime.getManifest()
-    const reloadMessage = '\n\nWhen you click "OK" the page will refresh.'
-    const fullMessage = `BYOP v${manifest.version}: Text failed.\n\n${message} ${reload ? reloadMessage : ''}`
-    console.error('BYOP SMS - ' + fullMessage)
-    alert(fullMessage)
+    });
+    const manifest = browser.runtime.getManifest();
+    const reloadMessage = '\n\nWhen you click "OK" the page will refresh.';
+    const fullMessage = `BYOP v${manifest.version}: Text failed.\n\n${message} ${reload ? reloadMessage : ''}`;
+    console.error('BYOP SMS - ' + fullMessage);
+    alert(fullMessage);
     if (reload) {
-        console.log('reloading page')
-        window.location.reload()
+        console.log('reloading page');
+        window.location.reload();
     }
 }
 
@@ -112,19 +118,32 @@ function removeUnicode(text) {
     return text.replace(
         /([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g,
         ''
-    )
+    );
 }
 
 /**
  * Removes whitespace from the text
  */
 function removeWhitespace(text) {
-    return text.replace(/\s/g, '')
+    return text.replace(/\s/g, '');
 }
 
 function sanitizeText(text) {
-    return removeWhitespace(removeUnicode(text))
+    return removeWhitespace(removeUnicode(text));
 }
+
+const simulateReturnKeyPress = (element) => {
+    element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' })); // only works with keydown
+};
+
+const simulateInputChange = (element) => {
+    element.dispatchEvent(
+        new KeyboardEvent('input', {
+            bubbles: true,
+            cancelable: true
+        })
+    );
+};
 
 const simulateKeyPress = (element) => {
     element.dispatchEvent(
@@ -132,13 +151,13 @@ const simulateKeyPress = (element) => {
             bubbles: true,
             cancelable: true
         })
-    )
-}
+    );
+};
 
 function simulateTextEntry(inputField, textToEnter) {
-    inputField.focus()
-    let inputFieldValueProp = inputField.value !== undefined ? 'value' : 'innerText'
-    inputField[inputFieldValueProp] = textToEnter
+    inputField.focus();
+    let inputFieldValueProp = inputField.value !== undefined ? 'value' : 'innerText';
+    inputField[inputFieldValueProp] = textToEnter;
 
     var charCode = ' '.charCodeAt();
     let keydownEvent = new Event('keydown', { keyCode: charCode });
@@ -154,43 +173,54 @@ function simulateTextEntry(inputField, textToEnter) {
     inputField.dispatchEvent(keyupEvent);
 }
 
-function enterText(inputField, textToEnter) {
-    inputField.focus()
-    let inputFieldValueProp = inputField.value !== undefined ? 'value' : 'innerText'
+function enterText(
+    inputField,
+    textToEnter,
+    elementToSimulateKeyPress = inputField,
+    simulateKeyFunction = simulateKeyPress
+) {
+    inputField.focus();
+    let inputFieldValueProp = inputField.value !== undefined ? 'value' : 'innerText';
 
-    inputField[inputFieldValueProp] = textToEnter
-    simulateKeyPress(inputField)
-    inputField.blur()
+    inputField[inputFieldValueProp] = textToEnter;
+    simulateKeyFunction(elementToSimulateKeyPress);
+    inputField.blur();
 }
 
 function checkElementValue(value, element) {
-    if (!element) return
-    let elementValue = element.value !== undefined ? element.value : element.innerText
-    return sanitizeText(elementValue) === sanitizeText(value)
+    if (!element) return;
+    let elementValue = element.value !== undefined ? element.value : element.innerText;
+    return sanitizeText(elementValue) === sanitizeText(value);
 }
 
-function fillElementAndCheckValue(value, inputElement, elementWithValue = inputElement) {
+function fillElementAndCheckValue(
+    value,
+    inputElement,
+    elementWithValue = inputElement,
+    elementToSimulateKeyPress = inputElement,
+    simulateKeyFunction = simulateKeyPress
+) {
     if (inputElement) {
-        enterText(inputElement, value)
-        return checkElementValue(value, elementWithValue)
+        enterText(inputElement, value, elementToSimulateKeyPress, simulateKeyFunction);
+        return checkElementValue(value, elementWithValue);
     }
-    return false
+    return false;
 }
 
-function tryStep(step, cb, errorActions, tryLimit = 30, intervalFrequency = 100) {
-    let tryCount = 0
+function tryStep(step, cb, errorActions, tryLimit = 20, intervalFrequency = 500) {
+    let tryCount = 0;
     let doStepInterval = setInterval(() => {
         if (step()) {
-            clearInterval(doStepInterval)
-            if (cb) cb()
+            clearInterval(doStepInterval);
+            if (cb) cb();
         } else if (tryCount === tryLimit) {
-            clearInterval(doStepInterval)
-            const errorAction = errorActions[getFunctionName(step)]
-            if (errorAction) errorAction()
-            console.log(`BYOP SMS - Step failed (${getFunctionName(step)}), retrying message.`)
+            clearInterval(doStepInterval);
+            const errorAction = errorActions[getFunctionName(step)];
+            if (errorAction) errorAction();
+            console.log(`BYOP SMS - Step failed (${getFunctionName(step)}), retrying message.`);
         }
-        tryCount++
-    }, intervalFrequency)
+        tryCount++;
+    }, intervalFrequency);
 }
 
 async function interactWithTab(
@@ -248,64 +278,64 @@ async function interactWithTab(
                     setTimeout(() => switchTab('setTimeout'), intervalFrequency);
                 }
             }
-        } // end switchTab
+        }; // end switchTab
 
-        switchTab('initial')
-    })
+        switchTab('initial');
+    });
 }
 
 function findContact(search, scrollHeight = 0) {
-    const searchDigitsOnly = search.replace(/\D+/g, '')
+    const searchDigitsOnly = search.replace(/\D+/g, '');
     if (!searchDigitsOnly) {
-        return
+        return;
     }
 
-    let found = false
-    const contacts = document.querySelectorAll('.contact')
+    let found = false;
+    const contacts = document.querySelectorAll('.contact');
     for (let i = 0; i < contacts.length; i++) {
-        const contact = contacts[i]
-        const contactDigitsOnly = contact.querySelector('.name')?.innerText.replace(/\D+/g, '')
+        const contact = contacts[i];
+        const contactDigitsOnly = contact?.innerText.replace(/\D+/g, '');
 
         if (contactDigitsOnly && contactDigitsOnly === searchDigitsOnly) {
-            found = true
-            contact.click()
-            return
+            found = true;
+            contact.click();
+            return;
         }
     }
     setTimeout(() => {
-        const scrollContainer = document.querySelector('.message-unit-wrap')
-        const currentScrollHeight = scrollContainer.scrollHeight
-        scrollContainer.scrollBy(0, currentScrollHeight)
+        const scrollContainer = document.querySelector('.message-unit-wrap');
+        const currentScrollHeight = scrollContainer.scrollHeight;
+        scrollContainer.scrollBy(0, currentScrollHeight);
         if (scrollHeight === currentScrollHeight) {
-            alert('Contact Not Found')
-            return
+            alert('Contact Not Found');
+            return;
         }
         // If the contact hasn't been found, keep scrolling until the end of the scrollContainer
         if (!found && currentScrollHeight > scrollHeight) {
-            findContact(search, currentScrollHeight)
+            findContact(search, currentScrollHeight);
         }
-    }, 1000)
+    }, 1000);
 }
 
-function waitForElementToLoad(selector, tryLimit = 5) {
+function waitForElementToLoad(selector, tryLimit = 10) {
     return new Promise((resolve, reject) => {
-        let elementLoaded
-        let tryCount = 0
+        let elementLoaded;
+        let tryCount = 0;
         let waitInterval = setInterval(() => {
-            if (document.querySelector(selector)) elementLoaded = true
+            if (document.querySelector(selector)) elementLoaded = true;
             if (elementLoaded) {
-                clearInterval(waitInterval)
-                resolve(true)
+                clearInterval(waitInterval);
+                resolve(true);
             }
             if (tryCount === tryLimit) {
-                clearInterval(waitInterval)
-                reject(false)
+                clearInterval(waitInterval);
+                reject(false);
             }
-            tryCount++
-        }, 1000)
-    })
+            tryCount++;
+        }, 1000);
+    });
 }
 
 function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms))
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
