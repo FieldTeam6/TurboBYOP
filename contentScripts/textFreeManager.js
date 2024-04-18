@@ -3,121 +3,126 @@
  */
 class TextFreeSiteManager {
     constructor() {
-        this.messagesToSend = {}
-        this.errorActions = {}
-        this.sendInterval = 5000
-        this.numberQueue = []
-        this.currentNumberSending = ''
+        this.messagesToSend = {};
+        this.errorActions = {};
+        this.sendInterval = 5000;
+        this.numberQueue = [];
+        this.currentNumberSending = '';
+        this.throttled = false;
     }
 
     async initialize() {
         browser.runtime.onMessage.addListener((message) => {
             if (message.type === 'SEND_MESSAGE') {
-                this.currentNumberSending = message.phoneNumber
-                this.currentContactName = message.contactName
+                this.currentNumberSending = message.phoneNumber;
+                this.currentContactName = message.contactName;
                 this.messagesToSend = {
                     [this.currentNumberSending]: message.message
-                }
-                this.sendFromQueueBYOP()
+                };
+                this.sendFromQueueBYOP();
             }
 
             if (message.type === 'FIND_CONTACT') {
-                findContact(message.contactName)
+                findContact(message.contactName);
             }
-        })
+        });
     }
 
     // Clicks on the New Message button
     showNumberInput() {
-        if (this.verifyChat()) return true
-        const startChatButton = document.querySelector(selectors.tfStartChatButton)
+        if (this.verifyChat()) return true;
+        const startChatButton = document.querySelector(selectors.tfStartChatButton);
         if (startChatButton) {
-            console.log('starting chat')
-            startChatButton.click()
-            if (document.querySelector(selectors.tfNumInput)) return true
+            console.log('starting chat');
+            startChatButton.click();
+            if (document.querySelector(selectors.tfNumInput)) return true;
         }
-        return false
+        return false;
     }
 
     // Enters phone number in the phone number field
     fillNumberInput() {
-        if (this.verifyChat()) return true
-        console.log('entering phone number')
-        return fillElementAndCheckValue(
-            this.currentNumberSending,
-            document.querySelector(selectors.tfNumInput),
-            document.querySelector(selectors.tfNewMessageToInput)
-        )
+        if (this.verifyChat()) return true;
+        console.log('entering phone number');
+        document.querySelector(selectors.tfNumInput).value = this.currentNumberSending.replace(/\D/g, '');
+        simulateInputChange(document.querySelector(selectors.tfNumInput));
+        simulateReturnKeyPress(document.querySelector('#contactInput'));
+        return checkElementValue(this.currentNumberSending, document.querySelector(selectors.tfNewMessageToInput));
     }
 
     // Enters message in the message field
     writeMessage() {
-        if (this.verifyChat()) return true
-        console.log('writing message')
-        const message = this.messagesToSend[this.currentNumberSending]
+        if (this.verifyChat()) return true;
+        console.log('writing message');
+        const message = this.messagesToSend[this.currentNumberSending];
         if (!message) {
-            return false
+            return false;
         }
-
-        return fillElementAndCheckValue(message, document.querySelector(selectors.tfMessageEditor))
+        document.querySelector(selectors.tfMessageEditor).value = message;
+        simulateInputChange(document.querySelector(selectors.tfMessageEditor));
+        return checkElementValue(message, document.querySelector(selectors.tfMessageEditor));
     }
 
     // Clicks the send button
     sendMessage() {
-        if (this.verifyChat()) return true
-        let sendButton = document.querySelector(selectors.tfSendButton)
+        if (this.verifyChat()) return true;
+        let sendButton = document.querySelector(selectors.tfSendButton);
         if (sendButton && sendButton.disabled === false) {
-            console.log('clicking send button')
-            sendButton.click()
-            return true
+            console.log('clicking send button');
+            sendButton.click();
+            return true;
         }
-        return false
+        return false;
     }
 
     // Confirms message was sent
     confirmSent() {
-        if (this.verifyChat()) return true
-        console.log('confirming sent')
-        return document.querySelector(selectors.tfMessageBubble) ? true : false
+        if (this.verifyChat()) return true;
+        if (document.querySelector(selectors.tfAccountVerify)) {
+            this.throttled = true;
+            return false;
+        }
+        console.log('confirming sent');
+        return document.querySelector(selectors.tfMessageBubble) ? true : false;
     }
 
     clickRenameChat() {
-        if (this.verifyChatRenamed()) return true
-        const optionsMenuDropdownArrow = document.querySelector(selectors.tfOptionsMenuDropdownArrow)
-        optionsMenuDropdownArrow?.click()
-        const renameButton = document.querySelector(selectors.tfRenameButton)
-        if (!renameButton) return false
-        renameButton.click()
-        console.log('clicking to rename chat')
-        return true
+        if (this.verifyChatRenamed()) return true;
+        const optionsMenuDropdownArrow = document.querySelector(selectors.tfOptionsMenuDropdownArrow);
+        optionsMenuDropdownArrow?.click();
+        const renameButton = document.querySelector(selectors.tfRenameButton);
+        if (!renameButton) return false;
+        renameButton.click();
+        console.log('clicking to rename chat');
+        return true;
     }
 
     // Renames the conversation from the phone number to the contact's full name
     renameChat() {
-        if (this.verifyChatRenamed()) return true
-        console.log('renaming chat')
+        if (this.verifyChatRenamed()) return true;
+        console.log('renaming chat');
         return fillElementAndCheckValue(
             this.currentContactName,
             document.querySelector(selectors.tfEditNameInput),
             document.querySelector(selectors.tfName)
-        )
+        );
     }
 
     goBackToOpenVPBTab() {
-        console.log('going back to OpenVPBTab')
-        browser.runtime.sendMessage({ type: 'MESSAGE_SENT' })
+        console.log('going back to OpenVPBTab');
+        browser.runtime.sendMessage({ type: 'MESSAGE_SENT' });
 
         // Switch to OpenVPB tab and save contact
         browser.runtime.sendMessage({
             type: 'SWITCH_TAB',
             url: 'https://www.openvpb.com/VirtualPhoneBank*'
-        })
+        });
         browser.runtime.sendMessage({
             type: 'TALK_TO_TAB',
             url: 'https://www.openvpb.com/VirtualPhoneBank*',
             tabType: 'RECORD_TEXT_IN_DB'
-        })
-        return true
+        });
+        return true;
     }
 
     verifyChat() {
@@ -129,14 +134,14 @@ class TextFreeSiteManager {
                 document.querySelector(selectors.tfMessageBubble)
             )
         ) {
-            console.log('chat verified')
-            return true
+            console.log('chat verified');
+            return true;
         }
-        return false
+        return false;
     }
 
     verifyChatRenamed() {
-        return checkElementValue(this.currentContactName, document.querySelector(selectors.tfName))
+        return checkElementValue(this.currentContactName, document.querySelector(selectors.tfName));
     }
 
     getSendExecutionQueue() {
@@ -147,37 +152,34 @@ class TextFreeSiteManager {
             this.sendMessage,
             this.confirmSent,
             this.goBackToOpenVPBTab
-        ]
+        ];
     }
 
     async sendFromQueueBYOP(queueNum = 0) {
-        let sendExecutionQueue = this.getSendExecutionQueue()
+        let sendExecutionQueue = this.getSendExecutionQueue();
         // Queue is finished
-        if (queueNum === sendExecutionQueue.length) return
+        if (queueNum === sendExecutionQueue.length) return;
 
-        let currentStep = sendExecutionQueue[queueNum].bind(this)
-        const currentStepName = getFunctionName(currentStep)
+        let currentStep = sendExecutionQueue[queueNum].bind(this);
+        const currentStepName = getFunctionName(currentStep);
 
-        if (currentStepName === 'fillNumberInput') {
+        if (currentStepName === 'confirmSent' && this.throttled) {
             this.errorActions[currentStepName] = () =>
                 showFatalError(
-                    `Please check your network connection and try reloading the page and clicking Set Up Text Message again.\n\nIf the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${currentStepName}" failed.`,
+                    `You've been throttled by Text Free. Please wait 24 hours from the last message you sent and try again.\n\nError: "${functionName}" failed.`,
                     false
-                )
-            // If the current step is before the final step (switching back to OpenVPB tab)
-        } else if (queueNum < sendExecutionQueue.length - 1) {
+                );
+            this.throttled = false;
+        }
+        // If the current step is before the final step (switching back to OpenVPB tab)
+        else if (queueNum < sendExecutionQueue.length - 1) {
             this.errorActions[currentStepName] = () =>
                 showFatalError(
-                    `Please check your network connection and try reloading the page and clicking Set Up Text Message again.\n\nIf the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${currentStepName}" failed.`,
+                    `If the problem persists, please report the error in the BYOP Slack channel or via the help link in the extension popup.\n\nError: "${currentStepName}" failed.`,
                     false
-                )
+                );
         }
 
-        tryStep(
-            currentStep,
-            () => this.sendFromQueueBYOP(queueNum + 1),
-            this.errorActions,
-            currentStepName === 'showNumberInput' || currentStepName === 'confirmSent' ? 10 : 3
-        )
+        tryStep(currentStep, () => this.sendFromQueueBYOP(queueNum + 1), this.errorActions);
     }
 }
