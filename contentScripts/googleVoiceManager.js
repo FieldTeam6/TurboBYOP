@@ -9,10 +9,6 @@ class GoogleVoiceSiteManager {
         this.currentNumberSending = ''
     }
 
-    sleep = (ms) => {
-        return new Promise((resolve) => setTimeout(resolve, ms))
-    }
-
     async initialize() {
         browser.runtime.onMessage.addListener((message) => {
             if (message.type === 'SEND_MESSAGE') {

@@ -23,7 +23,7 @@ function getFunctionName(func) {
  * @param {Function}   callback       to be called with the results from method when we're done trying
  */
 function keepTrying(method, silenceErrors, callback) {
-    const frequency = 100; // try every 100ms
+    const frequency = 50; // try every 100ms
     let tryCount = (5 * 1000) / frequency; // keep trying for 5 seconds
     var keepTryingInterval = setInterval(function () {
         var successful = method();
@@ -77,11 +77,9 @@ function keepTryingAsPromised(method, silenceErrors) {
     console.log('BYOP SMS - Running: ', getFunctionName(method));
     const waitTime = 100; // 100ms
     return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            keepTrying(method, silenceErrors, (successful) => {
-                resolve(successful);
-            });
-        }, waitTime);
+        keepTrying(method, silenceErrors, (successful) => {
+            resolve(successful);
+        });
     });
 }
 
@@ -207,7 +205,7 @@ function fillElementAndCheckValue(
     return false;
 }
 
-function tryStep(step, cb, errorActions, tryLimit = 20, intervalFrequency = 500) {
+function tryStep(step, cb, errorActions, tryLimit = 20, intervalFrequency = 300) {
     let tryCount = 0;
     let doStepInterval = setInterval(() => {
         if (step()) {
@@ -334,8 +332,4 @@ function waitForElementToLoad(selector, tryLimit = 10) {
             tryCount++;
         }, 1000);
     });
-}
-
-function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
 }
