@@ -77,11 +77,17 @@ class TextFreeSiteManager {
 
     // Confirms message was sent
     confirmSent() {
-        if (this.verifyChat()) return true;
         if (document.querySelector(selectors.tfAccountVerify)) {
+            console.log('throttled!!!');
             this.throttled = true;
             return false;
+        } else {
+            this.throttled = false;
         }
+
+        const messageBubble = document.querySelector(selectors.tfMessageBubble);
+        console.log('messageBubble', messageBubble);
+
         console.log('confirming sent');
         return document.querySelector(selectors.tfMessageBubble) ? true : false;
     }
@@ -162,6 +168,7 @@ class TextFreeSiteManager {
 
         let currentStep = sendExecutionQueue[queueNum].bind(this);
         const currentStepName = getFunctionName(currentStep);
+        console.log('BYOP SMS - Running: ', currentStepName);
 
         if (currentStepName === 'confirmSent' && this.throttled) {
             this.errorActions[currentStepName] = () =>
@@ -180,6 +187,16 @@ class TextFreeSiteManager {
                 );
         }
 
-        tryStep(currentStep, () => this.sendFromQueueBYOP(queueNum + 1), this.errorActions);
+        tryStep(currentStep, () => {
+            if (currentStepName === 'sendMessage') {
+                // waits to call confirmSent step to allow time for the 
+                // message to send and see if we've been throttled
+                setTimeout(() => {
+                    this.sendFromQueueBYOP(queueNum + 1);
+                }, 1000); 
+            } else {
+                this.sendFromQueueBYOP(queueNum + 1);
+            }
+        }, this.errorActions);
     }
 }

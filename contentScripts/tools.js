@@ -209,6 +209,7 @@ function tryStep(step, cb, errorActions, tryLimit = 20, intervalFrequency = 300)
     let tryCount = 0;
     let doStepInterval = setInterval(() => {
         if (step()) {
+            // previous step was successful; call the next one
             clearInterval(doStepInterval);
             if (cb) cb();
         } else if (tryCount === tryLimit) {

@@ -24,7 +24,7 @@ const selectors = {
     gvChatLoadedHeader: 'gv-message-list-header p[gv-test-id="conversation-title"]',
 
     // TextFree selectors
-    tfAccountVerify: '.account-verify',
+    tfAccountVerify: '.account-verify, h5[data-testid="account-verification-modal-title"]',
     tfRenameButton: '.contact.is-selected #renameButton',
     tfMessageBubble: '.sent-message',
     tfMessageEditor: '.native-textarea',

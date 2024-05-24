@@ -60,6 +60,7 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
     }
 
     messageBody = messageBody.replace(THEIR_NAME_REGEX, contactName).replace(YOUR_NAME_REGEX, yourName);
+    console.log('currentPhoneNumber', currentPhoneNumber);
     console.log('messageBody', messageBody);
 
     if (configuration['testmode'] == true) {
