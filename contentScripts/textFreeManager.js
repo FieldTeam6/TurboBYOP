@@ -197,6 +197,6 @@ class TextFreeSiteManager {
             } else {
                 this.sendFromQueueBYOP(queueNum + 1);
             }
-        }, this.errorActions);
+        }, this.errorActions, 20, 500);
     }
 }

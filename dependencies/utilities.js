@@ -1,6 +1,10 @@
 async function getSendHistory(increment = false) {
     const now = new Date();
-    let { sendHistory = [] } = await browser.storage.local.get(['sendHistory']);
+
+    const sendHistoryStorageVar = await getSendHistoryStorageVar();
+    console.log('sendHistoryStorageVar', sendHistoryStorageVar);
+    let { sendHistory = [] } = await browser.storage.local.get([sendHistoryStorageVar]);
+    console.log('sendHistory from storage', sendHistory);
 
     if (sendHistory && sendHistory.length > 0) {
         for (var i = 0; i < sendHistory.length; i++) {
@@ -23,7 +27,14 @@ async function getSendHistory(increment = false) {
         sendHistory.push(now.toISOString())
     }
 
-    browser.storage.local.set({ sendHistory: sendHistory });
+    console.log('sendHistory', sendHistory)
 
-    return sendHistory
+    browser.storage.local.set({ sendHistoryStorageVar: sendHistory });
+
+    return sendHistory;
+}
+
+async function getSendHistoryStorageVar() {
+    let { textPlatform } = await browser.storage.local.get(['textPlatform']);
+    return 'sendHistory-' + textPlatform;
 }
