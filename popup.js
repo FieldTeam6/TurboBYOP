@@ -84,19 +84,8 @@ async function onOpen() {
         document.getElementById('statsStartDate').innerText = date;
     }
 
-    var { sendCountAllTime } = await browser.storage.local.get(['sendCounts']).then(function (items) {
-        const sendCountAllTime = items.sendCounts
-            ? Object.values(items.sendCounts).reduce((total, val) => {
-                  return total + val;
-              }, 0)
-            : 0;
-
-        return { sendCountAllTime };
-    });
-
-    let sendHistory = await getSendHistory();
-
-    setTotalCalls(sendCountAllTime, sendHistory.length);
+    setTotalCallsToday();
+    setTotalCallsAllTime();
 
     if (currentTab && currentTab.url) {
         // Show "Enabled Site" if the site is one of the sites compatible with the BYOP extension
@@ -120,17 +109,20 @@ async function onOpen() {
     resetStatusLook();
 }
 
-function setTotalCalls(totalCallsAllTime, totalCallsToday) {
-    document.getElementById('numCallsToday').innerText = `${totalCallsToday} Text${totalCallsToday !== 1 ? 's' : ''}`;
+async function setTotalCallsAllTime() {
+    var items = await browser.storage.local.get(['sendCounts']);
+    console.log('items', items);
+    const totalCallsAllTime = items.sendCounts
+        ? Object.values(items.sendCounts).reduce((total, val) => {
+                return total + val;
+            }, 0)
+        : 0;
+
+    console.log('totalCallsAllTime', totalCallsAllTime);
+
     document.getElementById('numCallsAllTime').innerText = `${totalCallsAllTime} text${
         totalCallsAllTime !== 1 ? 's' : ''
     }`;
-
-    if (totalCallsToday === 0) {
-        document.getElementById('encouragement').innerText = 'Log in to a phone bank to get started!';
-    } else {
-        document.getElementById('encouragement').innerText = 'Keep up the great work!';
-    }
 }
 
 async function setTotalCallsToday() {
