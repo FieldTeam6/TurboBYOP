@@ -1,14 +1,14 @@
 async function getSendHistory(increment = false) {
     const now = new Date();
+    let { sendHistory = {}, textPlatform } = await browser.storage.local.get(['sendHistory', 'textPlatform']);
+    console.log('sendHistory', sendHistory);
+    console.log('textPlatform', textPlatform);
+    let platformSendHistory = sendHistory[textPlatform] || [];
+    console.log('platformSendHistory', platformSendHistory);
 
-    const sendHistoryStorageVar = await getSendHistoryStorageVar();
-    console.log('sendHistoryStorageVar', sendHistoryStorageVar);
-    let { sendHistory = [] } = await browser.storage.local.get([sendHistoryStorageVar]);
-    console.log('sendHistory from storage', sendHistory);
-
-    if (sendHistory && sendHistory.length > 0) {
-        for (var i = 0; i < sendHistory.length; i++) {
-            const dateSent = new Date(sendHistory[i]);
+    if (platformSendHistory.length > 0) {
+        for (var i = 0; i < platformSendHistory.length; i++) {
+            const dateSent = new Date(platformSendHistory[i]);
             dateSent.setHours(dateSent.getHours() + 24);
 
             if (!(dateSent < now)) {
@@ -20,21 +20,20 @@ async function getSendHistory(increment = false) {
         }
 
         // discard everything prior to element i as it is more than 24 hours old
-        sendHistory = sendHistory.slice(i);
+        platformSendHistory = platformSendHistory.slice(i);
     }
 
     if (increment) {
-        sendHistory.push(now.toISOString())
+        platformSendHistory.push(now.toISOString())
     }
+    console.log('platformSendHistory', platformSendHistory);
 
-    console.log('sendHistory', sendHistory)
+    browser.storage.local.set({
+        sendHistory: {
+            ...sendHistory,
+            [textPlatform]: platformSendHistory
+        }
+    });
 
-    browser.storage.local.set({ sendHistoryStorageVar: sendHistory });
-
-    return sendHistory;
-}
-
-async function getSendHistoryStorageVar() {
-    let { textPlatform } = await browser.storage.local.get(['textPlatform']);
-    return 'sendHistory-' + textPlatform;
+    return platformSendHistory;
 }

@@ -42,6 +42,7 @@ let Select = document.querySelector('#texting-platform-select');
 Select.addEventListener('change', async function () {
     const textPlatform = this.value;
     await browser.storage.local.set({ textPlatform });
+    setTotalCallsToday();
 });
 
 async function onOpen() {
@@ -124,6 +125,19 @@ function setTotalCalls(totalCallsAllTime, totalCallsToday) {
     document.getElementById('numCallsAllTime').innerText = `${totalCallsAllTime} text${
         totalCallsAllTime !== 1 ? 's' : ''
     }`;
+
+    if (totalCallsToday === 0) {
+        document.getElementById('encouragement').innerText = 'Log in to a phone bank to get started!';
+    } else {
+        document.getElementById('encouragement').innerText = 'Keep up the great work!';
+    }
+}
+
+async function setTotalCallsToday() {
+    const sendHistory = await getSendHistory();
+    const totalCallsToday = sendHistory.length;
+    console.log('totalCallsToday', totalCallsToday);
+    document.getElementById('numCallsToday').innerText = `${totalCallsToday} Text${totalCallsToday !== 1 ? 's' : ''}`;
 
     if (totalCallsToday === 0) {
         document.getElementById('encouragement').innerText = 'Log in to a phone bank to get started!';
