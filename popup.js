@@ -63,6 +63,8 @@ async function onOpen() {
         browser.permissions.getAll()
     ]);
 
+
+
     if (!textPlatform) {
         textPlatform = 'messaging-app';
         browser.storage.local.set({ textPlatform: textPlatform });
@@ -83,7 +85,13 @@ async function onOpen() {
         });
     });
 
-    // Display text platform value based on browser last storage data.
+    // Populate Text Platform dropdown and display text platform value based on browser last storage data.
+    for (var key in availableTextPlatforms) {
+        var opt = document.createElement('option');
+        opt.innerHTML = availableTextPlatforms[key];
+        opt.value = key;
+        textPlatformSelect.appendChild(opt);
+    }
     textPlatformSelect.value = textPlatform;
     currentTextPlatform.innerText = availableTextPlatforms[textPlatform];
 
