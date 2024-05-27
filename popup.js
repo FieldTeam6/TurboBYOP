@@ -22,6 +22,12 @@ const enabledSites = [
     }
 ];
 
+const availableTextPlatforms = {
+    'messaging-app': "Messaging App",
+    'google-voice': "Google Voice",
+    'text-free': "TextFree"
+}
+
 let canEnable = false;
 let isEnabled = false;
 let siteName;
@@ -37,11 +43,13 @@ document.getElementById('openOptions').addEventListener('click', async () => {
 document.getElementById('toggleOnSite').addEventListener('mouseenter', hoverToggleSite);
 document.getElementById('toggleOnSite').addEventListener('mouseleave', resetStatusLook);
 
-let Select = document.querySelector('#texting-platform-select');
+let textPlatformSelect = document.querySelector('#text-platform-select');
+let currentTextPlatform = document.querySelector('#current-text-platform');
 
-Select.addEventListener('change', async function () {
+textPlatformSelect.addEventListener('change', async function () {
     const textPlatform = this.value;
     await browser.storage.local.set({ textPlatform });
+    currentTextPlatform.innerText = availableTextPlatforms[textPlatform];
     setTotalCallsToday();
 });
 
@@ -76,7 +84,8 @@ async function onOpen() {
     });
 
     // Display text platform value based on browser last storage data.
-    Select.value = textPlatform;
+    textPlatformSelect.value = textPlatform;
+    currentTextPlatform.innerText = availableTextPlatforms[textPlatform];
 
     // Display stats
     if (statsStartDate) {

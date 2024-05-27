@@ -148,8 +148,12 @@ input:checked + .slider:before {
             <div class="col">
                 <small class="text-muted">You have sent</small>
                 <h4 class="pb-0 display-4" id="numCallsToday">0 Texts</h4>
-                <small class="text-muted">in the past 24 hours<br>
-                and <span id="numCallsAllTime">0 texts</span> total since <span id="statsStartDate">12/23/2023</span>.</small>
+                <p>
+                    <small class="text-muted">
+                        with <span id="current-text-platform">text platform name</span> in the past 24 hours<br>
+                        and <span id="numCallsAllTime">0 texts</span> total since <span id="statsStartDate">12/23/2023</span>.
+                    </small>
+                </p>
                 <p>
                     <small id="encouragement" class="text-muted">Keep up the great work!</small>
                 </p>
@@ -159,9 +163,9 @@ input:checked + .slider:before {
             <div class="col">
                 <div class="input-group">
                     <div class="input-group-prepend">
-                      <label class="input-group-text" for="texting-platform-select">Text Platform</label>
+                      <label class="input-group-text" for="text-platform-select">Text Platform</label>
                     </div>
-                    <select class="custom-select" id="texting-platform-select">
+                    <select class="custom-select" id="text-platform-select">
                       <option value="messaging-app" selected>Messaging App</option>
                       <option value="google-voice">Google Voice</option>
                       <option value="text-free">TextFree</option>
