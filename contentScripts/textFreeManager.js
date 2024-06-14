@@ -9,6 +9,7 @@ class TextFreeSiteManager {
         this.numberQueue = [];
         this.currentNumberSending = '';
         this.throttled = false;
+        this.openVpbUrl = ''; 
     }
 
     async initialize() {
@@ -19,6 +20,7 @@ class TextFreeSiteManager {
                 this.messagesToSend = {
                     [this.currentNumberSending]: message.message
                 };
+                this.openVpbUrl = message.openVpbUrl;
                 this.sendFromQueueBYOP();
             }
 
@@ -121,11 +123,11 @@ class TextFreeSiteManager {
         // Switch to OpenVPB tab and save contact
         browser.runtime.sendMessage({
             type: 'SWITCH_TAB',
-            url: 'https://www.openvpb.com/VirtualPhoneBank*'
+            url: this.openVpbUrl
         });
         browser.runtime.sendMessage({
             type: 'TALK_TO_TAB',
-            url: 'https://www.openvpb.com/VirtualPhoneBank*',
+            url: this.openVpbUrl,
             tabType: 'RECORD_TEXT_IN_DB'
         });
         return true;

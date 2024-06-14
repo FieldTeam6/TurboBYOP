@@ -3,10 +3,11 @@
  */
 class GoogleVoiceSiteManager {
     constructor() {
-        this.messagesToSend = {}
-        this.sendInterval = 5000
-        this.numberQueue = []
-        this.currentNumberSending = ''
+        this.messagesToSend = {};
+        this.sendInterval = 5000;
+        this.numberQueue = [];
+        this.currentNumberSending = '';
+        this.openVpbUrl = '';
     }
 
     async initialize() {
@@ -17,6 +18,7 @@ class GoogleVoiceSiteManager {
                 this.messagesToSend = {
                     [this.currentNumberSending]: message.message
                 }
+                this.openVpbUrl = message.openVpbUrl;
                 this.sendFromQueueBYOP()
             }
         })
@@ -214,11 +216,11 @@ class GoogleVoiceSiteManager {
                 // Switch to OpenVPB tab and record text in db
                 browser.runtime.sendMessage({
                     type: 'SWITCH_TAB',
-                    url: 'https://www.openvpb.com/VirtualPhoneBank*'
+                    url: this.openVpbUrl
                 })
                 browser.runtime.sendMessage({
                     type: 'TALK_TO_TAB',
-                    url: 'https://www.openvpb.com/VirtualPhoneBank*',
+                    url: this.openVpbUrl,
                     tabType: 'RECORD_TEXT_IN_DB'
                 })
                 // continue with queue

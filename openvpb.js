@@ -77,7 +77,8 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
                         textPlatform: 'Google Voice',
                         url: `${gvUrl}*`,
                         loginUrl: 'https://voice.google.com/about',
-                        type: 'SWITCH_TAB'
+                        type: 'SWITCH_TAB',
+                        openVpbUrl: window.location.href
                     },
                     null,
                     () => {
@@ -95,7 +96,8 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
                         loginUrl: 'https://voice.google.com/about',
                         message: messageBody,
                         phoneNumber: digitsOnlyPhoneNumber,
-                        contactName
+                        contactName,
+                        openVpbUrl: window.location.href
                     });
                 }
             } catch (err) {
@@ -118,7 +120,8 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
                         textPlatform: 'TextFree',
                         url: `${tfUrl}*`,
                         loginUrl: 'https://messages.textfree.us/login',
-                        type: 'SWITCH_TAB'
+                        type: 'SWITCH_TAB',
+                        openVpbUrl: window.location.href
                     },
                     null,
                     () => {
@@ -136,7 +139,8 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
                         loginUrl: 'https://messages.textfree.us/login',
                         message: messageBody,
                         phoneNumber: currentPhoneNumber,
-                        contactName
+                        contactName,
+                        openVpbUrl: window.location.href
                     });
                 }
             } catch (err) {
