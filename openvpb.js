@@ -70,7 +70,6 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
     switch (textPlatform) {
         case 'google-voice':
             let digitsOnlyPhoneNumber = currentPhoneNumber.replace(/\D+/g, '');
-            const gvUrl = 'https://voice.google.com/u/0/messages';
 
             try {
                 const switchedTab = await interactWithTab({
@@ -112,7 +111,6 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
             browser.runtime.sendMessage({ type: 'MESSAGE_SENT' });
             break;
         case 'text-free':
-            const tfUrl = 'https://messages.textfree.us/web/';
             try {
                 // Switch to TextFree Tab or open it
                 const switchedTab = await interactWithTab(

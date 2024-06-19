@@ -33,7 +33,7 @@
     },
     "content_scripts": [
         {
-            "matches": ["https://voice.google.com/*"],
+            "matches": ["https://voice.google.com/u/0/messages*"],
             "js": [
                 "dependencies/browser-polyfill.js",
                 "contentScripts/googleVoiceManager.js",
@@ -43,7 +43,7 @@
             "all_frames": true
         },
         {
-            "matches": ["https://messages.textfree.us/web/*"],
+            "matches": ["https://messages.textfree.us/conversation/*"],
             "js": [
                 "dependencies/browser-polyfill.js",
                 "contentScripts/textFreeManager.js",
@@ -53,7 +53,7 @@
             "all_frames": true
         },
         {
-            "matches": ["https://www.openvpb.com/*"],
+            "matches": ["https://www.openvpb.com/VirtualPhoneBank/LoggedIn/*"],
             "js": [
                 "dependencies/browser-polyfill.js",
                 "dependencies/utilities.js",

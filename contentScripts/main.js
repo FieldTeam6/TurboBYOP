@@ -39,6 +39,7 @@ const selectors = {
 
 function findGoogleVoice() {
     // stop looking, wrong url
+    console.log('findGoogleVoice', window.location.href);
     if (!siteIsGoogleVoice) {
         showFatalError('Could not find Google Voice!', false);
         return false;
@@ -59,6 +60,7 @@ function findGoogleVoice() {
 
 function findTextFree() {
     // stop looking, wrong url
+    console.log('findTextFree', window.location.href);
     if (!siteIsTextFree) {
         showFatalError('Could not find TextFree!', false);
         return false;
@@ -78,7 +80,7 @@ function findTextFree() {
 }
 
 async function chooseTextPlatform() {
-    const { textPlatform } = await chrome.storage.local.get(['textPlatform']);
+    const { textPlatform } = await browser.storage.local.get(['textPlatform']);
     if (textPlatform === 'google-voice') keepTryingAsPromised(findGoogleVoice, true);
     if (textPlatform === 'text-free') findTextFree();
 }

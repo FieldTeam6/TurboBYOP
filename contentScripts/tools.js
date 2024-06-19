@@ -1,3 +1,5 @@
+const gvUrl = 'https://voice.google.com/u/0/messages';
+const tfUrl = 'https://messages.textfree.us/conversation/'
 /**
  * removes all non-numeric characters from the number string
  * @param  {string}   number i.e. +1 (223) 456-7890
