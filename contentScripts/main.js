@@ -26,14 +26,14 @@ const selectors = {
     // TextFree selectors
     tfAccountVerify: '.account-verify, h5[data-testid="account-verification-modal-title"]',
     tfRenameButton: '.contact.is-selected #renameButton',
-    tfMessageBubble: '.sent-message',
-    tfMessageEditor: '.native-textarea',
+    tfSentMessageBubble: '.sent-message',
+    tfMessageEditor: '#ion-textarea-1',
     tfName: '.contact.is-selected .name',
     tfNewMessageToInput: '.tag.state--address',
     tfNumInput: '.native-input',
     tfOptionsMenuDropdownArrow: '.contact.is-selected #optionsButton:not(.rotate-element)',
     tfEditNameInput: '.contact.is-selected .edit-name',
-    tfSendButton: '#submitConversation',
+    tfSendButton: '#submitConversation:not([disabled])',
     tfStartChatButton: '[data-testid=startNewConversationButton]'
 };
 

@@ -60,6 +60,7 @@ class TextFreeSiteManager {
         if (!message) {
             return false;
         }
+
         document.querySelector(selectors.tfMessageEditor).value = message;
         simulateInputChange(document.querySelector(selectors.tfMessageEditor));
         return checkElementValue(message, document.querySelector(selectors.tfMessageEditor));
@@ -87,11 +88,11 @@ class TextFreeSiteManager {
             this.throttled = false;
         }
 
-        const messageBubble = document.querySelector(selectors.tfMessageBubble);
-        console.log('messageBubble', messageBubble);
+        const sentMessageBubble = document.querySelector(selectors.tfSentMessageBubble);
+        console.log('messageBubble', sentMessageBubble.innerText);
 
         console.log('confirming sent');
-        return document.querySelector(selectors.tfMessageBubble) ? true : false;
+        return this.verifyChat();
     }
 
     clickRenameChat() {
@@ -139,7 +140,7 @@ class TextFreeSiteManager {
             checkElementValue(this.currentNumberSending, document.querySelector(selectors.tfNewMessageToInput)) &&
             checkElementValue(
                 this.messagesToSend[this.currentNumberSending],
-                document.querySelector(selectors.tfMessageBubble)
+                document.querySelector(selectors.tfSentMessageBubble)
             )
         ) {
             console.log('chat verified');
