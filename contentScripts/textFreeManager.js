@@ -35,7 +35,6 @@ class TextFreeSiteManager {
         if (this.verifyChat()) return true;
         const startChatButton = document.querySelector(selectors.tfStartChatButton);
         if (startChatButton) {
-            console.log('starting chat');
             startChatButton.click();
             if (document.querySelector(selectors.tfNumInput)) return true;
         }
@@ -45,7 +44,6 @@ class TextFreeSiteManager {
     // Enters phone number in the phone number field
     fillNumberInput() {
         if (this.verifyChat()) return true;
-        console.log('entering phone number');
         document.querySelector(selectors.tfNumInput).value = this.currentNumberSending.replace(/\D/g, '');
         simulateInputChange(document.querySelector(selectors.tfNumInput));
         simulateReturnKeyPress(document.querySelector('#contactInput'));
@@ -55,7 +53,6 @@ class TextFreeSiteManager {
     // Enters message in the message field
     writeMessage() {
         if (this.verifyChat()) return true;
-        console.log('writing message');
         const message = this.messagesToSend[this.currentNumberSending];
         if (!message) {
             return false;
@@ -71,7 +68,6 @@ class TextFreeSiteManager {
         if (this.verifyChat()) return true;
         let sendButton = document.querySelector(selectors.tfSendButton);
         if (sendButton && sendButton.disabled === false) {
-            console.log('clicking send button');
             sendButton.click();
             return true;
         }
@@ -88,11 +84,8 @@ class TextFreeSiteManager {
             this.throttled = false;
         }
 
-        const sentMessageBubble = document.querySelector(selectors.tfSentMessageBubble);
-        console.log('messageBubble', sentMessageBubble.innerText);
-
-        console.log('confirming sent');
-        return this.verifyChat();
+        console.log('messageBubbles', document.querySelectorAll(selectors.tfSentMessageBubble));
+        if (checkElementValue(this.messagesToSend[this.currentNumberSending], document.querySelector(selectors.tfSentMessageBubble))) return true;
     }
 
     clickRenameChat() {
@@ -102,14 +95,12 @@ class TextFreeSiteManager {
         const renameButton = document.querySelector(selectors.tfRenameButton);
         if (!renameButton) return false;
         renameButton.click();
-        console.log('clicking to rename chat');
         return true;
     }
 
     // Renames the conversation from the phone number to the contact's full name
     renameChat() {
         if (this.verifyChatRenamed()) return true;
-        console.log('renaming chat');
         return fillElementAndCheckValue(
             this.currentContactName,
             document.querySelector(selectors.tfEditNameInput),
@@ -136,13 +127,12 @@ class TextFreeSiteManager {
 
     verifyChat() {
         // Check if phone number and sent message are correct
-        if (
-            checkElementValue(this.currentNumberSending, document.querySelector(selectors.tfNewMessageToInput)) &&
-            checkElementValue(
-                this.messagesToSend[this.currentNumberSending],
-                document.querySelector(selectors.tfSentMessageBubble)
-            )
-        ) {
+        var phoneElement = document.querySelector(selectors.tfNewMessageToInput);
+        console.log('phoneElement', phoneElement);
+        var messageElement = document.querySelector(selectors.tfSentMessageBubble);
+        console.log('messageElement', messageElement);
+        if (checkElementValue(this.currentNumberSending, document.querySelector(selectors.tfNewMessageToInput)) &&
+            checkElementValue(this.messagesToSend[this.currentNumberSending], document.querySelector(selectors.tfSentMessageBubble))) {
             console.log('chat verified');
             return true;
         }
@@ -176,7 +166,7 @@ class TextFreeSiteManager {
         if (currentStepName === 'confirmSent' && this.throttled) {
             this.errorActions[currentStepName] = () =>
                 showFatalError(
-                    `You've been throttled by Text Free. Please wait 24 hours from the last message you sent and try again.\n\nError: "${functionName}" failed.`,
+                    `You've been throttled by TextFree. Please wait 24 hours and try again.\n\nError: "${functionName}" failed.`,
                     false
                 );
             this.throttled = false;

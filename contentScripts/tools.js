@@ -163,6 +163,7 @@ function simulateTextEntry(inputField, textToEnter) {
     inputField.dispatchEvent(inputEvent);
 }
 
+// Try to consolidate this with simulateTextEntry
 function enterText(
     inputField,
     textToEnter,
@@ -179,7 +180,12 @@ function enterText(
 
 function checkElementValue(value, element) {
     if (!element) return;
+    console.log('element', element);
     let elementValue = element.value !== undefined ? element.value : element.innerText;
+    var v = sanitizeText(value);
+    var e = sanitizeText(elementValue);
+    console.log('v', v);
+    console.log('e', e);
     return sanitizeText(elementValue) === sanitizeText(value);
 }
 
