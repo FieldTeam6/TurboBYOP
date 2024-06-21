@@ -58,9 +58,10 @@ class TextFreeSiteManager {
             return false;
         }
 
-        document.querySelector(selectors.tfMessageEditor).value = message;
-        simulateInputChange(document.querySelector(selectors.tfMessageEditor));
-        return checkElementValue(message, document.querySelector(selectors.tfMessageEditor));
+        const messageEditor = this.getMessageEditor();
+        messageEditor.value = message;
+        simulateInputChange(messageEditor);
+        return checkElementValue(message, messageEditor);
     }
 
     // Clicks the send button
@@ -141,6 +142,11 @@ class TextFreeSiteManager {
 
     verifyChatRenamed() {
         return checkElementValue(this.currentContactName, document.querySelector(selectors.tfName));
+    }
+
+    getMessageEditor() {
+        const elements = document.querySelectorAll(selectors.tfMessageEditor);
+        return elements[elements.length - 1];
     }
 
     getSendExecutionQueue() {

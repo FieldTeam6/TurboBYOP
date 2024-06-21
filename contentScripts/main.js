@@ -27,7 +27,7 @@ const selectors = {
     tfAccountVerify: '.account-verify, h5[data-testid="account-verification-modal-title"]',
     tfRenameButton: '.contact.is-selected #renameButton',
     tfSentMessageBubble: '.sent-message',
-    tfMessageEditor: '#ion-textarea-1',
+    tfMessageEditor: 'textarea[id^="ion-textarea-"]',
     tfName: '.contact.is-selected .name',
     tfNewMessageToInput: '.tag.state--address',
     tfNumInput: '.native-input',
