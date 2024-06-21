@@ -24,21 +24,22 @@ const selectors = {
     gvChatLoadedHeader: 'gv-message-list-header p[gv-test-id="conversation-title"]',
 
     // TextFree selectors
-    tfAccountVerify: '.account-verify',
+    tfAccountVerify: '.account-verify, h5[data-testid="account-verification-modal-title"]',
     tfRenameButton: '.contact.is-selected #renameButton',
-    tfMessageBubble: '.sent-message',
-    tfMessageEditor: '.native-textarea',
+    tfSentMessageBubble: '.sent-message',
+    tfMessageEditor: 'textarea[id^="ion-textarea-"]',
     tfName: '.contact.is-selected .name',
     tfNewMessageToInput: '.tag.state--address',
     tfNumInput: '.native-input',
     tfOptionsMenuDropdownArrow: '.contact.is-selected #optionsButton:not(.rotate-element)',
     tfEditNameInput: '.contact.is-selected .edit-name',
-    tfSendButton: '#submitConversation',
+    tfSendButton: '#submitConversation:not([disabled])',
     tfStartChatButton: '[data-testid=startNewConversationButton]'
 };
 
 function findGoogleVoice() {
     // stop looking, wrong url
+    console.log('findGoogleVoice', window.location.href);
     if (!siteIsGoogleVoice) {
         showFatalError('Could not find Google Voice!', false);
         return false;
@@ -59,6 +60,7 @@ function findGoogleVoice() {
 
 function findTextFree() {
     // stop looking, wrong url
+    console.log('findTextFree', window.location.href);
     if (!siteIsTextFree) {
         showFatalError('Could not find TextFree!', false);
         return false;
@@ -78,7 +80,7 @@ function findTextFree() {
 }
 
 async function chooseTextPlatform() {
-    const { textPlatform } = await chrome.storage.local.get(['textPlatform']);
+    const { textPlatform } = await browser.storage.local.get(['textPlatform']);
     if (textPlatform === 'google-voice') keepTryingAsPromised(findGoogleVoice, true);
     if (textPlatform === 'text-free') findTextFree();
 }
