@@ -163,21 +163,6 @@ function simulateTextEntry(inputField, textToEnter) {
     inputField.dispatchEvent(inputEvent);
 }
 
-// Try to consolidate this with simulateTextEntry
-function enterText(
-    inputField,
-    textToEnter,
-    elementToSimulateKeyPress = inputField,
-    simulateKeyFunction = simulateKeyPress
-) {
-    inputField.focus();
-    let inputFieldValueProp = inputField.value !== undefined ? 'value' : 'innerText';
-
-    inputField[inputFieldValueProp] = textToEnter;
-    simulateKeyFunction(elementToSimulateKeyPress);
-    inputField.blur();
-}
-
 function checkElementValue(value, element) {
     if (!element) return;
     console.log('element', element);
@@ -187,20 +172,6 @@ function checkElementValue(value, element) {
     console.log('v', v);
     console.log('e', e);
     return sanitizeText(elementValue) === sanitizeText(value);
-}
-
-function fillElementAndCheckValue(
-    value,
-    inputElement,
-    elementWithValue = inputElement,
-    elementToSimulateKeyPress = inputElement,
-    simulateKeyFunction = simulateKeyPress
-) {
-    if (inputElement) {
-        enterText(inputElement, value, elementToSimulateKeyPress, simulateKeyFunction);
-        return checkElementValue(value, elementWithValue);
-    }
-    return false;
 }
 
 function tryStep(step, cb, errorActions, tryLimit = 20, intervalFrequency = 300) {

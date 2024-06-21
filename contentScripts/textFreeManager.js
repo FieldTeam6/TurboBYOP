@@ -59,9 +59,10 @@ class TextFreeSiteManager {
         }
 
         const messageEditor = this.getMessageEditor();
-        messageEditor.value = message;
-        simulateInputChange(messageEditor);
-        return checkElementValue(message, messageEditor);
+        if (messageEditor) {
+            simulateTextEntry(messageEditor, message);
+            return checkElementValue(message, messageEditor);
+        }
     }
 
     // Clicks the send button
@@ -87,26 +88,6 @@ class TextFreeSiteManager {
 
         console.log('messageBubbles', document.querySelectorAll(selectors.tfSentMessageBubble));
         if (checkElementValue(this.messagesToSend[this.currentNumberSending], document.querySelector(selectors.tfSentMessageBubble))) return true;
-    }
-
-    clickRenameChat() {
-        if (this.verifyChatRenamed()) return true;
-        const optionsMenuDropdownArrow = document.querySelector(selectors.tfOptionsMenuDropdownArrow);
-        optionsMenuDropdownArrow?.click();
-        const renameButton = document.querySelector(selectors.tfRenameButton);
-        if (!renameButton) return false;
-        renameButton.click();
-        return true;
-    }
-
-    // Renames the conversation from the phone number to the contact's full name
-    renameChat() {
-        if (this.verifyChatRenamed()) return true;
-        return fillElementAndCheckValue(
-            this.currentContactName,
-            document.querySelector(selectors.tfEditNameInput),
-            document.querySelector(selectors.tfName)
-        );
     }
 
     goBackToOpenVPBTab() {
