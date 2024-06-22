@@ -86,7 +86,6 @@ class TextFreeSiteManager {
             this.throttled = false;
         }
 
-        console.log('messageBubbles', document.querySelectorAll(selectors.tfSentMessageBubble));
         if (checkElementValue(this.messagesToSend[this.currentNumberSending], document.querySelector(selectors.tfSentMessageBubble))) return true;
     }
 
@@ -109,10 +108,6 @@ class TextFreeSiteManager {
 
     verifyChat() {
         // Check if phone number and sent message are correct
-        var phoneElement = document.querySelector(selectors.tfNewMessageToInput);
-        console.log('phoneElement', phoneElement);
-        var messageElement = document.querySelector(selectors.tfSentMessageBubble);
-        console.log('messageElement', messageElement);
         if (checkElementValue(this.currentNumberSending, document.querySelector(selectors.tfNewMessageToInput)) &&
             checkElementValue(this.messagesToSend[this.currentNumberSending], document.querySelector(selectors.tfSentMessageBubble))) {
             console.log('chat verified');

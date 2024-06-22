@@ -165,12 +165,7 @@ function simulateTextEntry(inputField, textToEnter) {
 
 function checkElementValue(value, element) {
     if (!element) return;
-    console.log('element', element);
     let elementValue = element.value !== undefined ? element.value : element.innerText;
-    var v = sanitizeText(value);
-    var e = sanitizeText(elementValue);
-    console.log('v', v);
-    console.log('e', e);
     return sanitizeText(elementValue) === sanitizeText(value);
 }
 

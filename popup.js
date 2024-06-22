@@ -77,14 +77,11 @@ async function onOpen() {
 
 async function setTotalCallsAllTime() {
     var items = await browser.storage.local.get(['sendCounts']);
-    console.log('items', items);
     const totalCallsAllTime = items.sendCounts
         ? Object.values(items.sendCounts).reduce((total, val) => {
                 return total + val;
             }, 0)
         : 0;
-
-    console.log('totalCallsAllTime', totalCallsAllTime);
 
     document.getElementById('numCallsAllTime').innerText = `${totalCallsAllTime} text${
         totalCallsAllTime !== 1 ? 's' : ''
@@ -94,7 +91,6 @@ async function setTotalCallsAllTime() {
 async function setTotalCallsToday() {
     const sendHistory = await getSendHistory();
     const totalCallsToday = sendHistory.length;
-    console.log('totalCallsToday', totalCallsToday);
     document.getElementById('numCallsToday').innerText = `${totalCallsToday} Text${totalCallsToday !== 1 ? 's' : ''}`;
 
     if (totalCallsToday === 0) {

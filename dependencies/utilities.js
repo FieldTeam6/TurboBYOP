@@ -1,10 +1,7 @@
 async function getSendHistory(increment = false) {
     const now = new Date();
     let { sendHistory = {}, textPlatform } = await browser.storage.local.get(['sendHistory', 'textPlatform']);
-    //console.log('sendHistory', sendHistory);
-    //console.log('textPlatform', textPlatform);
     let platformSendHistory = sendHistory[textPlatform] || [];
-    //console.log('platformSendHistory', platformSendHistory);
 
     if (platformSendHistory.length > 0) {
         for (var i = 0; i < platformSendHistory.length; i++) {
@@ -26,7 +23,6 @@ async function getSendHistory(increment = false) {
     if (increment) {
         platformSendHistory.push(now.toISOString())
     }
-    //console.log('platformSendHistory', platformSendHistory);
 
     browser.storage.local.set({
         sendHistory: {
