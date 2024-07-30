@@ -60,6 +60,7 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
     }
 
     messageBody = messageBody.replace(THEIR_NAME_REGEX, contactName).replace(YOUR_NAME_REGEX, yourName);
+    console.log('currentPhoneNumber', currentPhoneNumber);
     console.log('messageBody', messageBody);
 
     if (configuration['testmode'] == true) {
@@ -69,14 +70,14 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
     switch (textPlatform) {
         case 'google-voice':
             let digitsOnlyPhoneNumber = currentPhoneNumber.replace(/\D+/g, '');
-            const gvUrl = 'https://voice.google.com/u/0/messages';
 
             try {
                 const switchedTab = await interactWithTab({
                         textPlatform: 'Google Voice',
                         url: `${gvUrl}*`,
                         loginUrl: 'https://voice.google.com/about',
-                        type: 'SWITCH_TAB'
+                        type: 'SWITCH_TAB',
+                        openVpbUrl: window.location.href
                     },
                     null,
                     () => {
@@ -94,7 +95,8 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
                         loginUrl: 'https://voice.google.com/about',
                         message: messageBody,
                         phoneNumber: digitsOnlyPhoneNumber,
-                        contactName
+                        contactName,
+                        openVpbUrl: window.location.href
                     });
                 }
             } catch (err) {
@@ -109,7 +111,6 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
             browser.runtime.sendMessage({ type: 'MESSAGE_SENT' });
             break;
         case 'text-free':
-            const tfUrl = 'https://messages.textfree.us/web/';
             try {
                 // Switch to TextFree Tab or open it
                 const switchedTab = await interactWithTab(
@@ -117,7 +118,8 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
                         textPlatform: 'TextFree',
                         url: `${tfUrl}*`,
                         loginUrl: 'https://messages.textfree.us/login',
-                        type: 'SWITCH_TAB'
+                        type: 'SWITCH_TAB',
+                        openVpbUrl: window.location.href
                     },
                     null,
                     () => {
@@ -135,7 +137,8 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
                         loginUrl: 'https://messages.textfree.us/login',
                         message: messageBody,
                         phoneNumber: currentPhoneNumber,
-                        contactName
+                        contactName,
+                        openVpbUrl: window.location.href
                     });
                 }
             } catch (err) {

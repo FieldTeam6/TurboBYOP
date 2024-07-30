@@ -1,12 +1,9 @@
 <!DOCTYPE html>
-
 <html>
-
 <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="dependencies/bootstrap.min.css" />
 </head>
-
 <style>
 body {
     width: 330px;
@@ -55,71 +52,11 @@ a:hover {
     }
 }
 
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 48px;
-  height: 25px;
-}
-
-.switch input { 
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 20px;
-  width: 20px;
-  left: 2px;
-  bottom: 3px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-input:checked + .slider {
-  background-color: #2196F3;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(24px);
-  -ms-transform: translateX(24px);
-  transform: translateX(24px);
-}
-
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
-}
 #find-contact-button {
     background-color: #1ACCF4;
     color: #fff;
 }
 </style>
-
 <body>
     <nav class="navbar navbar-light bg-light">
         <div class="navbar-brand">
@@ -148,8 +85,12 @@ input:checked + .slider:before {
             <div class="col">
                 <small class="text-muted">You have sent</small>
                 <h4 class="pb-0 display-4" id="numCallsToday">0 Texts</h4>
-                <small class="text-muted">in the past 24 hours<br>
-                and <span id="numCallsAllTime">0 texts</span> total since <span id="statsStartDate">12/23/2023</span>.</small>
+                <p>
+                    <small class="text-muted">
+                        with <span id="current-text-platform">text platform name</span> in the past 24 hours<br>
+                        and <span id="numCallsAllTime">0 texts</span> total since <span id="statsStartDate">12/23/2023</span>.
+                    </small>
+                </p>
                 <p>
                     <small id="encouragement" class="text-muted">Keep up the great work!</small>
                 </p>
@@ -159,12 +100,9 @@ input:checked + .slider:before {
             <div class="col">
                 <div class="input-group">
                     <div class="input-group-prepend">
-                      <label class="input-group-text" for="texting-platform-select">Text Platform</label>
+                      <label class="input-group-text" for="text-platform-select">Text Platform</label>
                     </div>
-                    <select class="custom-select" id="texting-platform-select">
-                      <option value="messaging-app" selected>Messaging App</option>
-                      <option value="google-voice">Google Voice</option>
-                      <option value="text-free">TextFree</option>
+                    <select class="custom-select" id="text-platform-select">
                     </select>
                   </div>
             </div>
@@ -179,41 +117,8 @@ input:checked + .slider:before {
                 </form>
             </div>
         </div>
-        <div class="row mt-4">
+        <div class="row mt-4" style="display: none">
             <div class="col">
-                <a id="toggleOnSite" class="text-muted">
-                    <div id="statusIcon" class="buttonIcon">
-                        <div id="iconEnabled" hidden>
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div id="iconDisabled" hidden>
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div id="iconPause" hidden>
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div id="iconUnavailable">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <small id="statusText">
-                        Unsupported Site
-                    </small>
-                </a>
-            </div>
-            <div class="col" style="display: none">
                 <a id="openOptions" class="text-dark" href="#" title="Enable 2-click texting in the settings">
                     <div class="buttonIcon">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -238,5 +143,4 @@ input:checked + .slider:before {
     <script src="dependencies/utilities.js"></script>
     <script src="popup.js"></script>
 </body>
-
 </html>

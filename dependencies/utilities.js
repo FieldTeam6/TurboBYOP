@@ -1,10 +1,11 @@
 async function getSendHistory(increment = false) {
     const now = new Date();
-    let { sendHistory = [] } = await browser.storage.local.get(['sendHistory']);
+    let { sendHistory = {}, textPlatform } = await browser.storage.local.get(['sendHistory', 'textPlatform']);
+    let platformSendHistory = sendHistory[textPlatform] || [];
 
-    if (sendHistory && sendHistory.length > 0) {
-        for (var i = 0; i < sendHistory.length; i++) {
-            const dateSent = new Date(sendHistory[i]);
+    if (platformSendHistory.length > 0) {
+        for (var i = 0; i < platformSendHistory.length; i++) {
+            const dateSent = new Date(platformSendHistory[i]);
             dateSent.setHours(dateSent.getHours() + 24);
 
             if (!(dateSent < now)) {
@@ -16,14 +17,19 @@ async function getSendHistory(increment = false) {
         }
 
         // discard everything prior to element i as it is more than 24 hours old
-        sendHistory = sendHistory.slice(i);
+        platformSendHistory = platformSendHistory.slice(i);
     }
 
     if (increment) {
-        sendHistory.push(now.toISOString())
+        platformSendHistory.push(now.toISOString())
     }
 
-    browser.storage.local.set({ sendHistory: sendHistory });
+    browser.storage.local.set({
+        sendHistory: {
+            ...sendHistory,
+            [textPlatform]: platformSendHistory
+        }
+    });
 
-    return sendHistory
+    return platformSendHistory;
 }

@@ -25,7 +25,7 @@ browser.runtime.onMessage.addListener((message, sender, response) => {
     }
 
     if (message.type === 'SWITCH_TAB') {
-        // Find TextFree tab
+        // Find TextFree/Google Voice/OpenVPB tab
         findTabId(message.url)
             .then((id) => {
                 browser.tabs.update(id, { selected: true })
