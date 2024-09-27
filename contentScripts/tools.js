@@ -15,8 +15,13 @@ function formatNumber(number) {
 }
 
 function titleCase(str) {
-    if (!str) return;
-    return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    if(!str || /[A-Z]/.test(str)){
+        return str;
+      }
+      str = str.charAt(0).toUpperCase() + str.slice(1);
+      return str.replace(/(?<=[ \-'])[^ \-']*/g, function(txt){
+          return txt.charAt(0).toUpperCase() + txt.substr(1);
+      });
 }
 
 function getFunctionName(func) {
