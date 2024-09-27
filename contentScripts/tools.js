@@ -14,6 +14,11 @@ function formatNumber(number) {
     return simplifiedNumber;
 }
 
+function titleCase(str) {
+    if (!str) return;
+    return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+}
+
 function getFunctionName(func) {
     return func.name.replace(/bound /g, '');
 }
