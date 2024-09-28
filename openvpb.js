@@ -198,7 +198,8 @@ async function getContactDetails() {
         {}
     ).innerText;
 
-    const contactName = (document.getElementById('contactName') || {}).innerText;
+    let contactName = (document.getElementById('contactName') || {}).innerText;
+    contactName = titleCase(contactName);
     const additionalFields = {};
     const detailsSidebar =
         document.getElementById('openvpb-target-details') || document.querySelector('.openvpb-sidebar-fields');
