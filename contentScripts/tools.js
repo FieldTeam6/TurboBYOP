@@ -15,13 +15,16 @@ function formatNumber(number) {
 }
 
 function titleCase(str) {
-    if(!str || /[A-Z]/.test(str)){
-        return str;
-      }
-      str = str.charAt(0).toUpperCase() + str.slice(1);
-      return str.replace(/(?<=[ \-'])[^ \-']*/g, function(txt){
-          return txt.charAt(0).toUpperCase() + txt.substr(1);
-      });
+    //first check if name contains both capital and lowercase letters, if so send back as-is
+    if(!str || (/[A-Z]/.test(str) && /[a-z]/.test(str))){
+      return str;
+    }
+    //Capitalize the initial first letter, lowercase the rest
+    str = str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    //Capitalize every letter after a space, hyphen or apostrophe and return
+    return str.replace(/(?<=[ \-'])[^ \-']*/g, function(txt){
+        return txt.charAt(0).toUpperCase() + txt.substr(1);
+    });
 }
 
 function getFunctionName(func) {
@@ -245,7 +248,7 @@ async function interactWithTab(
             } else {
                 retryCount++;
                 if (retryCount === tryLimit) {
-                    reject(false); 
+                    reject(false);
                     showFatalError(errorMessage, false);
                 } else {
                     setTimeout(() => switchTab('setTimeout'), intervalFrequency);
