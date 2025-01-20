@@ -34,7 +34,15 @@ const selectors = {
     tfOptionsMenuDropdownArrow: '.contact.is-selected #optionsButton:not(.rotate-element)',
     tfEditNameInput: '.contact.is-selected .edit-name',
     tfSendButton: '#submitConversation:not([disabled])',
-    tfStartChatButton: '[data-testid=startNewConversationButton]'
+    tfStartChatButton: '[data-testid=startNewConversationButton]',
+
+    // Google messages
+    gmStartChatButton: 'a.mdc-button',
+    gmNumInput: 'input.input',
+    gmRecipientButton: 'mw-contact-selector-button button',
+    gmMessageEditor: 'textarea.input',
+    gmSendButton: 'button.send-button',
+    gmSentMessages: 'div.text-msg'
 };
 
 function findGoogleVoice() {
