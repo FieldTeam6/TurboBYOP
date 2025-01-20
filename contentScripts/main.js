@@ -9,9 +9,9 @@ const selectors = {
     gvNumInputButton: 'div[gv-id="send-new-message"]',
     gvNumInput:
         'gv-recipient-picker input[ng-show="ctrl.allowToAddRecipients()"], input[placeholder="Type a name or phone number"]',
-    gvStartChatButton:
+    gvSendToButton:
         '#send_to_button-0, gv-contact-list-ng2 .send-to-button, gv-contact-list div[ng-class="::ctrl.CSS.SEND_TO_PHONE_NUMBER"]',
-    gvRecipientButton:
+    gvToChip:
         'mat-chip-row, gmat-input-chip[gv-id="chip-phone-number"], div[aria-label="Select recipients"] md-chips md-chip button',
     gvMessageEditor:
         'textarea[gv-test-id="gv-message-input"], textarea[placeholder="Type a message"], textarea[aria-label="Add a caption"], #gv-message-input, div[gv-test-id="gv-message-input"]',
@@ -21,7 +21,7 @@ const selectors = {
     gvMostRecentMessages:
         'div[gv-id="content"] div[gv-test-id="bubble"] gv-annotation, gv-text-message-item gv-annotation',
     // the header switches to this after sending is complete
-    gvChatLoadedHeader: 'gv-message-list-header p[gv-test-id="conversation-title"]',
+    gvChatLoadedHeader: 'gv-message-list-header p[gv-test-id="conversation-title"] div.primary-text',
 
     // TextFree selectors
     tfAccountVerify: '.account-verify, h5[data-testid="account-verification-modal-title"]',
@@ -39,7 +39,8 @@ const selectors = {
     // Google messages
     gmStartChatButton: 'a.mdc-button',
     gmNumInput: 'input.input',
-    gmRecipientButton: 'mw-contact-selector-button button',
+    gmSendToButton: 'mw-contact-selector-button button',
+    gmToChip: 'div.title-container h2',
     gmMessageEditor: 'textarea.input',
     gmSendButton: 'button.send-button',
     gmSentMessages: 'div.text-msg'

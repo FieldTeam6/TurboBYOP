@@ -137,7 +137,7 @@ class GoogleVoiceSiteManager {
             return true
         }
 
-        var startChatButton = document.querySelector(selectors.gvStartChatButton)
+        var startChatButton = document.querySelector(selectors.gvSendToButton)
         if (startChatButton && startChatButton.offsetParent !== null) {
             startChatButton.click()
             return true
@@ -146,7 +146,7 @@ class GoogleVoiceSiteManager {
 
     // Confirms contact chip is present in the To field
     confirmChatSwitched() {
-        const recipientButton = document.querySelector(selectors.gvRecipientButton)
+        const recipientButton = document.querySelector(selectors.gvToChip)
         return recipientButton && recipientButton.offsetParent !== null
     }
 
