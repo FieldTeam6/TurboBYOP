@@ -1,4 +1,5 @@
 const siteIsGoogleVoice = window.location.href.startsWith('https://voice.google.com');
+const siteIsGoogleMessages = window.location.href.startsWith('https://messages.google.com')
 const siteIsTextFree = window.location.href.startsWith('https://messages.textfree.us');
 let siteManager; // globally available
 
@@ -46,6 +47,27 @@ const selectors = {
     gmSentMessages: 'div.text-msg'
 };
 
+function findGoogleMessages() {
+    // stop looking, wrong url
+    console.log('findGoogleMessages', window.location.href);
+    if (!siteIsGoogleMessages) {
+        showFatalError('Could not find Google Messages!', false);
+        return false;
+    }
+
+    // Wait for the Start Chat button to load before starting the process to send the text
+    waitForElementToLoad(selectors.gmStartChatButton)
+        .then(() => {
+            console.log('configuring Google Messages site');
+            siteManager = new GoogleMessagesManager();
+            siteManager.initialize();
+        })
+        .catch((err) => {
+            console.error(err);
+            showFatalError('Please try reloading the page and click Set Up Text Message again.', false);
+        });
+}
+
 function findGoogleVoice() {
     // stop looking, wrong url
     console.log('findGoogleVoice', window.location.href);
@@ -90,6 +112,7 @@ function findTextFree() {
 
 async function chooseTextPlatform() {
     const { textPlatform } = await browser.storage.local.get(['textPlatform']);
+    if (textPlatform === 'google-messages') findGoogleMessages();
     if (textPlatform === 'google-voice') keepTryingAsPromised(findGoogleVoice, true);
     if (textPlatform === 'text-free') findTextFree();
 }

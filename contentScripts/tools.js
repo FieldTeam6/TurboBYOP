@@ -1,18 +1,6 @@
+const gmUrl = 'https://messages.google.com/web/conversations'
 const gvUrl = 'https://voice.google.com/u/0/messages';
 const tfUrl = 'https://messages.textfree.us/conversation/'
-/**
- * removes all non-numeric characters from the number string
- * @param  {string}   number i.e. +1 (223) 456-7890
- * @return {string}         i.e. 2234567890
- */
-function formatNumber(number) {
-    var simplifiedNumber = number.trim().replace(/\D/g, '');
-    // remove international code for US numbers
-    if (simplifiedNumber.length === 11 && simplifiedNumber.charAt(0) === '1') {
-        simplifiedNumber = simplifiedNumber.substr(1);
-    }
-    return simplifiedNumber;
-}
 
 function titleCase(str) {
     //first check if name contains both capital and lowercase letters, if so send back as-is

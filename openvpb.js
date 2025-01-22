@@ -66,11 +66,42 @@ async function launchMessagingApp(currentPhoneNumber, contactName) {
     if (configuration['testmode'] == true) {
         currentPhoneNumber = configuration['defaultNumber'];
     }
+    let digitsOnlyPhoneNumber = currentPhoneNumber.replace(/\D+/g, '');
 
     switch (textPlatform) {
-        case 'google-voice':
-            let digitsOnlyPhoneNumber = currentPhoneNumber.replace(/\D+/g, '');
+        case 'google-messages':
+            try {
+                const switchedTab = await interactWithTab({
+                        textPlatform: 'Google Messages',
+                        url: `${gmUrl}*`,
+                        loginUrl: null,
+                        type: 'SWITCH_TAB',
+                        openVpbUrl: window.location.href
+                    },
+                    null,
+                    () => window.open(gmUrl, '_blank')
+                );
 
+                if (switchedTab) {
+                    // Send contact details to TextFree tab to send text
+                    await interactWithTab({
+                        textPlatform: 'Google Messages',
+                        type: 'TALK_TO_TAB',
+                        tabType: 'SEND_MESSAGE',
+                        url: `${gmUrl}*`,
+                        loginUrl: null,
+                        message: messageBody,
+                        phoneNumber: digitsOnlyPhoneNumber,
+                        contactName,
+                        openVpbUrl: window.location.href
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+            }
+
+            break;
+        case 'google-voice':
             try {
                 const switchedTab = await interactWithTab({
                         textPlatform: 'Google Voice',

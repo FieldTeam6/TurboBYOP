@@ -11,6 +11,7 @@
     ],
     "host_permissions": [
         "https://www.openvpb.com/VirtualPhoneBank*",
+        "https://messages.google.com/web/conversations*",
         "https://voice.google.com/*",
         "https://messages.textfree.us/web/*"
     ],
@@ -32,6 +33,16 @@
         "browser_style": true
     },
     "content_scripts": [
+        {
+            "matches": ["https://messages.google.com/web/conversations*"],
+            "js": [
+                "dependencies/browser-polyfill.js",
+                "contentScripts/googleMessagesManager.js",
+                "contentScripts/tools.js",
+                "contentScripts/main.js"
+            ],
+            "all_frames": true
+        },
         {
             "matches": ["https://voice.google.com/u/0/messages*"],
             "js": [

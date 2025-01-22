@@ -5,6 +5,7 @@ const appName = document.getElementById('app-name');
 
 const availableTextPlatforms = {
     'messaging-app': "Messaging App",
+    'google-messages': "Google Messages",
     'google-voice': "Google Voice",
     'text-free': "TextFree"
 }
