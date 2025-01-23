@@ -51,7 +51,7 @@ class GoogleMessagesManager {
         if (numInput) {
             console.log('numInput', numInput);
             numInput.value = this.currentNumberSending.replace(/\D/g, '');
-            //simulateInputChange(numInput);
+            simulateInputChange(numInput);
         }
         
         return checkElementValue(this.currentNumberSending, numInput);
@@ -59,11 +59,6 @@ class GoogleMessagesManager {
 
     // clicks the "Send to" button on the number dropdown
     startChat() {
-        // Confirm that phone number is not already populated in case this is a retry attempt
-        if (this.confirmChatSwitched()) {
-            return true
-        }
-
         var startChatButton = document.querySelector(selectors.gmSendToButton)
         if (startChatButton && startChatButton.offsetParent !== null) {
             startChatButton.click()
