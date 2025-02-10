@@ -246,6 +246,12 @@ async function getContactDetails() {
                 container.appendChild(title);
                 sidebarContainer.appendChild(container);
 
+                //Check for variant syntax, create variant for this page load
+                const scriptText = document.querySelector('[id*=scripttext]').innerText;
+                varScriptText = createVariantTemplate(scriptText);
+                document.querySelector('[id*=scripttext]').innerHTML = varScriptText;
+
+
                 let { textPlatform } = await browser.storage.local.get(['textPlatform']);
 
                 if (textPlatform) {

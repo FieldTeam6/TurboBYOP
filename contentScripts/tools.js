@@ -311,3 +311,27 @@ function waitForElementToLoad(selector, tryLimit = 10) {
         }, 1000);
     });
 }
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
+
+function chooseVariant(group){
+    group = group.slice(1, -1);
+    variants = group.split('|');
+    return variants[getRandomInt(variants.length)];
+}
+
+function createVariantTemplate(textTemplate){
+  const VARIANTS_REGEX = /\{[^{}]*\}/g;
+  varGroups = textTemplate.match(VARIANTS_REGEX);
+  if(varGroups){
+    chosen = [];
+    varGroups.forEach((group) => {
+      chosen.push(chooseVariant(group));
+    });
+    const newMsg = textTemplate.replace(VARIANTS_REGEX, () => chosen.shift());
+    return newMsg;
+  }
+  return textTemplate;
+}
