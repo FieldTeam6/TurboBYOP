@@ -96,7 +96,8 @@ class GoogleVoiceSiteManager {
             this.writeMessage,
             this.sendMessage,
             this.confirmThreadHeaderUpdated,
-            this.confirmSent
+            this.confirmSent,
+            this.confirmMessageFailedToSend
         ]
     }
 
@@ -212,21 +213,31 @@ class GoogleVoiceSiteManager {
             }
 
             if (sentMessageIsThreaded) {
-                browser.runtime.sendMessage({ type: 'MESSAGE_SENT' })
-                // Switch to OpenVPB tab and record text in db
-                browser.runtime.sendMessage({
-                    type: 'SWITCH_TAB',
-                    url: this.openVpbUrl
-                })
-                browser.runtime.sendMessage({
-                    type: 'TALK_TO_TAB',
-                    url: this.openVpbUrl,
-                    tabType: 'RECORD_TEXT_IN_DB'
-                })
-                // continue with queue
-                setTimeout(this.sendFromQueue.bind(this), this.sendInterval)
                 return true
             }
         }
     }
+
+    confirmMessageFailedToSend() {
+        let messageFailedToSend = document.querySelector(selectors.gvMessageFailedToSend)
+
+        if (!messageFailedToSend) {
+            console.log('sentMessageIsThreaded', sentMessageIsThreaded)
+            browser.runtime.sendMessage({ type: 'MESSAGE_SENT' })
+            // Switch to OpenVPB tab and record text in db
+            browser.runtime.sendMessage({
+                type: 'SWITCH_TAB',
+                url: this.openVpbUrl
+            })
+            browser.runtime.sendMessage({
+                type: 'TALK_TO_TAB',
+                url: this.openVpbUrl,
+                tabType: 'RECORD_TEXT_IN_DB'
+            })
+            // continue with queue
+            setTimeout(this.sendFromQueue.bind(this), this.sendInterval)
+            return true
+        }
+    }
 }
+

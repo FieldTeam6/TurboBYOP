@@ -41,12 +41,13 @@ function keepTrying(method, silenceErrors, callback) {
     const frequency = 50; // try every 100ms
     let tryCount = (5 * 1000) / frequency; // keep trying for 5 seconds
     var keepTryingInterval = setInterval(function () {
+        // Get return value from current method
         var successful = method();
         var giveUp = successful === false || tryCount-- < 0;
         let functionName = getFunctionName(method);
 
         if (successful === true || giveUp) {
-            if (functionName === 'confirmSent') {
+            if (functionName === 'confirmSent' || functionName === 'confirmMessageFailedToSend') {
                 // If error occurs on confirmSent, it is almost always
                 // indicative to throttling and we want to abort
                 silenceErrors = false;
@@ -56,7 +57,7 @@ function keepTrying(method, silenceErrors, callback) {
             // the app failed
             if (!silenceErrors && giveUp) {
                 if (siteIsGoogleVoice) {
-                    if (functionName === 'confirmSent') {
+                    if (functionName === 'confirmSent' || functionName === 'confirmMessageFailedToSend') {
                         showFatalError(
                             `You've been throttled by Google Voice.  Please try a different campaign, or wait 24 hours and try again.\n\nError: "${functionName}" failed.`,
                             true
