@@ -200,6 +200,8 @@ async function getContactDetails() {
 
     let contactName = (document.getElementById('contactName') || {}).innerText;
     contactName = titleCase(contactName);
+
+
     const additionalFields = {};
     const detailsSidebar =
         document.getElementById('openvpb-target-details') || document.querySelector('.openvpb-sidebar-fields');
@@ -245,6 +247,17 @@ async function getContactDetails() {
                 const title = createTitleElementBYOP();
                 container.appendChild(title);
                 sidebarContainer.appendChild(container);
+
+                //Check for variant syntax, create variant for this page load
+                const scriptText = document.querySelector('[id*=scripttext]').innerText;
+                varScriptText = createVariantTemplate(scriptText);
+                document.querySelector('[id*=scripttext]').innerHTML = varScriptText;
+
+                //Add VanID to end of message
+                let vanID = (document.getElementById('display-fields-value-15') || {}).innerText;
+                if(vanID){
+                  document.querySelector('[id*=scripttext]').innerHTML += ' ' + vanID;
+                }
 
                 let { textPlatform } = await browser.storage.local.get(['textPlatform']);
 
