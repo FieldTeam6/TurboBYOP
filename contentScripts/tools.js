@@ -34,17 +34,26 @@ function getFunctionName(func) {
 /**
  * continually calls the given method until successful
  * @param {Function}   method         should return true when successful, or false when we should give up early
- * @param {bool}       silenceErrors  true if we should not alert on errors
+ * @param {bool}       silenceErrors  true until we exhaust all retries
  * @param {Function}   callback       to be called with the results from method when we're done trying
  */
 function keepTrying(method, silenceErrors, callback) {
-    const frequency = 50; // try every 100ms
+    const frequency = 50; // try every 50ms
     let tryCount = (5 * 1000) / frequency; // keep trying for 5 seconds
     var keepTryingInterval = setInterval(function () {
+        let functionName = getFunctionName(method);
         // Get return value from current method
         var successful = method();
+
+        // this works for normal messages where we don't get the "message failed to send" error
+        // i think we actually need to let the number of retries run their course though, or else
+        // we run the risk of a false positive
+        // how to set this successful to false only after all retries are exhausted?
+        if (functionName === 'confirmMessageFailedToSend') {
+            successful = !successful;
+        }
+
         var giveUp = successful === false || tryCount-- < 0;
-        let functionName = getFunctionName(method);
 
         if (successful === true || giveUp) {
             if (functionName === 'confirmSent' || functionName === 'confirmMessageFailedToSend') {
