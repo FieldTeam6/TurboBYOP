@@ -34,21 +34,35 @@ function getFunctionName(func) {
 /**
  * continually calls the given method until successful
  * @param {Function}   method         should return true when successful, or false when we should give up early
- * @param {bool}       silenceErrors  true if we should not alert on errors
+ * @param {bool}       silenceErrors  true until we exhaust all retries
  * @param {Function}   callback       to be called with the results from method when we're done trying
  */
 function keepTrying(method, silenceErrors, callback) {
-    const frequency = 50; // try every 100ms
-    let tryCount = (5 * 1000) / frequency; // keep trying for 5 seconds
+    const frequency = 50; // try every 50ms
+    let tryCount = (2 * 1000) / frequency; // keep trying for 2 seconds
     var keepTryingInterval = setInterval(function () {
-        var successful = method();
-        var giveUp = successful === false || tryCount-- < 0;
         let functionName = getFunctionName(method);
+        // Get return value from current method
+        var successful = method();
+
+        if (functionName === 'confirmMessageFailedToSend') {
+            if (successful) {
+                // In this particular case, the appearance of the 
+                // selector indicates failure, and we should abort
+                successful = false;
+            } else if (tryCount < 0) {
+                // If all retries have been exhausted and an error message 
+                // has not yet appeared, consider text successfully sent
+                successful = true;
+            }
+        }
+
+        var giveUp = successful === false || (tryCount-- < 0 && functionName !== 'confirmMessageFailedToSend');
 
         if (successful === true || giveUp) {
-            if (functionName === 'confirmSent') {
-                // If error occurs on confirmSent, it is almost always
-                // indicative to throttling and we want to abort
+            if (functionName === 'confirmSent' || functionName === 'confirmMessageFailedToSend') {
+                // If error occurs on confirmSent or confirmMessageFailedToSend, it is almost 
+                // always indicative to throttling, and we want to abort immediately
                 silenceErrors = false;
             }
 
@@ -56,7 +70,7 @@ function keepTrying(method, silenceErrors, callback) {
             // the app failed
             if (!silenceErrors && giveUp) {
                 if (siteIsGoogleVoice) {
-                    if (functionName === 'confirmSent') {
+                    if (functionName === 'confirmSent' || functionName === 'confirmMessageFailedToSend') {
                         showFatalError(
                             `You've been throttled by Google Voice.  Please try a different campaign, or wait 24 hours and try again.\n\nError: "${functionName}" failed.`,
                             true
