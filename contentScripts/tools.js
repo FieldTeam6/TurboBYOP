@@ -39,7 +39,7 @@ function getFunctionName(func) {
  */
 function keepTrying(method, silenceErrors, callback) {
     const frequency = 50; // try every 50ms
-    let tryCount = (5 * 1000) / frequency; // keep trying for 5 seconds
+    let tryCount = (1 * 1000) / frequency; // keep trying for 1 seconds
     var keepTryingInterval = setInterval(function () {
         let functionName = getFunctionName(method);
         // Get return value from current method
