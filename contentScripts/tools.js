@@ -50,7 +50,11 @@ function keepTrying(method, silenceErrors, callback) {
         // we run the risk of a false positive
         // how to set this successful to false only after all retries are exhausted?
         if (functionName === 'confirmMessageFailedToSend') {
-            successful = !successful;
+            if (successful) {
+                successful = false;
+            } else if (tryCount < 0) {
+                successful = true;
+            }
         }
 
         var giveUp = successful === false || tryCount-- < 0;
