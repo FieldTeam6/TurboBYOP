@@ -45,14 +45,14 @@ function keepTrying(method, silenceErrors, callback) {
         // Get return value from current method
         var successful = method();
 
-        // this works for normal messages where we don't get the "message failed to send" error
-        // i think we actually need to let the number of retries run their course though, or else
-        // we run the risk of a false positive
-        // how to set this successful to false only after all retries are exhausted?
         if (functionName === 'confirmMessageFailedToSend') {
             if (successful) {
+                // In this particular case, the appearance of the 
+                // selector indicates failure, and we should abort
                 successful = false;
             } else if (tryCount < 0) {
+                // If all retries have been exhausted and an error message 
+                // has not yet appeared, consider text successfully sent
                 successful = true;
             }
         }
@@ -61,8 +61,8 @@ function keepTrying(method, silenceErrors, callback) {
 
         if (successful === true || giveUp) {
             if (functionName === 'confirmSent' || functionName === 'confirmMessageFailedToSend') {
-                // If error occurs on confirmSent, it is almost always
-                // indicative to throttling and we want to abort
+                // If error occurs on confirmSent or confirmMessageFailedToSend, it is almost 
+                // always indicative to throttling, and we want to abort immediately
                 silenceErrors = false;
             }
 
