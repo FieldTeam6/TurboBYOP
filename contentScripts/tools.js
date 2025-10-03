@@ -57,7 +57,7 @@ function keepTrying(method, silenceErrors, callback) {
             }
         }
 
-        var giveUp = successful === false || tryCount-- < 0;
+        var giveUp = successful === false || (tryCount-- < 0 && functionName !== 'confirmMessageFailedToSend');
 
         if (successful === true || giveUp) {
             if (functionName === 'confirmSent' || functionName === 'confirmMessageFailedToSend') {
